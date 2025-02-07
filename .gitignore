@@ -1,0 +1,10 @@
+# Flask ignore files
+backend/__pycache__/
+backend/*.pyc
+backend/*.pyo
+backend/*.pyd
+backend/*.pyo
+backend/.venv/
+backend/.env*
+
+# Next.js ignore files
