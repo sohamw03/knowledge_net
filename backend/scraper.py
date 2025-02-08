@@ -1,34 +1,34 @@
 from bs4 import BeautifulSoup
-from selenium import webdriver
 import logging
 from typing import List, Dict, Any
 import newspaper
 from newspaper import Article
 import re
 import requests
+from urllib.parse import quote_plus
 
 
 class WebScraper:
     def __init__(self):
-        self.chrome_options = webdriver.ChromeOptions()
-        # self.chrome_options.add_argument("--headless")
-        self.driver = webdriver.Chrome(options=self.chrome_options)
         self.logger = logging.getLogger(__name__)
         self.newspaper_config = newspaper.Config()
         self.newspaper_config.browser_user_agent = "Mozilla/5.0"
         self.newspaper_config.request_timeout = 10
         self.session = requests.Session()
-        self.timeout = 30
+        self.timeout = 10
+        # Set up headers for requests
+        self.headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        }
 
     def setup(self):
-        pass  # No setup needed for synchronous operation
+        pass
 
     def cleanup(self):
-        if self.driver:
-            self.driver.quit()
+        pass
 
     def search_and_scrape(
-        self, query: str, num_sites: int = 10
+        self, query: str, num_sites: int = 3
     ) -> List[Dict[str, Any]]:
         self.logger.info(f"Starting search for: {query}")
         search_results = self._google_search(query, num_sites)
@@ -50,27 +50,34 @@ class WebScraper:
         return scraped_data
 
     def _google_search(self, query: str, num_results: int) -> List[str]:
-        self.logger.info("Performing Google search...")
+        self.logger.info("Performing DuckDuckGo search...")
         try:
-            self.driver.get(
-                f"https://www.google.com/search?q={query.replace(' ', '+')}&num={num_results}"
-            )
-            self.driver.implicitly_wait(5)
+            encoded_query = quote_plus(query)
+            url = f"https://html.duckduckgo.com/html/?q={encoded_query}"
 
-            elements = self.driver.find_elements("css selector", "div.g div.yuRUbf > a")
+            response = self.session.get(url, headers=self.headers, timeout=self.timeout)
+            response.raise_for_status()
+
+            soup = BeautifulSoup(response.text, "html.parser")
             search_results = []
-            for element in elements:
-                url = element.get_attribute("href")
-                if url and url.startswith("http"):
-                    search_results.append(url)
-                    if len(search_results) >= num_results:
-                        break
+
+            # DuckDuckGo search results are in elements with class 'result__url'
+            for result in soup.select(".result__url"):
+                url = result.get("href").replace(" ", "").replace("\\n", "")
+                if not url.startswith(("http://", "https://")):
+                    url = "https://" + url
+                search_results.append(url)
+                if len(search_results) >= num_results:
+                    break
 
             self.logger.info(f"Found {len(search_results)} URLs")
             return search_results
 
-        except Exception as e:
-            self.logger.error(f"Google search error: {str(e)}")
+        except requests.exceptions.RequestException as e:  # Catch network errors specifically
+            self.logger.error(f"DuckDuckGo search error: {str(e)}")
+            return []
+        except Exception as e:  # Catch any other errors
+            self.logger.error(f"DuckDuckGo search error: {str(e)}")
             return []
 
     def _scrape_url(self, url: str) -> Dict[str, Any]:
@@ -79,16 +86,16 @@ class WebScraper:
             article.download()
             article.parse()
             article.nlp()
+            soup = BeautifulSoup(article.html, "html.parser")
+            links = self._extract_links(soup)
 
             data = {
                 "url": url,
                 "title": article.title,
                 "text": article.text,
-                "summary": article.summary,
-                "keywords": article.keywords,
                 "images": article.images,
-                "videos": [],
-                "links": article.links,
+                "videos": article.movies,
+                "links": links,
                 "authors": article.authors,
                 "publish_date": article.publish_date,
                 "metadata": {"language": article.meta_lang, "tags": article.tags},

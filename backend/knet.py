@@ -1,6 +1,8 @@
 from typing import Dict, List, Optional, Any
 import google.generativeai as genai
+from google.ai.generativelanguage_v1beta.types import content
 import logging
+import json
 import os
 from datetime import datetime
 from dotenv import load_dotenv
@@ -46,7 +48,7 @@ class KNet:
         # Initialize scraper
         self.scraper = WebScraper()
         self.logger = logging.getLogger(__name__)
-        self.max_depth = 5
+        self.max_depth = 3
         self.min_importance_score = 0.6
 
         self.search_prompt = """Generate 3-5 specific search queries to research the following topic: {topic}
@@ -58,145 +60,246 @@ class KNet:
         4. Format each query on a new line
         5. Return only the queries, no explanations"""
 
+        self.token_count = 0
+        self.branch_decision_prompt = """Given the current research context and findings, should we explore this branch deeper?
+
+        Current Topic: {query}
+        Current Depth: {depth}
+        Path from Root: {path}
+        Key Findings: {findings}
+
+        Consider:
+        1. Relevance to main topic
+        2. Potential for new insights
+        3. Depth vs breadth tradeoff
+        4. Information saturation
+
+        Return only: {"decision": true/false}"""
+
+        # Simplified decision schema for branching
+        self.branch_schema = {
+            "response_schema": content.Schema(
+                type=content.Type.OBJECT,
+                required=["decision"],
+                properties={
+                    "decision": content.Schema(type=content.Type.BOOLEAN),
+                },
+            ),
+            "response_mime_type": "application/json",
+        }
+
+        # Analysis schema without reason
+        self.analysis_schema = {
+            "response_schema": content.Schema(
+                type=content.Type.OBJECT,
+                required=["branches"],
+                properties={
+                    "branches": content.Schema(
+                        type=content.Type.ARRAY,
+                        items=content.Schema(
+                            type=content.Type.OBJECT,
+                            required=["importance", "query"],
+                            properties={
+                                "importance": content.Schema(type=content.Type.NUMBER),
+                                "query": content.Schema(type=content.Type.STRING),
+                            },
+                        ),
+                    )
+                },
+            ),
+            "response_mime_type": "application/json",
+        }
+
     def __del__(self):
         # Cleanup scraper when KNet instance is destroyed
         if hasattr(self, "scraper"):
             self.scraper.cleanup()
 
+    def _track_tokens(self, tokens: int) -> None:
+        self.token_count += tokens
+
+    def _should_branch_deeper(self, node: ResearchNode) -> bool:
+        findings = ""
+        if node.data:
+            findings = "\n".join(
+                [
+                    f"- {d.get('title', 'Untitled')}: {d.get('summary', '')}"
+                    for d in node.data[:3]
+                    if d
+                ]
+            )
+
+        prompt = self.branch_decision_prompt.format(
+            query=node.query,
+            depth=node.depth,
+            path=" -> ".join(node.get_path_to_root()),
+            findings=findings,
+        )
+
+        response = self.research_manager.generate_content(
+            prompt, generation_config={**self.branch_schema}
+        )
+        self._track_tokens(response.usage_metadata.total_token_count)
+
+        result = json.loads(response.text)
+        self.logger.info(f"Branch decision for '{node.query}': {result['decision']}")
+
+        return result["decision"]
+
     def conduct_research(self, topic: str, progress_callback=None) -> Dict[str, Any]:
+        self.token_count = 0
         progress = ResearchProgress(progress_callback)
         self.logger.info(f"Starting research on topic: {topic}")
+
         try:
-            # Setup aiohttp session at start of research
             self.scraper.setup()
             root_node = ResearchNode(topic)
-            research_stack = deque([root_node])
+            to_explore = deque([(root_node, 0)])  # (node, depth) pairs
             explored_queries = set()
+            max_branches = self.max_depth * 3
 
-            # Generate initial search queries
-            self.logger.info("Generating search queries...")
-            response = self.llm.generate_content(self.search_prompt.format(topic=topic))
-            search_queries = response.text.strip().split("\n")
-            self.logger.info(f"Generated queries: {search_queries}")
+            progress.update(10, "Starting research...")
 
-            progress.update(10, "Starting deep research exploration...")
-            self.logger.info("Research exploration initiated")
+            while to_explore and len(explored_queries) < max_branches:
+                current_node, current_depth = to_explore.popleft()
 
-            # Process each generated query
-            for query in search_queries:
-                if query.strip():
-                    data = self.scraper.search_and_scrape(query.strip())
-                    if data:
-                        root_node.data.extend(data)
-
-            while research_stack:
-                current_node = research_stack.pop()
-
-                if (
-                    current_node.query in explored_queries
-                    or current_node.depth > self.max_depth
-                ):
+                if current_node.query in explored_queries or current_depth >= self.max_depth:
                     continue
 
-                self.logger.info(
-                    f"Exploring branch: {current_node.query} (Depth: {current_node.depth})"
-                )
+                self.logger.info(f"Exploring: {current_node.query} (Depth: {current_depth})")
                 progress.update(
-                    30 + (len(explored_queries) * 50 / (self.max_depth * 3)),
+                    30 + (len(explored_queries) * 50 / max_branches),
                     f"Exploring: {current_node.query}",
                 )
 
-                # Conduct research for current node
+                # Search and scrape
                 current_node.data = self.scraper.search_and_scrape(current_node.query)
                 explored_queries.add(current_node.query)
 
-                # Generate and evaluate new branches
-                if current_node.depth < self.max_depth:
-                    new_branches = self._analyze_and_branch(current_node)
-                    for branch in reversed(
-                        new_branches
-                    ):  # Reverse to maintain DFS order
-                        research_stack.append(branch)
+                # Only branch if we have data and haven't reached max depth
+                if current_node.data and current_depth < self.max_depth:
+                    if self._should_branch_deeper(current_node):
+                        new_branches = self._analyze_and_branch(current_node)
+                        for branch in new_branches:
+                            to_explore.append((branch, current_depth + 1))
+                        self.logger.info(
+                            f"Added {len(new_branches)} new branches at depth {current_depth + 1}"
+                        )
 
-            self.logger.info("Generating final research report")
+            # Generate final report
             progress.update(80, "Generating comprehensive report...")
             final_report = self._generate_final_report(root_node)
+            final_report["metadata"]["total_tokens"] = self.token_count
 
-            self.logger.info("Research completed successfully")
+            self.logger.info(
+                f"Research completed. Explored {len(explored_queries)} queries across {root_node.depth + 1} levels"
+            )
             progress.update(100, "Research complete!")
 
             return final_report
 
         except Exception as e:
             self.logger.error(f"Research failed: {str(e)}")
-            self.scraper.cleanup()
             raise e
         finally:
             self.scraper.cleanup()
 
     def _analyze_and_branch(self, node: ResearchNode) -> List[ResearchNode]:
-        analysis_prompt = f"""Analyze the research data and suggest new branches for deeper exploration.
-        Current topic: {node.query}
-        Current depth: {node.depth}
-        Path from root: {' -> '.join(node.get_path_to_root())}
+        if not node.data:
+            return []
 
-        Suggest new research directions that:
-        1. Are specific and focused
-        2. Explore unexplored aspects
-        3. Follow promising leads from the current data
+        findings = "\n".join([
+            f"- {d.get('title', 'Untitled')}: {d.get('summary', d.get('text', '')[:200])}"
+            for d in node.data[:3] if d
+        ])
 
-        For each suggestion, rate its importance (0-1) and explain why.
-        Format: Importance Score | Query | Reason"""
+        analysis_prompt = f"""Based on the following findings about "{node.query}", suggest new research directions.
 
-        response = self.research_manager.generate_content(analysis_prompt)
-        result = response.text
+        Findings:
+        {findings}
 
-        new_nodes = []
-        for line in result.split("\n"):
-            if "|" not in line:
-                continue
+        Suggest up to 3 specific research queries that:
+        1. Build upon these findings
+        2. Explore different aspects
+        3. Go deeper into important details
 
-            parts = line.split("|")
-            if len(parts) < 2:
-                continue
+        Return as JSON array of objects with only:
+        - importance (0.0-1.0)
+        - query (string)"""
 
-            try:
-                importance = float(parts[0].strip())
-                query = parts[1].strip()
+        try:
+            response = self.research_manager.generate_content(
+                analysis_prompt,
+                generation_config={**self.analysis_schema},
+            )
+            self._track_tokens(response.usage_metadata.total_token_count)
 
-                if importance >= self.min_importance_score:
-                    child_node = node.add_child(query)
-                    child_node.importance_score = importance
+            result = json.loads(response.text)
+            self.logger.info(f"New branches for '{node.query}': {result['branches']}")
+
+            new_nodes = []
+            for branch in result.get("branches", []):
+                if branch["importance"] >= self.min_importance_score:
+                    child_node = node.add_child(branch["query"])
+                    child_node.importance_score = branch["importance"]
                     new_nodes.append(child_node)
-            except ValueError:
-                continue
 
-        return new_nodes
+            return new_nodes
+
+        except Exception as e:
+            self.logger.error(f"Branch analysis failed: {str(e)}")
+            return []
 
     def _generate_final_report(self, root_node: ResearchNode) -> Dict[str, Any]:
         def collect_data(node: ResearchNode) -> List[Dict]:
-            all_data = node.data.copy()
+            all_data = []
+            if node.data:
+                all_data.extend(node.data)
             for child in node.children:
                 all_data.extend(collect_data(child))
             return all_data
 
         all_research_data = collect_data(root_node)
 
-        # Generate structured report using LLM
-        report_prompt = f"""Generate a comprehensive research report using the collected data.
+        # Generate part 1 of the report
+        part1_prompt = f"""Generate part 1 of a research report focusing on overview and key findings.
         Main Topic: {root_node.query}
 
-        Structure the report with:
-        1. Executive Summary
-        2. Key Findings
-        3. Detailed Analysis
-        4. Related Topics and Branches
-        5. Sources and References
+        Structure for Part 1:
+        1. Executive Summary (brief overview)
+        2. Key Findings (main discoveries and insights)
 
-        Include relevant quotes and citations."""
+        Keep it concise and focused. Part 2 will cover detailed analysis and references."""
 
-        response = self.research_manager.generate_content(report_prompt)
-        report_content = response.text
+        response1 = self.research_manager.generate_content(part1_prompt)
+        self._track_tokens(response1.usage_metadata.total_token_count)
+        part1_content = response1.text
+
+        # Generate part 2 with awareness of part 1
+        part2_prompt = f"""Generate part 2 of the research report. Here's part 1 for context:
+
+        {part1_content}
+
+        Now continue with:
+        1. Detailed Analysis (expand on the key findings)
+        2. Related Topics and Branches (explore connections)
+        3. Sources and References (cite sources)
+
+        Focus on details that complement part 1 without repeating the same information."""
+
+        response2 = self.research_manager.generate_content(part2_prompt)
+        self._track_tokens(response2.usage_metadata.total_token_count)
+
+        # Combine reports with clear section separation
+        report_content = f"""# Research Report: {root_node.query}
+
+Part 1: Overview and Key Findings
+--------------------------------
+{part1_content}
+
+Part 2: Detailed Analysis and References
+--------------------------------------
+{response2.text}"""
 
         # Organize multimedia content
         media_content = {"images": [], "videos": [], "links": [], "references": []}
@@ -232,9 +335,8 @@ class KNet:
             "research_tree": build_tree_structure(root_node),
             "metadata": {
                 "total_sources": len(all_research_data),
-                "max_depth_reached": max(
-                    data.depth for data in collect_data(root_node)
-                ),
-                "total_branches": len(list(collect_data(root_node))),
+                "max_depth_reached": root_node.depth,
+                "total_branches": len(root_node.children),
+                "total_tokens": self.token_count,
             },
         }

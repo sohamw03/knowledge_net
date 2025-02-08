@@ -57,6 +57,7 @@ def handle_research(data):
                 )
             except Exception as e:
                 logger.error(f"Error in progress callback: {str(e)}")
+                raise e
 
         try:
             research_results = knet.conduct_research(topic, progress_callback)
@@ -65,10 +66,12 @@ def handle_research(data):
         except Exception as e:
             logger.error(f"Research error: {str(e)}")
             socketio.emit("error", {"message": str(e)}, room=session_id)
+            raise e
 
     except Exception as e:
         logger.error(f"Error handling research request: {str(e)}")
         socketio.emit("error", {"message": str(e)}, room=request.sid)
+        raise e
 
 
 if __name__ == "__main__":
