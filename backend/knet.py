@@ -28,8 +28,7 @@ class ResearchProgress:
 class KNet:
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
-        if not self.api_key:
-            raise ValueError("Google API key is required")
+        assert self.api_key, "Google API key is required"
 
         # Initialize Google GenAI
         genai.configure(api_key=self.api_key)
@@ -49,6 +48,7 @@ class KNet:
         self.scraper = WebScraper()
         self.logger = logging.getLogger(__name__)
         self.max_depth = 3
+        self.max_breadth = 3
         self.min_importance_score = 0.6
 
         self.search_prompt = """Generate 3-5 specific search queries to research the following topic: {topic}
@@ -74,7 +74,7 @@ class KNet:
         3. Depth vs breadth tradeoff
         4. Information saturation
 
-        Return only: {"decision": true/false}"""
+        Return only: decision: true/false"""
 
         # Simplified decision schema for branching
         self.branch_schema = {
@@ -156,7 +156,7 @@ class KNet:
             root_node = ResearchNode(topic)
             to_explore = deque([(root_node, 0)])  # (node, depth) pairs
             explored_queries = set()
-            max_branches = self.max_depth * 3
+            max_branches = self.max_breadth
 
             progress.update(10, "Starting research...")
 
@@ -167,10 +167,7 @@ class KNet:
                     continue
 
                 self.logger.info(f"Exploring: {current_node.query} (Depth: {current_depth})")
-                progress.update(
-                    30 + (len(explored_queries) * 50 / max_branches),
-                    f"Exploring: {current_node.query}",
-                )
+                progress.update(30 + int(len(explored_queries) * 50 / max_branches), f"Exploring: {current_node.query}")
 
                 # Search and scrape
                 current_node.data = self.scraper.search_and_scrape(current_node.query)
@@ -182,9 +179,7 @@ class KNet:
                         new_branches = self._analyze_and_branch(current_node)
                         for branch in new_branches:
                             to_explore.append((branch, current_depth + 1))
-                        self.logger.info(
-                            f"Added {len(new_branches)} new branches at depth {current_depth + 1}"
-                        )
+                        self.logger.info(f"Added {len(new_branches)} new branches at depth {current_depth + 1}")
 
             # Generate final report
             progress.update(80, "Generating comprehensive report...")
@@ -334,9 +329,8 @@ Part 2: Detailed Analysis and References
             "media": media_content,
             "research_tree": build_tree_structure(root_node),
             "metadata": {
-                "total_sources": len(all_research_data),
-                "max_depth_reached": root_node.depth,
-                "total_branches": len(root_node.children),
+                "total_sources": root_node.total_children(),
+                "max_depth_reached": root_node.max_depth(),
                 "total_tokens": self.token_count,
             },
         }

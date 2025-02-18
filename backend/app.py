@@ -1,9 +1,9 @@
 # pip install flask[async] flask-socketio flask-cors
 # pip install google-genai beautifulsoup4 selenium newspaper3k lxml_html_clean eventlet
-from flask import Flask, request, jsonify
+from flask import Flask, request
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
-import os, json, logging
+import json, logging
 from knet import KNet
 from dotenv import load_dotenv
 
