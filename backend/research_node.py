@@ -24,3 +24,13 @@ class ResearchNode:
             current = current.parent
             path.append(current.query)
         return list(reversed(path))
+    
+    def max_depth(self) -> int:
+        if not self.children:
+            return self.depth
+        return max([child.max_depth() for child in self.children])
+
+    def total_children(self) -> int:
+        if not self.children:
+            return 0
+        return len(self.children) + sum([child.total_children() for child in self.children])

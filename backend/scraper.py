@@ -27,9 +27,7 @@ class WebScraper:
     def cleanup(self):
         pass
 
-    def search_and_scrape(
-        self, query: str, num_sites: int = 3
-    ) -> List[Dict[str, Any]]:
+    def search_and_scrape(self, query: str, num_sites: int = 3) -> List[Dict[str, Any]]:
         self.logger.info(f"Starting search for: {query}")
         search_results = self._google_search(query, num_sites)
         self.logger.info(f"Found {len(search_results)} search results")
@@ -120,9 +118,7 @@ class WebScraper:
             self.logger.error(f"Scraping error for {url}: {str(e)}")
             return None
 
-    def _merge_extraction_results(
-        self, news_data: Dict, selenium_data: Dict
-    ) -> Dict[str, Any]:
+    def _merge_extraction_results(self, news_data: Dict, selenium_data: Dict) -> Dict[str, Any]:
         merged = selenium_data.copy()
 
         if news_data:
