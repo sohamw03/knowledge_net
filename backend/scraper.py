@@ -1,10 +1,13 @@
-from bs4 import BeautifulSoup
+import asyncio
+import json
 import logging
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+from urllib.parse import quote_plus
+from bs4 import BeautifulSoup
+from crawl4ai import AsyncWebCrawler, BrowserConfig, CacheMode
 import newspaper
 from newspaper import Article
 import requests
-from urllib.parse import quote_plus
 
 
 class WebScraper:
@@ -150,9 +153,7 @@ class WebScraper:
         return merged
 
 
-import asyncio
-from crawl4ai import AsyncWebCrawler, CacheMode, BrowserConfig
-import json
+
 class CrawlForAIScraper:
     def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
@@ -199,6 +200,9 @@ class CrawlForAIScraper:
         self.logger.info(f"Completed scraping {len(scraped_data)} sites")
         return scraped_data
 
+    async def _google_search(self, query: str, num_results: int) -> List[str]:
+        pass
+
     async def _scrape_page(self, url: str) -> Dict[str, Any]:
         if not self._is_started:
             await self.start()
@@ -206,26 +210,14 @@ class CrawlForAIScraper:
         try:
             # Run the crawler on a URL
             result = await self.crawler.arun(url=url, screenshot=False, cache_mode=CacheMode.BYPASS)
+            soup = BeautifulSoup(result.html, "html.parser")
             data = {
                 "url": url,
                 "text": result.markdown,
-                "images": result.media["images"],
+                "images": self._extract_images(soup),
                 "videos": result.media["videos"],
                 "links": result.links,
             }
-
-            # if not data["text"]:
-            #     response = self.session.get(url, timeout=self.timeout)
-            #     soup = BeautifulSoup(response.text, "html.parser")
-            #     selenium_data = {
-            #         "url": url,
-            #         "title": soup.title.string if soup.title else "",
-            #         "text": self._extract_text(soup),
-            #         "images": self._extract_images(soup),
-            #         "videos": self._extract_videos(soup),
-            #         "links": self._extract_links(soup),
-            #     }
-            #     return self._merge_extraction_results(data, selenium_data)
 
             return data
 
@@ -234,7 +226,21 @@ class CrawlForAIScraper:
             raise e
             return {}
 
-    async def _google_search(self, query: str, num_results: int) -> List[str]:
+    def _extract_text(self, soup: BeautifulSoup) -> str:
+        pass
+
+    def _extract_images(self, soup: BeautifulSoup) -> List[str]:
+        images = [img['src'] for img in soup.find_all('img') if 'src' in img.attrs and int(img.get('width', 0)) > 300 and int(img.get('height', 0)) > 300 and 'pixel' not in img['src'] and 'icon' not in img['src']]
+        images = sorted(images, key=lambda src: -1 * (int(soup.find('img', {'src': src}).get('width', 0)) * int(soup.find('img', {'src': src}).get('height', 0))))
+        return images
+
+    def _extract_videos(self, soup: BeautifulSoup) -> List[str]:
+        pass
+
+    def _extract_links(self, soup: BeautifulSoup) -> List[str]:
+        pass
+
+    def _merge_extraction_results(self, news_data: Dict, selenium_data: Dict) -> Dict[str, Any]:
         pass
 
 
