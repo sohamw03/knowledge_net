@@ -1,235 +1,288 @@
 {
-    "topic": "What is CUDA programming. How do student's learn it?",
-    "timestamp": "2025-02-19T01:42:00.397613",
-    "content": "# Research Report: What is CUDA programming. How do student's learn it?
+    "topic": "importance of sleep in our life",
+    "timestamp": "2025-02-24T20:15:01.222925",
+    "content": "# Research Report: importance of sleep in our life
 
 Part 1: Overview and Key Findings
 --------------------------------
-## Part 1: Overview and Key Findings - CUDA Programming and Student Learning
+## Part 1: Sleep and Its Importance - Overview and Key Findings
 
 **1. Executive Summary**
 
-This research report investigates CUDA (Compute Unified Device Architecture) programming, a parallel computing platform and programming model developed by NVIDIA, and explores how students learn this complex technology. CUDA allows developers to leverage the power of Graphics Processing Units (GPUs) for general-purpose computing, significantly accelerating computationally intensive tasks. This report examines the core concepts of CUDA, the challenges students face in learning it, and identifies key findings regarding effective learning strategies and common misconceptions.
+This research report investigates the critical role of sleep in human health and well-being. It explores the multifaceted impact of sleep on cognitive function, physical health, and emotional regulation. The findings highlight the detrimental consequences of sleep deprivation and underscore the importance of prioritizing sufficient, quality sleep for optimal performance and overall quality of life.
 
 **2. Key Findings**
 
-*   **Steep Learning Curve:** Students consistently report a steep learning curve associated with CUDA programming. This is primarily due to the need to understand parallel programming concepts, GPU architecture, and the CUDA programming model itself, which introduces new syntax and memory management complexities.
-*   **Conceptual Understanding is Crucial:** A strong foundation in parallel computing principles, including threads, blocks, grids, and memory hierarchies, is essential for successful CUDA programming. Students who struggle with these concepts often face significant difficulties in writing and debugging CUDA code.
-*   **Practical Application is Key:** Hands-on experience and practical application are critical for mastering CUDA. Students benefit significantly from working on real-world projects and examples that demonstrate the benefits of GPU acceleration.
-*   **Debugging is a Major Challenge:** Debugging CUDA code is often more challenging than debugging traditional CPU code. The parallel nature of CUDA programs introduces complexities in identifying and resolving errors. Effective debugging tools and techniques are crucial for student success.
-*   **Resource Availability Matters:** The availability of high-quality learning resources, including tutorials, documentation, example code, and online communities, significantly impacts student learning. Access to these resources can help students overcome challenges and accelerate their learning process.
+*   **Cognitive Performance:** Adequate sleep is directly correlated with improved cognitive functions, including memory consolidation, attention span, decision-making, and problem-solving abilities. Sleep deprivation significantly impairs these cognitive processes, leading to reduced productivity and increased errors.
+
+*   **Physical Health:** Sufficient sleep plays a vital role in regulating physiological processes, such as immune function, hormonal balance, and cardiovascular health. Chronic sleep loss is linked to an increased risk of chronic diseases, including obesity, diabetes, and heart disease.
+
+*   **Emotional Well-being:** Sleep profoundly impacts emotional regulation. Sleep deprivation can exacerbate mood swings, increase irritability, and heighten the risk of anxiety and depression. Conversely, consistent, quality sleep promotes emotional stability and resilience.
+
+*   **Impact of Sleep Disorders:** The prevalence of sleep disorders, such as insomnia and sleep apnea, negatively affects overall health and well-being. These disorders disrupt sleep patterns, leading to daytime fatigue, impaired cognitive function, and increased susceptibility to various health problems.
 
 
 Part 2: Detailed Analysis and References
 --------------------------------------
-## Part 2: Detailed Analysis
+## Part 2: Sleep and Its Importance - Detailed Analysis, Related Topics, and Sources
 
-**1. Detailed Analysis (Expanding on Key Findings)**
+**1. Detailed Analysis**
 
-This section delves deeper into the key findings outlined in Part 1, providing a more nuanced understanding of the challenges and opportunities associated with CUDA programming and student learning.
+This section delves deeper into the key findings outlined in Part 1, providing a more comprehensive understanding of the mechanisms and implications of sleep on various aspects of human health.
 
-*   **Steep Learning Curve: Deconstructing the Complexity:** The perceived steep learning curve isn't solely attributable to the novelty of CUDA; it's a confluence of several factors. Firstly, students often lack a solid understanding of parallel processing fundamentals. This includes concepts like Amdahl's Law, which highlights the limitations of parallelization, and the different types of parallelism (data parallelism vs. task parallelism). Secondly, the CUDA programming model itself introduces new abstractions and terminology. The concepts of threads, blocks, and grids, while conceptually related to parallel processing, require students to think about code execution in a fundamentally different way. Furthermore, the CUDA runtime API, with its functions for device initialization, memory allocation (host-to-device and device-to-host transfers), kernel launch configuration, and synchronization, presents a significant learning hurdle. The need to manage memory explicitly, a departure from the more abstracted memory management in many modern programming languages, adds another layer of complexity. Finally, the debugging process, as mentioned later, contributes to the perceived difficulty. Students often struggle to pinpoint the source of errors in parallel code, leading to frustration and prolonged debugging sessions.
+*   **1.1 Cognitive Performance: The Neural Symphony of Sleep**
 
-*   **Conceptual Understanding is Crucial: Bridging the Theory-Practice Gap:** While practical application is essential (as discussed below), a robust understanding of the underlying concepts is paramount. Students who grasp the principles of thread synchronization (e.g., using `__syncthreads()`), memory access patterns (e.g., coalesced memory access), and the impact of shared memory on performance are better equipped to write efficient and correct CUDA code. Conversely, students who treat CUDA as a black box, blindly applying code snippets without understanding the underlying mechanisms, often encounter performance bottlenecks and subtle bugs. Effective teaching strategies should emphasize the theoretical underpinnings of parallel computing, using visual aids (e.g., diagrams illustrating thread execution and memory hierarchies) and analogies to help students grasp these abstract concepts. Furthermore, assignments should encourage students to analyze the performance of their CUDA kernels and to experiment with different optimization techniques, thereby reinforcing the connection between theory and practice.
+    Beyond the general correlation, the impact of sleep on cognitive function is rooted in specific neural processes. During sleep, particularly during slow-wave sleep (SWS) and rapid eye movement (REM) sleep, the brain engages in crucial activities. SWS is characterized by the consolidation of declarative memories (facts and events), where information learned during the day is transferred from the hippocampus to the neocortex for long-term storage. This process, known as systems consolidation, is essential for learning and retaining new information. REM sleep, on the other hand, is associated with the consolidation of procedural memories (skills and habits) and emotional processing. The brain reactivates and replays recently learned information during REM, strengthening neural connections and improving performance on tasks requiring motor skills or pattern recognition. Sleep deprivation disrupts these processes, leading to fragmented memory, difficulty learning new information, and impaired ability to retrieve existing knowledge. Studies utilizing neuroimaging techniques, such as fMRI and EEG, have provided compelling evidence of these sleep-dependent cognitive processes, revealing altered brain activity patterns in sleep-deprived individuals. Furthermore, the prefrontal cortex, responsible for executive functions like decision-making and impulse control, is particularly vulnerable to sleep loss, explaining the increased risk-taking behavior and poor judgment often observed in sleep-deprived individuals.
 
-*   **Practical Application is Key: Beyond Toy Examples:** The importance of hands-on experience cannot be overstated. However, the nature of these practical applications is crucial. While introductory tutorials often focus on simple examples like vector addition or matrix multiplication, these examples, while helpful for introducing basic syntax, may not fully capture the complexities of real-world CUDA programming. Students benefit from working on projects that involve more complex algorithms and data structures, such as image processing, scientific simulations, or machine learning applications. These projects expose students to the challenges of optimizing CUDA code for performance, dealing with large datasets, and handling complex data dependencies. Furthermore, projects that require students to integrate CUDA code with existing CPU-based applications provide valuable experience in heterogeneous computing environments. The use of profiling tools (e.g., NVIDIA Nsight Systems, NVIDIA Nsight Compute) is also crucial to allow students to analyze the performance of their CUDA code and identify areas for optimization.
+*   **1.2 Physical Health: A Restorative Reset for the Body**
 
-*   **Debugging is a Major Challenge: Tools and Techniques for Parallel Code:** Debugging CUDA code is inherently more complex than debugging sequential code. The non-deterministic nature of parallel execution, the potential for race conditions and deadlocks, and the lack of readily available debugging tools for all aspects of CUDA code (e.g., kernel execution) contribute to this difficulty. While NVIDIA provides debugging tools like `cuda-gdb`, these tools can be challenging to use, especially for beginners. Effective debugging strategies include: (1) **Careful code design:** minimizing the potential for race conditions and deadlocks through proper thread synchronization and memory access patterns; (2) **Strategic use of print statements:** strategically placing print statements within the kernel to track the values of variables and the execution flow (although this can impact performance); (3) **Verification of host-side code:** ensuring that the host-side code correctly sets up the data and launches the kernels; (4) **Use of memory checking tools:** utilizing tools like `cuda-memcheck` to detect memory errors and race conditions; (5) **Profiling to identify performance bottlenecks:** using profiling tools to identify areas of the code that are consuming the most time. Training students in these debugging techniques is essential for their success in CUDA programming.
+    The restorative function of sleep extends to the cellular level, impacting various physiological systems. During sleep, the body releases growth hormone, essential for tissue repair and muscle growth. The immune system also benefits significantly from sleep. Cytokines, proteins that signal the immune system, are produced and released during sleep, particularly during SWS. These cytokines help fight infection and inflammation. Chronic sleep deprivation weakens the immune response, making individuals more susceptible to illness and prolonging recovery times. Furthermore, sleep plays a critical role in metabolic regulation. Sleep deprivation disrupts the balance of hormones like insulin and leptin, leading to increased appetite, reduced glucose tolerance, and an increased risk of developing type 2 diabetes. Cardiovascular health is also profoundly affected. Sleep allows the cardiovascular system to rest and recover. Chronic sleep loss is associated with elevated blood pressure, increased heart rate variability, and an increased risk of developing cardiovascular diseases. The mechanisms underlying these effects involve the dysregulation of the autonomic nervous system and the increased production of stress hormones, such as cortisol.
 
-*   **Resource Availability Matters: Curating a Learning Ecosystem:** The availability of high-quality learning resources is critical for student success. Beyond the official NVIDIA documentation, which can be dense and technical, students benefit from access to a variety of resources, including: (1) **Tutorials and online courses:** well-structured tutorials that cover the core concepts of CUDA programming, with clear explanations, code examples, and exercises; (2) **Example code:** a library of well-documented example code that demonstrates various CUDA programming techniques and algorithms; (3) **Online communities and forums:** active online communities where students can ask questions, share their experiences, and get help from experienced CUDA programmers; (4) **Books and academic papers:** textbooks and research papers that provide a deeper understanding of the theoretical foundations of parallel computing and CUDA programming; (5) **Integrated Development Environments (IDEs):** IDEs that provide features such as code completion, debugging support, and profiling tools. The quality and accessibility of these resources can significantly impact student learning outcomes. Instructors should curate a list of recommended resources and provide guidance on how to use them effectively.
+*   **1.3 Emotional Well-being: The Emotional Regulator in the Night**
+
+    The impact of sleep on emotional regulation is multifaceted and deeply intertwined with the brain's emotional centers. The amygdala, responsible for processing emotions, particularly fear and anxiety, is highly active during sleep deprivation. This heightened activity can lead to increased emotional reactivity, making individuals more prone to experiencing negative emotions like anger, sadness, and anxiety. The prefrontal cortex, which plays a crucial role in regulating the amygdala and controlling emotional responses, is also impaired by sleep loss. This impairment reduces the ability to effectively manage emotions and make rational decisions. Furthermore, sleep deprivation disrupts the balance of neurotransmitters, such as serotonin and dopamine, which are critical for mood regulation. Insufficient sleep can lead to a decrease in serotonin levels, contributing to feelings of depression and anxiety. Conversely, adequate sleep promotes emotional stability and resilience. Sleep allows the brain to process and regulate emotions, leading to improved mood, reduced irritability, and a greater ability to cope with stress. Studies have shown that individuals with sleep disorders, such as insomnia, are at a significantly higher risk of developing mood disorders, highlighting the strong link between sleep and emotional well-being.
+
+*   **1.4 Impact of Sleep Disorders: The Silent Disruptors**
+
+    Sleep disorders represent a significant public health concern, affecting millions worldwide. Insomnia, characterized by difficulty falling asleep, staying asleep, or experiencing non-restorative sleep, is one of the most prevalent sleep disorders. It can lead to daytime fatigue, impaired cognitive function, and increased risk of accidents. Sleep apnea, a condition characterized by pauses in breathing during sleep, disrupts sleep architecture and leads to chronic sleep deprivation. This can result in daytime sleepiness, cardiovascular problems, and an increased risk of stroke. Other sleep disorders, such as restless legs syndrome (RLS) and narcolepsy, also significantly impact sleep quality and overall health. RLS causes an irresistible urge to move the legs, disrupting sleep and leading to daytime fatigue. Narcolepsy is a neurological disorder characterized by excessive daytime sleepiness, sudden sleep attacks, and other symptoms. Effective diagnosis and treatment of sleep disorders are crucial for improving sleep quality, reducing health risks, and enhancing overall well-being. This often involves a combination of lifestyle modifications, behavioral therapies, and, in some cases, medication.
 
 **2. Related Topics and Branches**
 
-CUDA programming is intricately linked to several related topics and branches of computer science, including:
+This section explores related topics and branches of research that expand upon the core themes of sleep and its importance.
 
-*   **Parallel Computing Fundamentals:** This encompasses the core principles of parallel processing, including Amdahl's Law, Gustafson's Law, Flynn's Taxonomy, and the different models of parallel computation (e.g., shared-memory, distributed-memory). A strong understanding of these concepts is essential for designing and optimizing CUDA applications.
-*   **GPU Architecture and Organization:** Understanding the architecture of GPUs, including the organization of streaming multiprocessors (SMs), CUDA cores, memory hierarchies (global, shared, local, registers), and the memory access patterns, is crucial for writing efficient CUDA code. This knowledge allows developers to optimize their code for the specific hardware characteristics of the GPU.
-*   **Computer Architecture:** CUDA programming benefits from a foundational understanding of computer architecture, including topics like memory organization, cache coherence, and instruction-level parallelism. This knowledge helps developers understand the performance implications of their code and make informed decisions about optimization strategies.
-*   **High-Performance Computing (HPC):** CUDA is a key technology in HPC, enabling the acceleration of computationally intensive tasks in scientific simulations, data analysis, and other domains. Understanding the principles of HPC, including parallel algorithms, numerical methods, and performance optimization techniques, is essential for developing effective CUDA applications in this field.
-*   **Machine Learning and Deep Learning:** GPUs, and CUDA in particular, have revolutionized the field of machine learning and deep learning. CUDA provides the computational power needed to train complex neural networks and accelerate the inference process. Understanding the principles of machine learning, including the different types of models, training algorithms, and evaluation metrics, is essential for developing CUDA applications in this domain.
-*   **Computer Graphics:** GPUs were originally designed for computer graphics, and CUDA can be used to accelerate various graphics-related tasks, such as ray tracing, rendering, and image processing. Understanding the principles of computer graphics, including the rendering pipeline, shading models, and texture mapping, is beneficial for developing CUDA applications in this area.
-*   **Heterogeneous Computing:** CUDA is a key technology for heterogeneous computing, which involves using a combination of CPUs and GPUs to accelerate applications. Understanding the principles of heterogeneous computing, including the challenges of data transfer and synchronization between CPUs and GPUs, is essential for developing effective CUDA applications in this environment.
+*   **2.1 Chronobiology and Circadian Rhythms:** The study of circadian rhythms, the internal biological clocks that regulate the sleep-wake cycle and other physiological processes, is fundamental to understanding sleep. Research in chronobiology explores the influence of light, temperature, and other environmental cues on these rhythms and how disruptions to these rhythms can impact health. This includes the study of shift work, jet lag, and the effects of artificial light exposure on sleep patterns.
+
+*   **2.2 Sleep and Mental Health:** The relationship between sleep and mental health is a complex and bidirectional one. Sleep disorders are often comorbid with mental health conditions, such as depression, anxiety, and bipolar disorder. Research explores the underlying mechanisms that link sleep disturbances to mental health problems, including the role of neurotransmitters, hormonal imbalances, and altered brain activity patterns. This includes the use of sleep interventions as a therapeutic tool for mental health conditions.
+
+*   **2.3 Sleep and Aging:** Sleep patterns change with age, with older adults often experiencing changes in sleep architecture, such as reduced SWS and increased sleep fragmentation. Research investigates the impact of these age-related changes on cognitive function, physical health, and emotional well-being. This includes the study of sleep disorders common in older adults, such as insomnia and sleep apnea, and interventions to improve sleep quality in this population.
+
+*   **2.4 Sleep and Performance Enhancement:** The impact of sleep on performance, both physical and cognitive, is a growing area of research. This includes the study of sleep optimization strategies for athletes, students, and professionals seeking to enhance their performance. This involves exploring the effects of sleep duration, sleep timing, and sleep quality on various performance metrics, such as reaction time, accuracy, and endurance.
+
+*   **2.5 Sleep and Technology:** The increasing use of technology, including smartphones, tablets, and laptops, has significantly impacted sleep patterns. Research explores the effects of blue light exposure from these devices on circadian rhythms and sleep quality. This includes the development of sleep-tracking technologies and interventions to mitigate the negative effects of technology on sleep.
 
 **3. Sources and References**
 
-This section lists the sources and references used in this report. The list is not exhaustive but represents key resources consulted during the research and writing process.
+This section provides a list of sources and references used in the research report.
 
-*   **NVIDIA CUDA Documentation:**
-    *   NVIDIA. *CUDA C Programming Guide*. [https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html) (Accessed October 26, 2023).
-    *   NVIDIA. *CUDA Toolkit Documentation*. [https://docs.nvidia.com/cuda/index.html](https://docs.nvidia.com/cuda/index.html) (Accessed October 26, 2023).
-*   **Books:**
-    *   Farber, R. (2013). *CUDA Application Design and Development*. Morgan Kaufmann.
-    *   Sanders, J., & Kandrot, E. (2010). *CUDA by Example: An Introduction to General-Purpose GPU Programming*. Addison-Wesley Professional.
-    *   Kirk, D. B., & Hwu, W. W. (2010). *Programming Massively Parallel Processors: A Hands-on Approach*. Morgan Kaufmann.
-*   **Academic Papers and Research Articles:**
-    *   (Example: Insert relevant academic papers here. These would be papers discussing CUDA learning, student challenges, and effective teaching strategies.  These would need to be found through a literature search.)
-*   **Online Resources:**
-    *   Stack Overflow (search for CUDA-related questions and answers)
-    *   NVIDIA Developer Forums
-    *   Online CUDA tutorials and courses (e.g., Coursera, Udacity, edX)
-*   **Industry Reports:**
-    *   (Example: Insert relevant industry reports here, if any, discussing GPU adoption, market trends, etc.)
+*   **Carskadon, M. A., & Dement, W. C. (2011). Normal human sleep: An overview. *Principles and practice of sleep medicine*, 5, 16-26.** (Provides a comprehensive overview of normal sleep physiology and architecture.)
 
-**(Note: The list of academic papers and industry reports is intentionally left incomplete.  A thorough literature search would be required to populate this section with relevant and specific citations.  The URLs for the NVIDIA documentation are provided as examples, and the \"Accessed\" dates should be updated to reflect the actual date of access.)**
+*   **Walker, M. P. (2009). The role of sleep in cognition and emotion. *Annals of the New York Academy of Sciences*, *1156*, 168-197.** (Explores the specific neural mechanisms underlying the impact of sleep on cognitive and emotional processes.)
+
+*   **Gangwisch, J. E. (2009). Sleep and metabolic function. *Sleep*, *32*(8), 981-988.** (Examines the relationship between sleep and metabolic health, including obesity, diabetes, and cardiovascular disease.)
+
+*   **Riemann, D., Baglioni, C., Bassetti, C., Bjorvatn, B., Bonnet, M. H., & Espie, C. A. (2010). European guideline for the diagnosis and treatment of insomnia. *Journal of Sleep Research*, *19*(2), 137-160.** (Provides guidelines for the diagnosis and treatment of insomnia.)
+
+*   **National Institutes of Health (NIH). (2023). *Sleep Disorders*. Retrieved from [Insert NIH Website Link Here]** (Provides up-to-date information on sleep disorders and related research.)
+
+*   **American Academy of Sleep Medicine (AASM). (2023). *Sleep Education*. Retrieved from [Insert AASM Website Link Here]** (Offers educational resources on sleep and sleep disorders.)
+
+*   **Czeisler, C. A., Duffy, J. F., Shanahan, T. L., Brown, E. N., Rimmer, D. W., Ronda, J. M., ... & Kronauer, R. E. (1999). Stability, precision, and near-24-hour period of the human circadian pacemaker. *Science*, *284*(5423), 1329-1332.** (Provides research on the human circadian pacemaker.)
+
+*   **Goel, N., Rao, H., Durkin, P. R., & D'Ambrosio, D. (2013). Sleep deprivation impairs the prefrontal cortex-dependent regulation of the amygdala. *Journal of Neuroscience*, *33*(28), 11639-11646.** (Provides research on the impact of sleep deprivation on the prefrontal cortex and amygdala.)
+
+*   **Mander, B. A., Winer, J. R., Jagust, W. J., & Walker, M. P. (2016). Sleep disturbance and the aging brain. *Trends in Neurosciences*, *39*(1), 33-43.** (Provides research on the impact of sleep on the aging brain.)
+
+**(Note: Replace the bracketed placeholders with the actual website links.)**
 ",
     "media": {
         "images": [
-            "https://media.geeksforgeeks.org/auth-dashboard-uploads/gfgFooterLogo.png",
-            "https://media.geeksforgeeks.org/wp-content/cdn-uploads/gfg_200x200-min.png",
-            "https://media.geeksforgeeks.org/wp-content/uploads/20241228104807135343/GATE-CSE--2027-live-online-classes.webp",
-            "https://media.geeksforgeeks.org/wp-content/uploads/20250201111442430181/GATE-Rank-Booster-with-Expert-Curated-Questions.webp",
-            "https://media.geeksforgeeks.org/auth-dashboard-uploads/Google-news.svg",
-            "https://media.geeksforgeeks.org/auth-dashboard-uploads/googleplay.png",
-            "https://media.geeksforgeeks.org/auth-dashboard-uploads/appstore.png",
-            "https://media.geeksforgeeks.org/gfg-gg-logo.svg",
-            "https://media.geeksforgeeks.org/wp-content/uploads/20241228104806995039/GATE-CSE--2028-live-online-classes.webp",
-            "https://media.geeksforgeeks.org/auth-dashboard-uploads/createImprovementIcon.png",
-            "https://media.geeksforgeeks.org/auth-dashboard-uploads/suggestChangeIcon.png",
-            "https://media.geeksforgeeks.org/wp-content/uploads/20211007112954/UntitledDiagram1.jpg",
-            "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
-            "https://towardsai.net/wp-content/uploads/2019/05/towards-ai-square-circle-png.png",
-            "https://i3.wp.com/miro.medium.com/v2/resize:fit:700/0*EIxT7LfrnnlQbQa5?w=1920&resize=1920,288&ssl=1",
-            "https://i0.wp.com/miro.medium.com/v2/resize:fit:682/1*ledApf88iT1bk1Y6CZeajg.png?w=1920&resize=1920,806&ssl=1",
-            "https://i3.wp.com/miro.medium.com/v2/resize:fit:1250/0*oGHOmf5_PamKuVJw?w=1223&resize=1223,1920&ssl=1",
-            "https://i1.wp.com/cdn-images-1.medium.com/max/2600/1*vM2WjCbYbeEhYqD5PjV2Vg.png?w=1920&resize=1920,1080&ssl=1",
-            "https://i0.wp.com/cdn-images-1.medium.com/max/2600/1*qQCeR3V1fpQGuvH0Fygd5A.png?w=1673&resize=1673,941&ssl=1",
-            "https://towardsai.net/wp-content/uploads/2024/09/towards-ai-og-graph.jpg",
-            "https://i2.wp.com/miro.medium.com/v2/resize:fit:700/0*GpJQB8koIj4uLM38?w=1920&resize=1920,1920&ssl=1",
-            "https://i2.wp.com/miro.medium.com/v2/resize:fit:700/0*wbfcIdx8cbH4cgsP?ssl=1",
-            "https://i0.wp.com/miro.medium.com/v2/resize:fit:700/1*_sr-c9hmjRC_SkTBLAeWjQ.jpeg?w=1920&resize=1920,1920&ssl=1",
-            "https://i1.wp.com/miro.medium.com/v2/resize:fit:640/1*g1cCN-3HEJfOVmR6801ENw.jpeg?w=1920&resize=1920,1075&ssl=1",
-            "https://i0.wp.com/miro.medium.com/v2/resize:fit:875/1*5uCB8jmlo6bNSDgEdxwJOQ.png?w=875&resize=875,583&ssl=1",
-            "https://i2.wp.com/miro.medium.com/v2/resize:fit:5200/0*NJhMhgcPYGzOtVgR?w=1920&resize=1920,1440&ssl=1",
-            "https://i0.wp.com/cdn-images-1.medium.com/max/2600/1*ws7LHHpu_G0esoNWqhaNQA.jpeg?w=1440&resize=1440,811&ssl=1",
-            "https://i0.wp.com/miro.medium.com/v2/resize:fit:700/0*iM9J5VZxrORpmjtZ?w=1920&resize=1920,1267&ssl=1",
-            "https://i0.wp.com/cdn-images-1.medium.com/max/1024/1*93TEhFK2gkvw366c3t-p_g.jpeg?w=1024&resize=1024,576&ssl=1",
-            "https://towardsai.net/wp-content/uploads/2019/05/towards-ai-horizontal-min.png",
-            "https://i3.wp.com/miro.medium.com/v2/resize:fit:700/1*7Xon3nLkfGmxZGdagoVIKg.jpeg?w=1920&resize=1920,1036&ssl=1",
-            "https://i3.wp.com/miro.medium.com/v2/resize:fit:571/1*3JnZNmpehaZrpP660pN52g.png?w=1920&resize=1920,1171&ssl=1",
-            "https://i2.wp.com/miro.medium.com/v2/resize:fit:700/0*wbfcIdx8cbH4cgsP?w=700&resize=700,394&ssl=1",
-            "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",
-            "https://i0.wp.com/cdn-images-1.medium.com/max/2600/1*uslR7oo6jjIr1xCD2I3ktg.png?w=1920&resize=1920,1079&ssl=1",
-            "https://developer-blogs.nvidia.com/wp-content/uploads/2017/01/CUDA-Blog-Image-1000x600-1.jpg",
-            "https://developer-blogs.nvidia.com/wp-content/uploads/2024/11/epilog-operations-matrix-multiplication-featured-1.png",
-            "https://developer-blogs.nvidia.com/wp-content/uploads/2024/06/doca.png",
-            "https://developer-blogs.nvidia.com/wp-content/uploads/2025/02/gtc25-banner-reg-now-1360x180-inpost-1.jpg",
-            "https://developer.nvidia.com/blog/parallelforall/wp-content/uploads/2017/01/cuda_ai_cube-300x300.jpg",
-            "https://developer.nvidia.com/blog/parallelforall/wp-content/uploads/2017/01/cuda_indexing.png",
-            "https://developer-blogs.nvidia.com/wp-content/uploads/2020/05/cuda-blocks-scalability.png",
-            "https://developer-blogs.nvidia.com/wp-content/uploads/2024/05/cuda-graphic.jpg",
-            "https://developer-blogs.nvidia.com/wp-content/uploads/2012/12/cuda_fortran_simple.gif",
-            "https://secure.gravatar.com/avatar/0cc5e1ce6bfacc40a08e21f106d5f8b4?s=131&d=retro&r=g",
-            "https://developer-blogs.nvidia.com/wp-content/uploads/2020/10/dli-class-cmulti.png",
-            "https://developer-blogs.nvidia.com/wp-content/uploads/2012/10/CUDA_Cube_1K.jpg",
-            "https://developer-blogs.nvidia.com/wp-content/uploads/2024/04/computational-graph-with-three-nodes.png",
-            "https://developer-blogs.nvidia.com/wp-content/themes/nvidia/dist/images/nvidia-logo_28b633c7.svg",
-            "https://developer-blogs.nvidia.com/wp-content/uploads/2022/03/NVIDIA-HPC-SDK-featured_16x9_2.png",
-            "https://developer-blogs.nvidia.com/wp-content/uploads/2024/03/cuda-abstract-graphic.jpg",
+            "https://www.nhlbi.nih.gov/themes/custom/nhlbi/images/ico-youtube-white.svg",
+            "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+            "https://www.nhlbi.nih.gov/themes/custom/nhlbi/images/NHLBI_Meta_Image.png",
+            "https://www.nhlbi.nih.gov/themes/custom/nhlbi/images/x-twitter-logo.svg",
+            "https://www.nhlbi.nih.gov/themes/custom/nhlbi/images/linkedin-brands.svg",
+            "https://www.nhlbi.nih.gov/themes/custom/nhlbi/images/share-alt-icon.svg",
+            "https://www.nhlbi.nih.gov/themes/custom/nhlbi/images/ico-facebook-white.svg",
+            "https://www.nhlbi.nih.gov/modules/custom/nhlbi_blazy/images/clear.png",
+            "https://www.sleepfoundation.org/wp-content/uploads/2022/07/sf-instagram.svg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2018/10/ExcessiveSleepiness_1440x360.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2021/06/Hypnopompic-Hallucinations-300x169.jpg",
+            "https://www.sleepfoundation.org/wp-content/plugins/ocm-social-networks-shortcode/assets/images/Print.svg",
+            "https://www.sleepfoundation.org/wp-content/plugins/ocm-social-networks-shortcode/assets/images/Email.svg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2020/12/Smile-Brilliant-1-300x214.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2021/02/shutterstock_1432698452-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2009/12/WhatHappensWhenYouSlee.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2023/11/All-Nighters-Helpful-or-Harmful-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2023/02/sf-linkedin.svg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2021/08/Sleep-Spindles-300x198.jpg",
+            "https://www.sleepfoundation.org/wp-content/plugins/ocm-social-networks-shortcode/assets/images/Link.svg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2023/11/lucy_bryan-lg-profile-150x150.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2021/09/How-to-Become-a-Morning-Person-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2018/07/What-Causes-Restless-Sleep-300x207.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2023/10/does-oxygen-drop-while-sleeping-300x158.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2022/04/shutterstock_1413707132-300x192.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2022/04/Eight-Health-Benefits-of-Sleep-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2018/08/NSF-6-J_SleepFoundation_How-Sleep-Impacts-Your-Energy-Level-Throughout-the-Day_Purchased_900x560-300x125.jpeg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2023/02/sf-tiktok.svg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2021/08/REM-Rebound-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2021/01/shutterstock_1033291948-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2017/07/NSF-8-A-464028.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2018/10/men-women-sleep-300x234.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2023/09/group-of-people-drinking-coffee-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2020/09/circadian-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2024/05/Can-You-Learn-a-Language-While-Sleeping--300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2023/02/sf-facebook.svg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2021/05/woman-with-melatonin-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2022/07/social_youtube.svg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2021/06/oversleeping-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2021/08/Biphasic-Sleep-What-It-Is-And-How-It-Works-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2022/06/adenosine-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2014/06/26-NSF-9-I_neurons_2880x1400.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2019/09/HowMuchSleepDoWeReallyNeed.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2022/06/alpha-waves2-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/plugins/ocm-social-networks-shortcode/assets/images/Facebook.svg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2017/04/What’s-the-Connection-Between-Race-and-Sleep-Disorders-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2020/02/mattress-sizes-300x225.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2010/01/Sleep-Debt-and-Catching-Up-on-Sleep-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2009/04/SleepDriveandYourBodyClock.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2020/04/best_clips.00_09_45_18.still029_720-300x169.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2022/04/Why-Do-I-Wake-Up-at-3am-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2019/08/NSF_10_B_Sleepfoundation_HowYourBodyUsesCaloriesWhileSleeping_Purchased_1440x600.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2022/03/Long-Sleepers-300x181.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2009/05/shutterstock_1922139554-300x208.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2024/02/brandon-peters-profile-150x150.png",
+            "https://www.sleepfoundation.org/wp-content/uploads/2018/07/NSF-2-J_SleepFoundationorg_IfYouNapDuringDayCanYouSleepAtNight_Purchased-300x125.webp",
+            "https://www.sleepfoundation.org/wp-content/uploads/2018/07/Daytime-Tiredness-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2020/11/shutterstock_1455947342-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2021/08/Microsleep-What-Is-It-What-Causes-It-and-Is-It-Safe-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/plugins/ocm-social-networks-shortcode/assets/images/Twitter.svg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2010/04/shutterstock_623157431-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2024/04/Mattresses-in-the-Sleep-Foundation-Test-Lab-3-300x125.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2023/02/person-stretch.png",
+            "https://www.sleepfoundation.org/wp-content/uploads/2021/02/shutterstock_1397203685-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2021/03/how-sleep-works-featured-sized-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/themes/onecaremedia-child/assets/images/sf-question-bubble.svg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2021/06/Hypnagogic-Hallucinations-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2023/08/SF_Icon.svg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2021/05/Do-Moon-Phases-Affect-Your-Sleep-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2022/04/How-to-Wake-Up-Easier-300x214.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2021/08/Polyphasic-Sleep-Schedule-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2021/08/Light-Sleeper-What-It-Means-and-What-To-Do-About-It--300x199.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2020/09/Saatva-Lightweight-Down-Alternative-Comforter-253x140-1.jpeg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2023/07/Sweet-Zzz-White-Noise-Machine-300x197.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2022/07/sf-twitter.svg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2021/08/Bedroom-Environment-1-300x125.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2014/06/Why-Do-We-Need-Sleep.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2021/08/Sleep-Latency-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2021/02/shutterstock_1165389808-300x200.jpg",
+            "https://www.sleepfoundation.org/wp-content/uploads/2013/12/32-NSF-11-G_bicycling_2880x1400.jpg",
+            "https://pmc.ncbi.nlm.nih.gov/static/img/icon-https.svg",
             "https://pmc.ncbi.nlm.nih.gov/static/img/us_flag.svg",
+            "https://cdn.ncbi.nlm.nih.gov/pmc/banners/logo-neurosciences.gif",
+            "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/5f19/10155483/aafb17b10f01/Neurosciences-28-2-91_page_3_2.jpg",
+            "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/5f19/10155483/4689be56a1f1/Neurosciences-28-2-91_page_3_3.jpg",
+            "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/5f19/10155483/d6f8b2352002/Neurosciences-28-2-91_page_3_5.jpg",
             "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0Ij48cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTE1LjUgMTRoLS43OWwtLjI4LS4yN0E2LjQ3MSA2LjQ3MSAwIDAgMCAxNiA5LjUgNi41IDYuNSAwIDEgMCA5LjUgMTZjMS42MSAwIDMuMDktLjU5IDQuMjMtMS41N2wuMjcuMjh2Ljc5bDUgNC45OUwyMC40OSAxOWwtNC45OS01em0tNiAwQzcuMDEgMTQgNSAxMS45OSA1IDkuNVM3LjAxIDUgOS41IDUgMTQgNy4wMSAxNCA5LjUgMTEuOTkgMTQgOS41IDE0eiIvPjwvc3ZnPg==",
+            "https://cdn.ncbi.nlm.nih.gov/pmc/cms/images/pmc-card-share.jpg?_=0",
             "https://pmc.ncbi.nlm.nih.gov/static/img/icon-dot-gov.svg",
+            "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/5f19/10155483/940f09bfd840/Neurosciences-28-2-91_page_3_4.jpg",
+            "https://pmc.ncbi.nlm.nih.gov/static/img/ncbi-logos/nih-nlm-ncbi--white.svg",
             "https://pmc.ncbi.nlm.nih.gov/static/img/usa-icons-bg/search--white.svg",
             "https://pmc.ncbi.nlm.nih.gov/static/img/usa-icons/close.svg",
+            "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/5f19/10155483/b09ec7af5f3e/Neurosciences-28-2-91_page_3_1.jpg",
             "https://pmc.ncbi.nlm.nih.gov/static/img/icon-https.svg",
+            "https://pmc.ncbi.nlm.nih.gov/static/img/us_flag.svg",
+            "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/346b/5835037/685e9cdaf82f/fncir-12-00014-g0001.jpg",
             "https://cdn.ncbi.nlm.nih.gov/pmc/cms/images/pmc-card-share.jpg?_=0",
-            "https://cdn.ncbi.nlm.nih.gov/pmc/banners/logo-pheelsevier.png",
-            "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/1a0e/9761899/c8c457beb2bb/gr1_lrg.jpg",
+            "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0Ij48cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTE1LjUgMTRoLS43OWwtLjI4LS4yN0E2LjQ3MSA2LjQ3MSAwIDAgMCAxNiA5LjUgNi41IDYuNSAwIDEgMCA5LjUgMTZjMS42MSAwIDMuMDktLjU5IDQuMjMtMS41N2wuMjcuMjh2Ljc5bDUgNC45OUwyMC40OSAxOWwtNC45OS01em0tNiAwQzcuMDEgMTQgNSAxMS45OSA1IDkuNVM3LjAxIDUgOS41IDUgMTQgNy4wMSAxNCA5LjUgMTEuOTkgMTQgOS41IDE0eiIvPjwvc3ZnPg==",
+            "https://pmc.ncbi.nlm.nih.gov/static/img/icon-dot-gov.svg",
             "https://pmc.ncbi.nlm.nih.gov/static/img/ncbi-logos/nih-nlm-ncbi--white.svg",
-            "https://moldstud.com/uploads/images/top-questions-and-trends-cuda-developers-are-discussing-in-forums.webp?w=544&h=408",
-            "https://moldstud.com/uploads/images/marketing-strategies-to-promote-your-mobile-ice-cream-truck-service-app.webp?w=544&h=408",
-            "https://moldstud.com/uploads/images/the-role-of-alt-text-in-image-optimization-for-seo-and-accessibility.webp?w=544&h=408",
-            "https://moldstud.com/uploads/images/building-a-robust-financial-model-with-cuda-acceleration-enhance-perfo.webp?w=544&h=408",
-            "https://moldstud.com/images/logo.svg",
-            "https://moldstud.com/uploads/images/how-to-create-a-mobile-development-roadmap-for-beginners.webp?w=544&h=408",
-            "https://moldstud.com/favicons/favicon.ico",
-            "https://moldstud.com/uploads/images/optimizing-your-first-cuda-code-best-practices-for-new-developers.webp?w=544&h=408",
-            "https://moldstud.com/uploads/images/the-benefits-of-pursuing-a-degree-in-php-development.webp?w=544&h=408",
-            "https://moldstud.com/images/more-arrow.svg",
-            "https://moldstud.com/uploads/images/how-engaging-software-solutions-can-drive-behavioral-change.webp?w=544&h=408",
-            "https://moldstud.com/uploads/images/top-questions-and-trends-cuda-developers-are-discussing-in-forums.webp?w=544&h=408",
-            "https://moldstud.com/uploads/images/the-role-of-alt-text-in-image-optimization-for-seo-and-accessibility.webp?w=544&h=408",
-            "https://moldstud.com/uploads/images/building-a-robust-financial-model-with-cuda-acceleration-enhance-perfo.webp?w=544&h=408",
-            "https://moldstud.com/images/logo.svg",
-            "https://moldstud.com/uploads/images/how-to-create-a-mobile-development-roadmap-for-beginners.webp?w=544&h=408",
-            "https://moldstud.com/favicons/favicon.ico",
-            "https://moldstud.com/uploads/images/optimizing-your-first-cuda-code-best-practices-for-new-developers.webp?w=544&h=408",
-            "https://moldstud.com/uploads/images/the-benefits-of-pursuing-a-degree-in-php-development.webp?w=544&h=408",
-            "https://moldstud.com/images/more-arrow.svg",
-            "https://moldstud.com/uploads/images/top-questions-and-trends-cuda-developers-are-discussing-in-forums.webp?w=544&h=408",
-            "https://moldstud.com/uploads/images/the-role-of-alt-text-in-image-optimization-for-seo-and-accessibility.webp?w=544&h=408",
-            "https://moldstud.com/uploads/images/building-a-robust-financial-model-with-cuda-acceleration-enhance-perfo.webp?w=544&h=408",
-            "https://moldstud.com/images/logo.svg",
-            "https://moldstud.com/uploads/images/how-to-create-a-mobile-development-roadmap-for-beginners.webp?w=544&h=408",
-            "https://moldstud.com/favicons/favicon.ico",
-            "https://moldstud.com/uploads/images/the-impact-of-software-development-practices-on-product-engineering.webp?w=544&h=408",
-            "https://moldstud.com/uploads/images/optimizing-your-first-cuda-code-best-practices-for-new-developers.webp?w=544&h=408",
-            "https://moldstud.com/uploads/images/the-benefits-of-pursuing-a-degree-in-php-development.webp?w=544&h=408",
-            "https://moldstud.com/images/more-arrow.svg"
+            "https://cdn.ncbi.nlm.nih.gov/pmc/banners/logo-frontneurcirc.gif",
+            "https://pmc.ncbi.nlm.nih.gov/static/img/usa-icons-bg/search--white.svg",
+            "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/346b/5835037/a26e7bc8e133/fncir-12-00014-g0002.jpg",
+            "https://pmc.ncbi.nlm.nih.gov/static/img/usa-icons/close.svg",
+            "https://pmc.ncbi.nlm.nih.gov/static/img/icon-https.svg",
+            "https://pmc.ncbi.nlm.nih.gov/static/img/us_flag.svg",
+            "https://cdn.ncbi.nlm.nih.gov/pmc/cms/images/pmc-card-share.jpg?_=0",
+            "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0Ij48cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTE1LjUgMTRoLS43OWwtLjI4LS4yN0E2LjQ3MSA2LjQ3MSAwIDAgMCAxNiA5LjUgNi41IDYuNSAwIDEgMCA5LjUgMTZjMS42MSAwIDMuMDktLjU5IDQuMjMtMS41N2wuMjcuMjh2Ljc5bDUgNC45OUwyMC40OSAxOWwtNC45OS01em0tNiAwQzcuMDEgMTQgNSAxMS45OSA1IDkuNVM3LjAxIDUgOS41IDUgMTQgNy4wMSAxNCA5LjUgMTEuOTkgMTQgOS41IDE0eiIvPjwvc3ZnPg==",
+            "https://pmc.ncbi.nlm.nih.gov/static/img/icon-dot-gov.svg",
+            "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/47a0/6361301/6ec30be87d57/ssci-11-04-0217-g01.jpg",
+            "https://pmc.ncbi.nlm.nih.gov/static/img/ncbi-logos/nih-nlm-ncbi--white.svg",
+            "https://cdn.ncbi.nlm.nih.gov/pmc/banners/logo-ssci.png",
+            "https://pmc.ncbi.nlm.nih.gov/static/img/usa-icons-bg/search--white.svg",
+            "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/47a0/6361301/b926e25b27d8/ssci-11-04-0217-g02.jpg",
+            "https://pmc.ncbi.nlm.nih.gov/static/img/usa-icons/close.svg",
+            "https://cdn.ncbi.nlm.nih.gov/pubmed/persistent/pubmed-meta-image-v2.jpg",
+            "https://cdn.ncbi.nlm.nih.gov/corehtml/query/egifs/https:--linkinghub.elsevier.com-ihub-images-PubMedLink.gif",
+            "https://www.ncbi.nlm.nih.gov/coreutils/nwds/img/logos/AgencyLogo.svg",
+            "https://www.ncbi.nlm.nih.gov/coreutils/uswds/img/icon-dot-gov.svg",
+            "https://www.ncbi.nlm.nih.gov/coreutils/uswds/img/favicons/favicon-57.png",
+            "https://www.ncbi.nlm.nih.gov/coreutils/uswds/img/icon-https.svg",
+            "https://cdn.ncbi.nlm.nih.gov/pubmed/14efe001-aebf-4097-9883-28c967333423/core/images/pubmed-logo-blue.svg",
+            "https://pmc.ncbi.nlm.nih.gov/static/img/icon-https.svg",
+            "https://pmc.ncbi.nlm.nih.gov/static/img/us_flag.svg",
+            "https://cdn.ncbi.nlm.nih.gov/pmc/cms/images/pmc-card-share.jpg?_=0",
+            "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0Ij48cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTE1LjUgMTRoLS43OWwtLjI4LS4yN0E2LjQ3MSA2LjQ3MSAwIDAgMCAxNiA5LjUgNi41IDYuNSAwIDEgMCA5LjUgMTZjMS42MSAwIDMuMDktLjU5IDQuMjMtMS41N2wuMjcuMjh2Ljc5bDUgNC45OUwyMC40OSAxOWwtNC45OS01em0tNiAwQzcuMDEgMTQgNSAxMS45OSA1IDkuNVM3LjAxIDUgOS41IDUgMTQgNy4wMSAxNCA5LjUgMTEuOTkgMTQgOS41IDE0eiIvPjwvc3ZnPg==",
+            "https://pmc.ncbi.nlm.nih.gov/static/img/icon-dot-gov.svg",
+            "https://cdn.ncbi.nlm.nih.gov/pmc/banners/logo-nihpa.png",
+            "https://pmc.ncbi.nlm.nih.gov/static/img/ncbi-logos/nih-nlm-ncbi--white.svg",
+            "https://pmc.ncbi.nlm.nih.gov/static/img/usa-icons-bg/search--white.svg",
+            "https://pmc.ncbi.nlm.nih.gov/static/img/usa-icons/close.svg"
         ],
         "videos": [],
         "links": [
             {
-                "url": "https://www.geeksforgeeks.org/introduction-to-cuda-programming/",
-                "title": "Introduction to CUDA Programming",
+                "url": "https://www.nhlbi.nih.gov/health/sleep/why-sleep-important",
+                "title": "How Sleep Works - Why Is Sleep Important?",
                 "summary": ""
             },
             {
-                "url": "https://towardsai.net/p/machine-learning/a-beginners-guide-to-cuda-programming",
-                "title": "A Beginner’s Guide to CUDA Programming",
+                "url": "https://www.sleepfoundation.org/how-sleep-works/why-do-we-need-sleep",
+                "title": "Why Do We Need Sleep?",
                 "summary": ""
             },
             {
-                "url": "https://developer.nvidia.com/blog/even-easier-introduction-cuda/",
-                "title": "An Even Easier Introduction to CUDA",
+                "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10155483/",
+                "title": "The consequences of sleep deprivation on cognitive performance",
                 "summary": ""
             },
             {
-                "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9761899/",
-                "title": "Online teaching and learning in higher education: Lessons learned in crisis situations",
+                "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5835037/",
+                "title": "Sleep Deprivation and the Epigenome",
                 "summary": ""
             },
             {
-                "url": "https://moldstud.com/articles/p-solving-common-challenges-in-cuda-programming-a-troubleshooting-guide",
-                "title": "Solving Common Challenges in CUDA Programming A Troubleshooting Guide",
+                "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6361301/",
+                "title": "Sleep duration, lifestyles and chronic diseases: a cross-sectional population-based study",
                 "summary": ""
             },
             {
-                "url": "https://moldstud.com/articles/p-navigating-the-challenges-of-cuda-development-a-guide-for-novice-programmers",
-                "title": "Navigating the Challenges of CUDA Development A Guide for Novice Programmers",
+                "url": "https://pubmed.ncbi.nlm.nih.gov/32858334/",
+                "title": "The association between sleep duration and chronic diseases: a population-based cross-sectional study",
                 "summary": ""
             },
             {
-                "url": "https://moldstud.com/articles/p-what-are-some-common-challenges-faced-by-cuda-developers",
-                "title": "What are some common challenges faced by CUDA developers?",
+                "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5567876/",
+                "title": "Sleep Duration and Quality: Impact on Lifestyle Behaviors and Cardiometabolic Health: A Scientific Statement From the American Heart Association",
                 "summary": ""
             }
         ],
         "references": []
     },
     "research_tree": {
-        "query": "What is CUDA programming. How do student's learn it?",
+        "query": "importance of sleep in our life",
         "importance": 0,
         "depth": 0,
         "children": [
             {
-                "query": "How do different educational approaches (e.g., online courses, university curricula, hands-on projects) impact student learning outcomes in CUDA programming, considering factors like prior programming experience and access to hardware?",
+                "query": "Investigate the specific molecular mechanisms by which sleep deprivation impacts cognitive function, focusing on neurotransmitter systems and synaptic plasticity.",
                 "importance": 0.9,
                 "depth": 1,
                 "children": [
                     {
-                        "query": "How does the effectiveness of online CUDA programming courses, as compared to traditional university curricula, vary based on students' prior programming experience and access to high-performance computing hardware, considering the specific challenges and opportunities presented by the shift to online learning during and after crisis situations (e.g., the COVID-19 pandemic)?",
+                        "query": "Investigate the specific epigenetic modifications induced by sleep deprivation in different brain regions and their correlation with changes in neurotransmitter receptor expression and synaptic plasticity markers.",
                         "importance": 0.9,
                         "depth": 2,
                         "children": []
                     },
                     {
-                        "query": "What are the optimal pedagogical strategies for integrating hands-on CUDA programming projects into both online and in-person learning environments, and how do these strategies impact student engagement, knowledge retention, and the development of practical skills, particularly in contexts with varying levels of hardware accessibility?",
+                        "query": "Explore the role of specific neurotransmitter systems (e.g., dopamine, acetylcholine, glutamate) in mediating the cognitive deficits observed after sleep deprivation, focusing on the impact on synaptic transmission and plasticity.",
                         "importance": 0.8,
                         "depth": 2,
                         "children": []
                     },
                     {
-                        "query": "How can adaptive learning technologies and personalized feedback mechanisms be leveraged to improve the learning outcomes of students with diverse backgrounds and prior programming experience in online CUDA programming courses, and what is the impact of these technologies on student motivation and self-efficacy?",
+                        "query": "Determine the reversibility of sleep deprivation-induced cognitive impairments and the underlying molecular mechanisms, including the potential for interventions targeting epigenetic modifications or neurotransmitter imbalances to restore cognitive function.",
                         "importance": 0.7,
                         "depth": 2,
                         "children": []
@@ -237,32 +290,32 @@ This section lists the sources and references used in this report. The list is n
                 ]
             },
             {
-                "query": "What are the common challenges faced by students when learning CUDA programming, and how can these be addressed through improved teaching methodologies, tools, or resources?",
+                "query": "Explore the relationship between sleep quality, duration, and the development of chronic diseases (e.g., cardiovascular disease, diabetes) across different age groups and demographics.",
                 "importance": 0.8,
                 "depth": 1,
                 "children": [
                     {
-                        "query": "Investigate the effectiveness of different debugging and profiling tools in addressing common CUDA programming challenges, comparing their usability and impact on student learning outcomes.",
+                        "query": "Investigate the mediating role of specific lifestyle behaviors (e.g., diet, physical activity, substance use) in the relationship between sleep duration/quality and the development of cardiovascular disease, diabetes, and obesity across different age groups and demographics. This should include longitudinal studies to establish causality.",
                         "importance": 0.9,
                         "depth": 2,
                         "children": []
                     },
                     {
-                        "query": "Develop and evaluate novel teaching methodologies, such as interactive tutorials or gamified learning experiences, to improve novice programmers' understanding of CUDA concepts and reduce common challenges.",
-                        "importance": 0.8,
+                        "query": "Conduct a comparative analysis of the impact of different sleep disorders (e.g., insomnia, sleep apnea, restless legs syndrome) on the risk of developing chronic diseases, considering age, gender, and socioeconomic status. Explore potential mechanisms linking specific sleep disorders to disease development.",
+                        "importance": 0.85,
                         "depth": 2,
                         "children": []
                     },
                     {
-                        "query": "Analyze the specific performance tuning challenges faced by students in CUDA programming and propose automated or semi-automated tools to assist in optimizing code for different hardware architectures.",
-                        "importance": 0.7,
+                        "query": "Examine the bidirectional relationship between sleep and chronic diseases. Specifically, how do chronic diseases impact sleep quality and duration, and how do changes in sleep patterns influence the progression and management of these diseases? This should include studies on the impact of disease treatments on sleep.",
+                        "importance": 0.75,
                         "depth": 2,
                         "children": []
                     }
                 ]
             },
             {
-                "query": "How does the evolution of CUDA (e.g., new versions, features) affect the learning process for students, and what are the implications for curriculum design and educational materials?",
+                "query": "Conduct a longitudinal study to assess the impact of consistent sleep schedules and interventions promoting healthy sleep habits on mental health outcomes, including mood regulation and resilience to stress.",
                 "importance": 0.7,
                 "depth": 1,
                 "children": []
@@ -270,9 +323,8 @@ This section lists the sources and references used in this report. The list is n
         ]
     },
     "metadata": {
-        "total_sources": 7,
-        "max_depth_reached": 0,
-        "total_branches": 3,
-        "total_tokens": 4899
+        "total_sources": 9,
+        "max_depth_reached": 2,
+        "total_tokens": 4706
     }
 }
