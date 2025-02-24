@@ -1,56 +1,59 @@
-# pip install flask[async] flask-socketio flask-cors
-# pip install google-genai beautifulsoup4 selenium newspaper3k lxml_html_clean eventlet
-from flask import Flask, request
-from flask_cors import CORS
-from flask_socketio import SocketIO, emit
+# pip install asyncio eventlet
+# pip install google-genai beautifulsoup4 selenium newspaper3k lxml_html_clean
+from fastapi import FastAPI
+import socketio
 import json, logging
 from knet import KNet
+from scraper import CrawlForAIScraper, WebScraper
 from dotenv import load_dotenv
+load_dotenv()
+import asyncio
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-load_dotenv()
-knet = KNet()
-
-app = Flask(__name__)
-CORS(app)
-
+app = FastAPI()
 # Increased pingTimeout and added logger
-socketio = SocketIO(app, cors_allowed_origins="*", ping_timeout=9999, ping_interval=25)
+sio = socketio.AsyncServer(cors_allowed_origins="*", ping_timeout=60, async_mode="asgi")
+app.mount('/', socketio.ASGIApp(sio))
+
+# Initialize the scraper and KNet
+# scraper_instance = CrawlForAIScraper()
+scraper_instance = WebScraper()
+knet = KNet(scraper_instance)
 
 
-@socketio.on("connect")
-def handle_connect():
-    logger.info(f"Client connected: {request.sid}")
+@sio.event
+def connect(sid, environ, auth):
+    logger.info(f"Client connected: {sid}")
 
 
-@socketio.on("disconnect")
-def handle_disconnect():
-    logger.info(f"Client disconnected: {request.sid}")
+@sio.event
+def disconnect(sid, reason):
+    logger.info(f"Client disconnected: {sid}")
 
 
-@socketio.on("health_check")
-def handle_health_check(_):
+@sio.event
+async def health_check(sid, data):
     logger.debug("Health check received")
-    emit("health_check", {"status": "ok"})
+    await sio.emit("health_check", {"status": "ok"}, room=sid)
 
 
-@socketio.on("start_research")
-def handle_research(data):
+@sio.event
+async def start_research(sid, data):
     try:
         data = json.loads(data)
         topic = data.get("topic")
-        session_id = request.sid
+        session_id = sid
         logger.info(f"Starting research for client {session_id} on topic: {topic}")
 
-        def progress_callback(status):
+        async def progress_callback(status):
             try:
                 logger.debug(
                     f"Progress update: {status['progress']}% - {status['message']}"
                 )
-                socketio.emit(
+                await sio.emit(
                     "status",
                     {"message": status["message"], "progress": status["progress"]},
                     room=session_id,
@@ -62,18 +65,28 @@ def handle_research(data):
         try:
             research_results = knet.conduct_research(topic, progress_callback)
             logger.info(f"Research completed for topic: {topic}")
-            socketio.emit("research_complete", research_results, room=session_id)
+            await sio.emit("research_complete", research_results, room=session_id)
         except Exception as e:
             logger.error(f"Research error: {str(e)}")
-            socketio.emit("error", {"message": str(e)}, room=session_id)
+            await sio.emit("error", {"message": str(e)}, room=session_id)
             raise e
 
     except Exception as e:
         logger.error(f"Error handling research request: {str(e)}")
-        socketio.emit("error", {"message": str(e)}, room=request.sid)
+        await sio.emit("error", {"message": str(e)}, room=sid)
         raise e
 
 
+@sio.event
+async def test(sid, data):
+    print("Testing...")
+    data = json.loads(data)
+    res = await knet.scraper._scrape_page(data["url"])
+    print(json.dumps(res, indent=2))
+    await scraper_instance.close()
+    await sio.emit("test", res, room=sid)
+
 if __name__ == "__main__":
     logger.info("Starting KnowledgeNet server...")
-    socketio.run(app, debug=True, port=5000)
+    import uvicorn
+    uvicorn.run(app, host='127.0.0.1', port=5000)

@@ -6,9 +6,10 @@ import json
 import os
 from datetime import datetime
 from dotenv import load_dotenv
-from scraper import WebScraper
+from scraper import WebScraper, CrawlForAIScraper
 from research_node import ResearchNode
 from collections import deque
+import asyncio
 
 # Load environment variables
 load_dotenv()
@@ -26,8 +27,8 @@ class ResearchProgress:
 
 
 class KNet:
-    def __init__(self, api_key: Optional[str] = None):
-        self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
+    def __init__(self, scraper_instance=None):
+        self.api_key = os.getenv("GOOGLE_API_KEY")
         assert self.api_key, "Google API key is required"
 
         # Initialize Google GenAI
@@ -45,7 +46,8 @@ class KNet:
         )
 
         # Initialize scraper
-        self.scraper = WebScraper()
+        self.scraper = scraper_instance
+
         self.logger = logging.getLogger(__name__)
         self.max_depth = 3
         self.max_breadth = 3
@@ -110,11 +112,6 @@ class KNet:
             "response_mime_type": "application/json",
         }
 
-    def __del__(self):
-        # Cleanup scraper when KNet instance is destroyed
-        if hasattr(self, "scraper"):
-            self.scraper.cleanup()
-
     def _track_tokens(self, tokens: int) -> None:
         self.token_count += tokens
 
@@ -152,7 +149,6 @@ class KNet:
         self.logger.info(f"Starting research on topic: {topic}")
 
         try:
-            self.scraper.setup()
             root_node = ResearchNode(topic)
             to_explore = deque([(root_node, 0)])  # (node, depth) pairs
             explored_queries = set()
@@ -196,8 +192,6 @@ class KNet:
         except Exception as e:
             self.logger.error(f"Research failed: {str(e)}")
             raise e
-        finally:
-            self.scraper.cleanup()
 
     def _analyze_and_branch(self, node: ResearchNode) -> List[ResearchNode]:
         if not node.data:

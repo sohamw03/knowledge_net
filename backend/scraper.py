@@ -3,7 +3,6 @@ import logging
 from typing import List, Dict, Any
 import newspaper
 from newspaper import Article
-import re
 import requests
 from urllib.parse import quote_plus
 
@@ -16,27 +15,20 @@ class WebScraper:
         self.newspaper_config.request_timeout = 10
         self.session = requests.Session()
         self.timeout = 10
-        # Set up headers for requests
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
         }
 
-    def setup(self):
-        pass
-
-    def cleanup(self):
-        pass
-
     def search_and_scrape(self, query: str, num_sites: int = 3) -> List[Dict[str, Any]]:
         self.logger.info(f"Starting search for: {query}")
-        search_results = self._google_search(query, num_sites)
+        search_results = self._duckduckgo_search(query, num_sites)
         self.logger.info(f"Found {len(search_results)} search results")
 
         scraped_data = []
         for idx, url in enumerate(search_results):
             try:
                 self.logger.info(f"Scraping [{idx + 1}/{len(search_results)}]: {url}")
-                data = self._scrape_url(url)
+                data = self._scrape_page(url)
                 if data:
                     scraped_data.append(data)
                     self.logger.info(f"Successfully scraped: {url}")
@@ -47,7 +39,7 @@ class WebScraper:
         self.logger.info(f"Completed scraping {len(scraped_data)} sites")
         return scraped_data
 
-    def _google_search(self, query: str, num_results: int) -> List[str]:
+    def _duckduckgo_search(self, query: str, num_results: int) -> List[str]:
         self.logger.info("Performing DuckDuckGo search...")
         try:
             encoded_query = quote_plus(query)
@@ -78,7 +70,7 @@ class WebScraper:
             self.logger.error(f"DuckDuckGo search error: {str(e)}")
             return []
 
-    def _scrape_url(self, url: str) -> Dict[str, Any]:
+    def _scrape_page(self, url: str) -> Dict[str, Any]:
         try:
             article = Article(url, config=self.newspaper_config)
             article.download()
@@ -116,7 +108,26 @@ class WebScraper:
 
         except Exception as e:
             self.logger.error(f"Scraping error for {url}: {str(e)}")
-            return None
+            return {}
+
+    def _extract_text(self, soup: BeautifulSoup) -> str:
+        for element in soup(["script", "style", "nav", "header", "footer"]):
+            element.decompose()
+        return " ".join(soup.stripped_strings)
+
+    def _extract_images(self, soup: BeautifulSoup) -> List[str]:
+        return [img.get("src") for img in soup.find_all("img") if img.get("src")]
+
+    def _extract_videos(self, soup: BeautifulSoup) -> List[str]:
+        videos = []
+        for iframe in soup.find_all("iframe"):
+            src = iframe.get("src", "")
+            if "youtube.com" in src or "youtu.be" in src:
+                videos.append(src)
+        return videos
+
+    def _extract_links(self, soup: BeautifulSoup) -> List[str]:
+        return [a.get("href") for a in soup.find_all("a") if a.get("href")]
 
     def _merge_extraction_results(self, news_data: Dict, selenium_data: Dict) -> Dict[str, Any]:
         merged = selenium_data.copy()
@@ -138,21 +149,100 @@ class WebScraper:
 
         return merged
 
-    def _extract_text(self, soup: BeautifulSoup) -> str:
-        for element in soup(["script", "style", "nav", "header", "footer"]):
-            element.decompose()
-        return " ".join(soup.stripped_strings)
 
-    def _extract_images(self, soup: BeautifulSoup) -> List[str]:
-        return [img.get("src") for img in soup.find_all("img") if img.get("src")]
+import asyncio
+from crawl4ai import AsyncWebCrawler, CacheMode, BrowserConfig
+import json
+class CrawlForAIScraper:
+    def __init__(self) -> None:
+        self.logger = logging.getLogger(__name__)
+        self.base_browser = BrowserConfig(
+                browser_type="chromium",
+                headless=True,
+                viewport_width=1920,
+                viewport_height=1080,
+                accept_downloads=True,
+            )
+        self.crawler = AsyncWebCrawler(config=self.base_browser)
+        self._is_started = False
 
-    def _extract_videos(self, soup: BeautifulSoup) -> List[str]:
-        videos = []
-        for iframe in soup.find_all("iframe"):
-            src = iframe.get("src", "")
-            if "youtube.com" in src or "youtu.be" in src:
-                videos.append(src)
-        return videos
+    async def start(self):
+        if not self._is_started:
+            await self.crawler.start()
+            self._is_started = True
 
-    def _extract_links(self, soup: BeautifulSoup) -> List[str]:
-        return [a.get("href") for a in soup.find_all("a") if a.get("href")]
+    async def close(self):
+        if self._is_started:
+            await self.crawler.close()
+            self._is_started = False
+
+    async def search_and_scrape(self, query: str, num_sites: int = 3) -> List[Dict[str, Any]]:
+        if not self._is_started:
+            await self.start()
+        self.logger.info(f"Starting search for: {query}")
+        search_results = self._google_search(query, num_sites)
+        self.logger.info(f"Found {len(search_results)} search results")
+
+        scraped_data = []
+        for idx, url in enumerate(search_results):
+            try:
+                self.logger.info(f"Scraping [{idx + 1}/{len(search_results)}]: {url}")
+                data = await self._scrape_page(url)
+                if data:
+                    scraped_data.append(data)
+                    self.logger.info(f"Successfully scraped: {url}")
+            except Exception as e:
+                self.logger.error(f"Error scraping {url}: {str(e)}")
+                continue
+
+        await self.crawler.close()
+        self.logger.info(f"Completed scraping {len(scraped_data)} sites")
+        return scraped_data
+
+    async def _scrape_page(self, url: str) -> Dict[str, Any]:
+        if not self._is_started:
+            await self.start()
+
+        try:
+            # Run the crawler on a URL
+            result = await self.crawler.arun(url=url, screenshot=False, cache_mode=CacheMode.BYPASS)
+            data = {
+                "url": url,
+                "text": result.markdown,
+                "images": result.media["images"],
+                "videos": result.media["videos"],
+                "links": result.links,
+            }
+
+            # if not data["text"]:
+            #     response = self.session.get(url, timeout=self.timeout)
+            #     soup = BeautifulSoup(response.text, "html.parser")
+            #     selenium_data = {
+            #         "url": url,
+            #         "title": soup.title.string if soup.title else "",
+            #         "text": self._extract_text(soup),
+            #         "images": self._extract_images(soup),
+            #         "videos": self._extract_videos(soup),
+            #         "links": self._extract_links(soup),
+            #     }
+            #     return self._merge_extraction_results(data, selenium_data)
+
+            return data
+
+        except Exception as e:
+            # self.logger.error(f"Scraping error for {url}: {str(e)}")
+            raise e
+            return {}
+
+    async def _google_search(self, query: str, num_results: int) -> List[str]:
+        pass
+
+
+if __name__ == "__main__":
+    async def main():
+        scraper = CrawlForAIScraper()
+        await scraper.start()
+        data = await scraper._scrape_page("https://www.videojamai.com")
+        await scraper.close()
+        print(json.dumps(data, indent=2))
+    asyncio.run(main())
