@@ -15,12 +15,12 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 # Increased pingTimeout and added logger
-sio = socketio.AsyncServer(cors_allowed_origins="*", ping_timeout=60, async_mode="asgi")
+sio = socketio.AsyncServer(cors_allowed_origins="*", ping_timeout=60, ping_interval=10, async_mode="asgi")
 app.mount('/', socketio.ASGIApp(sio))
 
 # Initialize the scraper and KNet
-# scraper_instance = CrawlForAIScraper()
-scraper_instance = WebScraper()
+scraper_instance = CrawlForAIScraper()
+# scraper_instance = WebScraper()
 knet = KNet(scraper_instance)
 
 
@@ -50,20 +50,14 @@ async def start_research(sid, data):
 
         async def progress_callback(status):
             try:
-                logger.debug(
-                    f"Progress update: {status['progress']}% - {status['message']}"
-                )
-                await sio.emit(
-                    "status",
-                    {"message": status["message"], "progress": status["progress"]},
-                    room=session_id,
-                )
+                logger.debug(f"Progress update: {status['progress']}% - {status['message']}")
+                await sio.emit("status", {"message": status["message"], "progress": status["progress"]}, room=session_id)
             except Exception as e:
                 logger.error(f"Error in progress callback: {str(e)}")
                 raise e
 
         try:
-            research_results = knet.conduct_research(topic, progress_callback)
+            research_results = await knet.conduct_research(topic, progress_callback)
             logger.info(f"Research completed for topic: {topic}")
             await sio.emit("research_complete", research_results, room=session_id)
         except Exception as e:

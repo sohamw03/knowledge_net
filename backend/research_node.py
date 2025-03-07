@@ -8,9 +8,6 @@ class ResearchNode:
         self.depth = depth
         self.children: List[ResearchNode] = []
         self.data: List[Dict[str, Any]] = []
-        self.explored = False
-        self.importance_score = 0.0
-        self.timestamp = datetime.now()
 
     def add_child(self, query: str) -> 'ResearchNode':
         child = ResearchNode(query, parent=self, depth=self.depth + 1)
@@ -24,7 +21,7 @@ class ResearchNode:
             current = current.parent
             path.append(current.query)
         return list(reversed(path))
-    
+
     def max_depth(self) -> int:
         if not self.children:
             return self.depth
@@ -34,3 +31,9 @@ class ResearchNode:
         if not self.children:
             return 0
         return len(self.children) + sum([child.total_children() for child in self.children])
+
+    def get_all_data(self) -> List[Dict[str, Any]]:
+        data = self.data
+        for child in self.children:
+            data.extend(child.get_all_data())
+        return data

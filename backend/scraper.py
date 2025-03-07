@@ -8,6 +8,7 @@ from crawl4ai import AsyncWebCrawler, BrowserConfig, CacheMode
 import newspaper
 from newspaper import Article
 import requests
+import time
 
 
 class WebScraper:
@@ -170,6 +171,7 @@ class CrawlForAIScraper:
     async def start(self):
         if not self._is_started:
             await self.crawler.start()
+            time.sleep(1)
             self._is_started = True
 
     async def close(self):
@@ -178,12 +180,14 @@ class CrawlForAIScraper:
             self._is_started = False
 
     async def search_and_scrape(self, query: str, num_sites: int = 3) -> List[Dict[str, Any]]:
-        if not self._is_started:
-            await self.start()
+        await self.start()
         self.logger.info(f"Starting search for: {query}")
-        search_results = self._google_search(query, num_sites)
+
+        # Perform a Google search to get a list of webpages
+        search_results = await self._google_search(query, num_sites)
         self.logger.info(f"Found {len(search_results)} search results")
 
+        # Scrape each webpage
         scraped_data = []
         for idx, url in enumerate(search_results):
             try:
@@ -196,59 +200,110 @@ class CrawlForAIScraper:
                 self.logger.error(f"Error scraping {url}: {str(e)}")
                 continue
 
-        await self.crawler.close()
         self.logger.info(f"Completed scraping {len(scraped_data)} sites")
         return scraped_data
 
     async def _google_search(self, query: str, num_results: int) -> List[str]:
-        pass
+        self.logger.info("Performing Google search...")
+        try:
+            encoded_query = quote_plus(query)
+            search_uri = f"https://www.google.com/search?q={encoded_query}"
+
+            result = await self.crawler.arun(url=search_uri, screenshot=False, cache_mode=CacheMode.BYPASS, delay_before_return_html=2, page_timeout=25000, scan_full_page=True)
+
+            soup = BeautifulSoup(result.html, "html.parser")
+            search_results = []
+
+            for link in list(soup.select("div > span > a"))[2:]:
+                url = link.get("href").replace(" ", "").replace("\n", "").strip()
+                if not url.startswith(("http://", "https://")):
+                    url = "https://" + url
+                search_results.append(url)
+                if len(search_results) >= num_results:
+                    break
+
+            self.logger.info(f"Found {len(search_results)} URLs")
+            return search_results
+
+        except requests.exceptions.RequestException as e:
+            self.logger.error(f"Google search error: {str(e)}")
+            return []
+        except Exception as e:
+            self.logger.error(f"Google search error: {str(e)}")
+            return []
 
     async def _scrape_page(self, url: str) -> Dict[str, Any]:
-        if not self._is_started:
-            await self.start()
+        await self.start()
 
         try:
             # Run the crawler on a URL
-            result = await self.crawler.arun(url=url, screenshot=False, cache_mode=CacheMode.BYPASS)
+            result = await self.crawler.arun(url=url, screenshot=False, cache_mode=CacheMode.BYPASS, delay_before_return_html=2, page_timeout=25000, scan_full_page=True)
             soup = BeautifulSoup(result.html, "html.parser")
             data = {
                 "url": url,
                 "text": result.markdown,
-                "images": self._extract_images(soup),
-                "videos": result.media["videos"],
-                "links": result.links,
+                "images": self._extract_images(soup, result.url),
+                "videos": self._extract_videos(soup),
+                "links": result.links["external"],
             }
 
             return data
 
         except Exception as e:
-            # self.logger.error(f"Scraping error for {url}: {str(e)}")
-            raise e
+            self.logger.error(f"Scraping error for {url}: {str(e)}")
+            # raise e
             return {}
 
-    def _extract_text(self, soup: BeautifulSoup) -> str:
-        pass
+    def _extract_images(self, soup: BeautifulSoup, url: str) -> List[str]:
+        # Extract images with width and height greater than 300 pixels
+        images = []
+        for img in soup.find_all('img'):
+            if 'src' in img.attrs:
+                src = img['src']
+                # remove px or any characters from width and height
+                width = int(''.join(filter(str.isdigit, img.get('width', '0'))))
+                height = int(''.join(filter(str.isdigit, img.get('height', '0'))))
+                if width > 300 and height > 300 and 'pixel' not in src and 'icon' not in src:
+                    images.append((src, width, height))
+        images = sorted(images, key=lambda img: -1 * (img[1] * img[2]))
+        images = [img[0] for img in images]
 
-    def _extract_images(self, soup: BeautifulSoup) -> List[str]:
-        images = [img['src'] for img in soup.find_all('img') if 'src' in img.attrs and int(img.get('width', 0)) > 300 and int(img.get('height', 0)) > 300 and 'pixel' not in img['src'] and 'icon' not in img['src']]
-        images = sorted(images, key=lambda src: -1 * (int(soup.find('img', {'src': src}).get('width', 0)) * int(soup.find('img', {'src': src}).get('height', 0))))
+        # Add base URL to relative URLs
+        base_url = '/'.join(url.split('/')[:3])
+        images = [img if img.startswith('http') else base_url + img for img in images]
         return images
 
     def _extract_videos(self, soup: BeautifulSoup) -> List[str]:
-        pass
-
-    def _extract_links(self, soup: BeautifulSoup) -> List[str]:
-        pass
-
-    def _merge_extraction_results(self, news_data: Dict, selenium_data: Dict) -> Dict[str, Any]:
-        pass
+        # Extract videos from iframes and video tags
+        videos = []
+        nodes = list(soup.find_all('iframe')) + list(soup.find_all('video')) + list(soup.find_all('a'))
+        for node in nodes:
+            if node.name == 'iframe':
+                src = node.get('src', '')
+                if 'youtube.com' in src or 'youtu.be' in src:
+                    videos.append(src)
+            elif node.name == 'video':
+                src = node.get('src', '')
+                if 'youtube.com' in src or 'youtu.be' in src:
+                    videos.append(src)
+            elif node.name == 'a':
+                href = node.get('href', '')
+                if 'youtube.com' in href or 'youtu.be' in href:
+                    videos.append(href)
+        return videos
 
 
 if __name__ == "__main__":
+    import sys
+    url = "https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview"
+    if len(sys.argv) > 1:
+        url = sys.argv[1]
     async def main():
         scraper = CrawlForAIScraper()
         await scraper.start()
-        data = await scraper._scrape_page("https://www.videojamai.com")
+        data = await scraper.search_and_scrape("what is ai")
         await scraper.close()
+        with open("output.json", "w") as f:
+            f.write(json.dumps(data, indent=2))
         print(json.dumps(data, indent=2))
     asyncio.run(main())
