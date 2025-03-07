@@ -231,7 +231,10 @@ class KNet:
             return []
 
     def _generate_final_report(self, root_node: ResearchNode) -> Dict[str, Any]:
-        findings = "\n".join(self.ctx_researcher)
+        findings = "\n".join(self.ctx_manager)
+        print(f"""----------------- Findings -----------------""")
+        print(findings)
+        print(f"""----------------- Findings -----------------""")
         prompt = f"""Generate a comprehensive report on the topic "{root_node.query}" based on the following research findings:
         {findings}
         """
