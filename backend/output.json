@@ -1,330 +1,652 @@
 {
-    "topic": "importance of sleep in our life",
-    "timestamp": "2025-02-24T20:15:01.222925",
-    "content": "# Research Report: importance of sleep in our life
+  "topic": "what are the different types of deep learning models",
+  "timestamp": "2025-03-07T18:04:44.789202",
+  "content": "Here's a comprehensive report on the different types of deep learning models, based on the provided research findings:
 
-Part 1: Overview and Key Findings
---------------------------------
-## Part 1: Sleep and Its Importance - Overview and Key Findings
+## Deep Dive into Deep Learning Models
 
-**1. Executive Summary**
+Deep learning, a subset of machine learning, utilizes artificial neural networks to learn from data. These networks, inspired by the human brain, are composed of interconnected layers of nodes (neurons) that process and transform data. This report provides an overview of deep learning, its applications, benefits, challenges, and, most importantly, the various types of deep learning models.
 
-This research report investigates the critical role of sleep in human health and well-being. It explores the multifaceted impact of sleep on cognitive function, physical health, and emotional regulation. The findings highlight the detrimental consequences of sleep deprivation and underscore the importance of prioritizing sufficient, quality sleep for optimal performance and overall quality of life.
+### 1. What is Deep Learning?
 
-**2. Key Findings**
+Deep learning is a type of machine learning that employs artificial neural networks to learn from data. These networks are composed of multiple layers of interconnected nodes, each responsible for learning specific features of the data. The process involves training deep learning algorithms on large datasets of labeled data, allowing them to associate features with the correct labels. Once trained, these algorithms can make predictions on new, unseen data.
 
-*   **Cognitive Performance:** Adequate sleep is directly correlated with improved cognitive functions, including memory consolidation, attention span, decision-making, and problem-solving abilities. Sleep deprivation significantly impairs these cognitive processes, leading to reduced productivity and increased errors.
+### 2. Deep Learning Applications
 
-*   **Physical Health:** Sufficient sleep plays a vital role in regulating physiological processes, such as immune function, hormonal balance, and cardiovascular health. Chronic sleep loss is linked to an increased risk of chronic diseases, including obesity, diabetes, and heart disease.
+Deep learning has found applications in a wide array of fields, including:
 
-*   **Emotional Well-being:** Sleep profoundly impacts emotional regulation. Sleep deprivation can exacerbate mood swings, increase irritability, and heighten the risk of anxiety and depression. Conversely, consistent, quality sleep promotes emotional stability and resilience.
+*   **Image Recognition:** Identifying objects and features in images.
+*   **Natural Language Processing (NLP):** Understanding the meaning of text, enabling applications like chatbots and spam filters.
+*   **Finance:** Analyzing financial data and predicting market trends.
+*   **Text to Image:** Converting text into images.
 
-*   **Impact of Sleep Disorders:** The prevalence of sleep disorders, such as insomnia and sleep apnea, negatively affects overall health and well-being. These disorders disrupt sleep patterns, leading to daytime fatigue, impaired cognitive function, and increased susceptibility to various health problems.
+### 3. Benefits of Deep Learning Models
 
+Deep learning models offer several advantages over traditional machine learning methods:
 
-Part 2: Detailed Analysis and References
---------------------------------------
-## Part 2: Sleep and Its Importance - Detailed Analysis, Related Topics, and Sources
+*   **Learning Complex Relationships:** They can learn intricate relationships between features in data, leading to more powerful and accurate models.
+*   **Scalability:** They can be trained on large datasets, allowing them to learn from a wider range of experiences and make more accurate predictions.
+*   **Data-Driven Learning:** They require less human intervention, increasing efficiency and scalability.
 
-**1. Detailed Analysis**
+### 4. Challenges of Deep Learning Models
 
-This section delves deeper into the key findings outlined in Part 1, providing a more comprehensive understanding of the mechanisms and implications of sleep on various aspects of human health.
+Despite their benefits, deep learning models also face several challenges:
 
-*   **1.1 Cognitive Performance: The Neural Symphony of Sleep**
+*   **Data Requirements:** They require large amounts of data to learn effectively, which can be a limitation in domains with limited data availability.
+*   **Overfitting:** They can overfit the training data, learning the noise rather than the underlying relationships.
+*   **Bias:** They can be biased based on the data they are trained on, leading to unfair or inaccurate predictions.
 
-    Beyond the general correlation, the impact of sleep on cognitive function is rooted in specific neural processes. During sleep, particularly during slow-wave sleep (SWS) and rapid eye movement (REM) sleep, the brain engages in crucial activities. SWS is characterized by the consolidation of declarative memories (facts and events), where information learned during the day is transferred from the hippocampus to the neocortex for long-term storage. This process, known as systems consolidation, is essential for learning and retaining new information. REM sleep, on the other hand, is associated with the consolidation of procedural memories (skills and habits) and emotional processing. The brain reactivates and replays recently learned information during REM, strengthening neural connections and improving performance on tasks requiring motor skills or pattern recognition. Sleep deprivation disrupts these processes, leading to fragmented memory, difficulty learning new information, and impaired ability to retrieve existing knowledge. Studies utilizing neuroimaging techniques, such as fMRI and EEG, have provided compelling evidence of these sleep-dependent cognitive processes, revealing altered brain activity patterns in sleep-deprived individuals. Furthermore, the prefrontal cortex, responsible for executive functions like decision-making and impulse control, is particularly vulnerable to sleep loss, explaining the increased risk-taking behavior and poor judgment often observed in sleep-deprived individuals.
+### 5. Types of Deep Learning Models
 
-*   **1.2 Physical Health: A Restorative Reset for the Body**
+The research findings highlight three common types of deep learning models:
 
-    The restorative function of sleep extends to the cellular level, impacting various physiological systems. During sleep, the body releases growth hormone, essential for tissue repair and muscle growth. The immune system also benefits significantly from sleep. Cytokines, proteins that signal the immune system, are produced and released during sleep, particularly during SWS. These cytokines help fight infection and inflammation. Chronic sleep deprivation weakens the immune response, making individuals more susceptible to illness and prolonging recovery times. Furthermore, sleep plays a critical role in metabolic regulation. Sleep deprivation disrupts the balance of hormones like insulin and leptin, leading to increased appetite, reduced glucose tolerance, and an increased risk of developing type 2 diabetes. Cardiovascular health is also profoundly affected. Sleep allows the cardiovascular system to rest and recover. Chronic sleep loss is associated with elevated blood pressure, increased heart rate variability, and an increased risk of developing cardiovascular diseases. The mechanisms underlying these effects involve the dysregulation of the autonomic nervous system and the increased production of stress hormones, such as cortisol.
+*   **Convolutional Neural Networks (CNNs):** CNNs are specifically designed for image recognition and processing tasks. They excel at identifying objects in images, even when the objects are partially obscured or distorted.
+*   **Recurrent Neural Networks (RNNs):** RNNs are well-suited for natural language processing and speech recognition. They are particularly effective at understanding the context of a sentence or phrase and can be used for tasks like text generation and language translation.
+*   **Deep Belief Networks (DBNs):** DBNs are generative models composed of multiple layers of stochastic, latent variables. They are used for feature extraction and dimensionality reduction.
 
-*   **1.3 Emotional Well-being: The Emotional Regulator in the Night**
+### 6. Other Deep Learning Architectures (From External Source)
 
-    The impact of sleep on emotional regulation is multifaceted and deeply intertwined with the brain's emotional centers. The amygdala, responsible for processing emotions, particularly fear and anxiety, is highly active during sleep deprivation. This heightened activity can lead to increased emotional reactivity, making individuals more prone to experiencing negative emotions like anger, sadness, and anxiety. The prefrontal cortex, which plays a crucial role in regulating the amygdala and controlling emotional responses, is also impaired by sleep loss. This impairment reduces the ability to effectively manage emotions and make rational decisions. Furthermore, sleep deprivation disrupts the balance of neurotransmitters, such as serotonin and dopamine, which are critical for mood regulation. Insufficient sleep can lead to a decrease in serotonin levels, contributing to feelings of depression and anxiety. Conversely, adequate sleep promotes emotional stability and resilience. Sleep allows the brain to process and regulate emotions, leading to improved mood, reduced irritability, and a greater ability to cope with stress. Studies have shown that individuals with sleep disorders, such as insomnia, are at a significantly higher risk of developing mood disorders, highlighting the strong link between sleep and emotional well-being.
+The provided external source mentions additional deep learning architectures, including:
 
-*   **1.4 Impact of Sleep Disorders: The Silent Disruptors**
+*   **Long Short-Term Memory Networks (LSTMs):** A type of RNN designed to handle long-term dependencies in sequential data, making them suitable for tasks like speech recognition and time series prediction.
+*   **Gated Recurrent Unit (GRU):** A variant of LSTM with fewer parameters, making them suitable for smaller datasets.
+*   **Generative Adversarial Networks (GANs):** Used for generating realistic data, such as images, videos, and audio, by training two neural networks in a competitive setting.
+*   **Transformer Networks:** A powerful architecture that uses self-attention mechanisms to understand context and relationships in sequential data, making them suitable for NLP tasks like translation and text generation.
+*   **Autoencoders:** Used for dimensionality reduction, anomaly detection, and feature learning.
+*   **Deep Stacking Networks (DSNs):** A set of individual deep networks, each with its own hidden layers, designed to improve training and handle complex classification tasks.
 
-    Sleep disorders represent a significant public health concern, affecting millions worldwide. Insomnia, characterized by difficulty falling asleep, staying asleep, or experiencing non-restorative sleep, is one of the most prevalent sleep disorders. It can lead to daytime fatigue, impaired cognitive function, and increased risk of accidents. Sleep apnea, a condition characterized by pauses in breathing during sleep, disrupts sleep architecture and leads to chronic sleep deprivation. This can result in daytime sleepiness, cardiovascular problems, and an increased risk of stroke. Other sleep disorders, such as restless legs syndrome (RLS) and narcolepsy, also significantly impact sleep quality and overall health. RLS causes an irresistible urge to move the legs, disrupting sleep and leading to daytime fatigue. Narcolepsy is a neurological disorder characterized by excessive daytime sleepiness, sudden sleep attacks, and other symptoms. Effective diagnosis and treatment of sleep disorders are crucial for improving sleep quality, reducing health risks, and enhancing overall well-being. This often involves a combination of lifestyle modifications, behavioral therapies, and, in some cases, medication.
+### 7. Semi-Supervised Learning
 
-**2. Related Topics and Branches**
+Semi-supervised learning is a machine learning approach that combines labeled and unlabeled data for training. This is particularly useful when labeled data is scarce and expensive to obtain, while unlabeled data is abundant. The goal is to leverage the information in both types of data to improve model performance.
 
-This section explores related topics and branches of research that expand upon the core themes of sleep and its importance.
+### 8. Reinforcement Learning
 
-*   **2.1 Chronobiology and Circadian Rhythms:** The study of circadian rhythms, the internal biological clocks that regulate the sleep-wake cycle and other physiological processes, is fundamental to understanding sleep. Research in chronobiology explores the influence of light, temperature, and other environmental cues on these rhythms and how disruptions to these rhythms can impact health. This includes the study of shift work, jet lag, and the effects of artificial light exposure on sleep patterns.
+Reinforcement learning is a machine learning paradigm where an agent learns to make decisions in an environment to maximize a reward. The agent interacts with the environment, receives feedback (rewards or penalties), and adjusts its actions to achieve its goals.
 
-*   **2.2 Sleep and Mental Health:** The relationship between sleep and mental health is a complex and bidirectional one. Sleep disorders are often comorbid with mental health conditions, such as depression, anxiety, and bipolar disorder. Research explores the underlying mechanisms that link sleep disturbances to mental health problems, including the role of neurotransmitters, hormonal imbalances, and altered brain activity patterns. This includes the use of sleep interventions as a therapeutic tool for mental health conditions.
+### 9. Reinforcement Learning from Human Feedback (RLHF)
 
-*   **2.3 Sleep and Aging:** Sleep patterns change with age, with older adults often experiencing changes in sleep architecture, such as reduced SWS and increased sleep fragmentation. Research investigates the impact of these age-related changes on cognitive function, physical health, and emotional well-being. This includes the study of sleep disorders common in older adults, such as insomnia and sleep apnea, and interventions to improve sleep quality in this population.
+RLHF is a technique used to improve large language models (LLMs) by incorporating human preferences into the training process. This involves training a reward model based on human feedback and then using this reward model to fine-tune the LLM using reinforcement learning. This approach has been used in models like ChatGPT and InstructGPT to generate more natural and human-like responses.
 
-*   **2.4 Sleep and Performance Enhancement:** The impact of sleep on performance, both physical and cognitive, is a growing area of research. This includes the study of sleep optimization strategies for athletes, students, and professionals seeking to enhance their performance. This involves exploring the effects of sleep duration, sleep timing, and sleep quality on various performance metrics, such as reaction time, accuracy, and endurance.
+### 10. Conclusion
 
-*   **2.5 Sleep and Technology:** The increasing use of technology, including smartphones, tablets, and laptops, has significantly impacted sleep patterns. Research explores the effects of blue light exposure from these devices on circadian rhythms and sleep quality. This includes the development of sleep-tracking technologies and interventions to mitigate the negative effects of technology on sleep.
-
-**3. Sources and References**
-
-This section provides a list of sources and references used in the research report.
-
-*   **Carskadon, M. A., & Dement, W. C. (2011). Normal human sleep: An overview. *Principles and practice of sleep medicine*, 5, 16-26.** (Provides a comprehensive overview of normal sleep physiology and architecture.)
-
-*   **Walker, M. P. (2009). The role of sleep in cognition and emotion. *Annals of the New York Academy of Sciences*, *1156*, 168-197.** (Explores the specific neural mechanisms underlying the impact of sleep on cognitive and emotional processes.)
-
-*   **Gangwisch, J. E. (2009). Sleep and metabolic function. *Sleep*, *32*(8), 981-988.** (Examines the relationship between sleep and metabolic health, including obesity, diabetes, and cardiovascular disease.)
-
-*   **Riemann, D., Baglioni, C., Bassetti, C., Bjorvatn, B., Bonnet, M. H., & Espie, C. A. (2010). European guideline for the diagnosis and treatment of insomnia. *Journal of Sleep Research*, *19*(2), 137-160.** (Provides guidelines for the diagnosis and treatment of insomnia.)
-
-*   **National Institutes of Health (NIH). (2023). *Sleep Disorders*. Retrieved from [Insert NIH Website Link Here]** (Provides up-to-date information on sleep disorders and related research.)
-
-*   **American Academy of Sleep Medicine (AASM). (2023). *Sleep Education*. Retrieved from [Insert AASM Website Link Here]** (Offers educational resources on sleep and sleep disorders.)
-
-*   **Czeisler, C. A., Duffy, J. F., Shanahan, T. L., Brown, E. N., Rimmer, D. W., Ronda, J. M., ... & Kronauer, R. E. (1999). Stability, precision, and near-24-hour period of the human circadian pacemaker. *Science*, *284*(5423), 1329-1332.** (Provides research on the human circadian pacemaker.)
-
-*   **Goel, N., Rao, H., Durkin, P. R., & D'Ambrosio, D. (2013). Sleep deprivation impairs the prefrontal cortex-dependent regulation of the amygdala. *Journal of Neuroscience*, *33*(28), 11639-11646.** (Provides research on the impact of sleep deprivation on the prefrontal cortex and amygdala.)
-
-*   **Mander, B. A., Winer, J. R., Jagust, W. J., & Walker, M. P. (2016). Sleep disturbance and the aging brain. *Trends in Neurosciences*, *39*(1), 33-43.** (Provides research on the impact of sleep on the aging brain.)
-
-**(Note: Replace the bracketed placeholders with the actual website links.)**
+Deep learning models are a powerful tool for solving complex problems across various domains. The choice of the right model depends on the specific task, the nature of the data, and the desired outcome. As the field of deep learning continues to evolve, new architectures and techniques will emerge, further expanding the capabilities of these models.
 ",
-    "media": {
-        "images": [
-            "https://www.nhlbi.nih.gov/themes/custom/nhlbi/images/ico-youtube-white.svg",
-            "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
-            "https://www.nhlbi.nih.gov/themes/custom/nhlbi/images/NHLBI_Meta_Image.png",
-            "https://www.nhlbi.nih.gov/themes/custom/nhlbi/images/x-twitter-logo.svg",
-            "https://www.nhlbi.nih.gov/themes/custom/nhlbi/images/linkedin-brands.svg",
-            "https://www.nhlbi.nih.gov/themes/custom/nhlbi/images/share-alt-icon.svg",
-            "https://www.nhlbi.nih.gov/themes/custom/nhlbi/images/ico-facebook-white.svg",
-            "https://www.nhlbi.nih.gov/modules/custom/nhlbi_blazy/images/clear.png",
-            "https://www.sleepfoundation.org/wp-content/uploads/2022/07/sf-instagram.svg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2018/10/ExcessiveSleepiness_1440x360.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2021/06/Hypnopompic-Hallucinations-300x169.jpg",
-            "https://www.sleepfoundation.org/wp-content/plugins/ocm-social-networks-shortcode/assets/images/Print.svg",
-            "https://www.sleepfoundation.org/wp-content/plugins/ocm-social-networks-shortcode/assets/images/Email.svg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2020/12/Smile-Brilliant-1-300x214.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2021/02/shutterstock_1432698452-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2009/12/WhatHappensWhenYouSlee.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2023/11/All-Nighters-Helpful-or-Harmful-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2023/02/sf-linkedin.svg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2021/08/Sleep-Spindles-300x198.jpg",
-            "https://www.sleepfoundation.org/wp-content/plugins/ocm-social-networks-shortcode/assets/images/Link.svg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2023/11/lucy_bryan-lg-profile-150x150.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2021/09/How-to-Become-a-Morning-Person-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2018/07/What-Causes-Restless-Sleep-300x207.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2023/10/does-oxygen-drop-while-sleeping-300x158.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2022/04/shutterstock_1413707132-300x192.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2022/04/Eight-Health-Benefits-of-Sleep-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2018/08/NSF-6-J_SleepFoundation_How-Sleep-Impacts-Your-Energy-Level-Throughout-the-Day_Purchased_900x560-300x125.jpeg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2023/02/sf-tiktok.svg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2021/08/REM-Rebound-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2021/01/shutterstock_1033291948-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2017/07/NSF-8-A-464028.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2018/10/men-women-sleep-300x234.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2023/09/group-of-people-drinking-coffee-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2020/09/circadian-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2024/05/Can-You-Learn-a-Language-While-Sleeping--300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2023/02/sf-facebook.svg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2021/05/woman-with-melatonin-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2022/07/social_youtube.svg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2021/06/oversleeping-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2021/08/Biphasic-Sleep-What-It-Is-And-How-It-Works-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2022/06/adenosine-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2014/06/26-NSF-9-I_neurons_2880x1400.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2019/09/HowMuchSleepDoWeReallyNeed.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2022/06/alpha-waves2-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/plugins/ocm-social-networks-shortcode/assets/images/Facebook.svg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2017/04/What’s-the-Connection-Between-Race-and-Sleep-Disorders-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2020/02/mattress-sizes-300x225.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2010/01/Sleep-Debt-and-Catching-Up-on-Sleep-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2009/04/SleepDriveandYourBodyClock.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2020/04/best_clips.00_09_45_18.still029_720-300x169.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2022/04/Why-Do-I-Wake-Up-at-3am-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2019/08/NSF_10_B_Sleepfoundation_HowYourBodyUsesCaloriesWhileSleeping_Purchased_1440x600.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2022/03/Long-Sleepers-300x181.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2009/05/shutterstock_1922139554-300x208.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2024/02/brandon-peters-profile-150x150.png",
-            "https://www.sleepfoundation.org/wp-content/uploads/2018/07/NSF-2-J_SleepFoundationorg_IfYouNapDuringDayCanYouSleepAtNight_Purchased-300x125.webp",
-            "https://www.sleepfoundation.org/wp-content/uploads/2018/07/Daytime-Tiredness-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2020/11/shutterstock_1455947342-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2021/08/Microsleep-What-Is-It-What-Causes-It-and-Is-It-Safe-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/plugins/ocm-social-networks-shortcode/assets/images/Twitter.svg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2010/04/shutterstock_623157431-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2024/04/Mattresses-in-the-Sleep-Foundation-Test-Lab-3-300x125.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2023/02/person-stretch.png",
-            "https://www.sleepfoundation.org/wp-content/uploads/2021/02/shutterstock_1397203685-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2021/03/how-sleep-works-featured-sized-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/themes/onecaremedia-child/assets/images/sf-question-bubble.svg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2021/06/Hypnagogic-Hallucinations-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2023/08/SF_Icon.svg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2021/05/Do-Moon-Phases-Affect-Your-Sleep-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2022/04/How-to-Wake-Up-Easier-300x214.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2021/08/Polyphasic-Sleep-Schedule-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2021/08/Light-Sleeper-What-It-Means-and-What-To-Do-About-It--300x199.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2020/09/Saatva-Lightweight-Down-Alternative-Comforter-253x140-1.jpeg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2023/07/Sweet-Zzz-White-Noise-Machine-300x197.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2022/07/sf-twitter.svg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2021/08/Bedroom-Environment-1-300x125.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2014/06/Why-Do-We-Need-Sleep.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2021/08/Sleep-Latency-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2021/02/shutterstock_1165389808-300x200.jpg",
-            "https://www.sleepfoundation.org/wp-content/uploads/2013/12/32-NSF-11-G_bicycling_2880x1400.jpg",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/icon-https.svg",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/us_flag.svg",
-            "https://cdn.ncbi.nlm.nih.gov/pmc/banners/logo-neurosciences.gif",
-            "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/5f19/10155483/aafb17b10f01/Neurosciences-28-2-91_page_3_2.jpg",
-            "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/5f19/10155483/4689be56a1f1/Neurosciences-28-2-91_page_3_3.jpg",
-            "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/5f19/10155483/d6f8b2352002/Neurosciences-28-2-91_page_3_5.jpg",
-            "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0Ij48cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTE1LjUgMTRoLS43OWwtLjI4LS4yN0E2LjQ3MSA2LjQ3MSAwIDAgMCAxNiA5LjUgNi41IDYuNSAwIDEgMCA5LjUgMTZjMS42MSAwIDMuMDktLjU5IDQuMjMtMS41N2wuMjcuMjh2Ljc5bDUgNC45OUwyMC40OSAxOWwtNC45OS01em0tNiAwQzcuMDEgMTQgNSAxMS45OSA1IDkuNVM3LjAxIDUgOS41IDUgMTQgNy4wMSAxNCA5LjUgMTEuOTkgMTQgOS41IDE0eiIvPjwvc3ZnPg==",
-            "https://cdn.ncbi.nlm.nih.gov/pmc/cms/images/pmc-card-share.jpg?_=0",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/icon-dot-gov.svg",
-            "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/5f19/10155483/940f09bfd840/Neurosciences-28-2-91_page_3_4.jpg",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/ncbi-logos/nih-nlm-ncbi--white.svg",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/usa-icons-bg/search--white.svg",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/usa-icons/close.svg",
-            "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/5f19/10155483/b09ec7af5f3e/Neurosciences-28-2-91_page_3_1.jpg",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/icon-https.svg",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/us_flag.svg",
-            "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/346b/5835037/685e9cdaf82f/fncir-12-00014-g0001.jpg",
-            "https://cdn.ncbi.nlm.nih.gov/pmc/cms/images/pmc-card-share.jpg?_=0",
-            "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0Ij48cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTE1LjUgMTRoLS43OWwtLjI4LS4yN0E2LjQ3MSA2LjQ3MSAwIDAgMCAxNiA5LjUgNi41IDYuNSAwIDEgMCA5LjUgMTZjMS42MSAwIDMuMDktLjU5IDQuMjMtMS41N2wuMjcuMjh2Ljc5bDUgNC45OUwyMC40OSAxOWwtNC45OS01em0tNiAwQzcuMDEgMTQgNSAxMS45OSA1IDkuNVM3LjAxIDUgOS41IDUgMTQgNy4wMSAxNCA5LjUgMTEuOTkgMTQgOS41IDE0eiIvPjwvc3ZnPg==",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/icon-dot-gov.svg",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/ncbi-logos/nih-nlm-ncbi--white.svg",
-            "https://cdn.ncbi.nlm.nih.gov/pmc/banners/logo-frontneurcirc.gif",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/usa-icons-bg/search--white.svg",
-            "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/346b/5835037/a26e7bc8e133/fncir-12-00014-g0002.jpg",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/usa-icons/close.svg",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/icon-https.svg",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/us_flag.svg",
-            "https://cdn.ncbi.nlm.nih.gov/pmc/cms/images/pmc-card-share.jpg?_=0",
-            "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0Ij48cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTE1LjUgMTRoLS43OWwtLjI4LS4yN0E2LjQ3MSA2LjQ3MSAwIDAgMCAxNiA5LjUgNi41IDYuNSAwIDEgMCA5LjUgMTZjMS42MSAwIDMuMDktLjU5IDQuMjMtMS41N2wuMjcuMjh2Ljc5bDUgNC45OUwyMC40OSAxOWwtNC45OS01em0tNiAwQzcuMDEgMTQgNSAxMS45OSA1IDkuNVM3LjAxIDUgOS41IDUgMTQgNy4wMSAxNCA5LjUgMTEuOTkgMTQgOS41IDE0eiIvPjwvc3ZnPg==",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/icon-dot-gov.svg",
-            "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/47a0/6361301/6ec30be87d57/ssci-11-04-0217-g01.jpg",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/ncbi-logos/nih-nlm-ncbi--white.svg",
-            "https://cdn.ncbi.nlm.nih.gov/pmc/banners/logo-ssci.png",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/usa-icons-bg/search--white.svg",
-            "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/47a0/6361301/b926e25b27d8/ssci-11-04-0217-g02.jpg",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/usa-icons/close.svg",
-            "https://cdn.ncbi.nlm.nih.gov/pubmed/persistent/pubmed-meta-image-v2.jpg",
-            "https://cdn.ncbi.nlm.nih.gov/corehtml/query/egifs/https:--linkinghub.elsevier.com-ihub-images-PubMedLink.gif",
-            "https://www.ncbi.nlm.nih.gov/coreutils/nwds/img/logos/AgencyLogo.svg",
-            "https://www.ncbi.nlm.nih.gov/coreutils/uswds/img/icon-dot-gov.svg",
-            "https://www.ncbi.nlm.nih.gov/coreutils/uswds/img/favicons/favicon-57.png",
-            "https://www.ncbi.nlm.nih.gov/coreutils/uswds/img/icon-https.svg",
-            "https://cdn.ncbi.nlm.nih.gov/pubmed/14efe001-aebf-4097-9883-28c967333423/core/images/pubmed-logo-blue.svg",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/icon-https.svg",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/us_flag.svg",
-            "https://cdn.ncbi.nlm.nih.gov/pmc/cms/images/pmc-card-share.jpg?_=0",
-            "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0Ij48cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTE1LjUgMTRoLS43OWwtLjI4LS4yN0E2LjQ3MSA2LjQ3MSAwIDAgMCAxNiA5LjUgNi41IDYuNSAwIDEgMCA5LjUgMTZjMS42MSAwIDMuMDktLjU5IDQuMjMtMS41N2wuMjcuMjh2Ljc5bDUgNC45OUwyMC40OSAxOWwtNC45OS01em0tNiAwQzcuMDEgMTQgNSAxMS45OSA1IDkuNVM3LjAxIDUgOS41IDUgMTQgNy4wMSAxNCA5LjUgMTEuOTkgMTQgOS41IDE0eiIvPjwvc3ZnPg==",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/icon-dot-gov.svg",
-            "https://cdn.ncbi.nlm.nih.gov/pmc/banners/logo-nihpa.png",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/ncbi-logos/nih-nlm-ncbi--white.svg",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/usa-icons-bg/search--white.svg",
-            "https://pmc.ncbi.nlm.nih.gov/static/img/usa-icons/close.svg"
-        ],
-        "videos": [],
-        "links": [
-            {
-                "url": "https://www.nhlbi.nih.gov/health/sleep/why-sleep-important",
-                "title": "How Sleep Works - Why Is Sleep Important?",
-                "summary": ""
-            },
-            {
-                "url": "https://www.sleepfoundation.org/how-sleep-works/why-do-we-need-sleep",
-                "title": "Why Do We Need Sleep?",
-                "summary": ""
-            },
-            {
-                "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10155483/",
-                "title": "The consequences of sleep deprivation on cognitive performance",
-                "summary": ""
-            },
-            {
-                "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5835037/",
-                "title": "Sleep Deprivation and the Epigenome",
-                "summary": ""
-            },
-            {
-                "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6361301/",
-                "title": "Sleep duration, lifestyles and chronic diseases: a cross-sectional population-based study",
-                "summary": ""
-            },
-            {
-                "url": "https://pubmed.ncbi.nlm.nih.gov/32858334/",
-                "title": "The association between sleep duration and chronic diseases: a population-based cross-sectional study",
-                "summary": ""
-            },
-            {
-                "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5567876/",
-                "title": "Sleep Duration and Quality: Impact on Lifestyle Behaviors and Cardiometabolic Health: A Scientific Statement From the American Heart Association",
-                "summary": ""
-            }
-        ],
-        "references": []
-    },
-    "research_tree": {
-        "query": "importance of sleep in our life",
-        "importance": 0,
-        "depth": 0,
+  "media": {
+    "images": [
+      "https://deepsense.ai/wp-content/uploads/2024/11/Figure-1-Example-usage-of-ChatGPT-to-analyze-worst-case-time-complexity-of-bubble-sorting-in-the-specified-style.jpeg",
+      "https://addepto.com/wp-content/uploads/2023/02/featured-images_blog-16.jpg",
+      "https://addepto.com/wp-content/uploads/2021/08/at_is_entropy_in_machine_learning_1_.webp",
+      "https://deepsense.ai/wp-content/smush-webp/2025/03/Miniatura-Unstructured-1024x614.png.webp",
+      "https://deepsense.ai/wp-content/uploads/2024/11/Figure-3-Experiment-video-screenshot.png",
+      "https://addepto.com/wp-content/uploads/2020/07/Deep_Learning_Architecture_1_.webp",
+      "https://addepto.com/wp-content/uploads/2020/02/ing_-_5_Examples_Of_How_To_Use_It_1_.webp",
+      "https://i.ytimg.com/vi/olFxW7kdtP8/hqdefault.jpg",
+      "https://images.prismic.io/turing/652ec261fbd9a45bcec81941_Reinforcement_Learning_4_11zon_946380769c.webp?auto=format%2Ccompress&fit=max&w=3840",
+      "https://www.sas.com/en_ie/insights/articles/analytics/machine-learning-algorithms/_jcr_content/par02/image_8597.img.jpg/1494256305219.jpg",
+      "https://www.simplilearn.com/ice9/free_resources_article_thumb/ML-banner_1.jpg",
+      "https://www.simplilearn.com/ice9/free_resources_article_thumb/how_to_become_machine_learning_engineer.jpg",
+      "https://deepsense.ai/wp-content/uploads/2024/10/6-a-2.png",
+      "https://www.simplilearn.com/ice9/free_resources_article_thumb/AI_vs_Machine_Learning_vs_Deep_Learning.jpg",
+      "https://www.simplilearn.com/ice9/ebooks/ML_careerguide.jpg",
+      "https://www.simplilearn.com/ice9/ebooks/ML_eBook_FRS.jpg",
+      "https://www.datarobot.com/wp-content/uploads/2022/02/image3-2-1024x390.jpeg",
+      "https://images.prismic.io/turing/65980f9f531ac2845a2728df_reinforcement_learning_example_82cc17b798.webp?auto=format,compress",
+      "https://deepsense.ai/wp-content/uploads/2024/11/Figure-8-Fine-tuning-with-Reinforcement-Learning.png",
+      "https://www.datarobot.com/wp-content/uploads/2022/02/image5-1-1-1024x892.jpeg",
+      "https://images.prismic.io/turing/65980f9e531ac2845a2728de_reinforcement_learning_algorithm_2a63561d9a.webp?auto=format,compress",
+      "https://deepsense.ai/wp-content/uploads/2024/11/Figure-7-Reward-model-training.png",
+      "https://www.simplilearn.com/ice9/free_resources_article_thumb/Deep_learning_algorithm.jpg",
+      "https://media.geeksforgeeks.org/img-practice/prod/courses/554/Mobile/Other/data_science_1720847526.webp",
+      "https://media.geeksforgeeks.org/img-practice/prod/courses/405/Mobile/Other/Course_ML_&_DS_1720846555.webp",
+      "https://deepsense.ai/wp-content/smush-webp/2025/03/scott-rodgerson-PSpf_XgOM5w-unsplash-1024x683.jpg.webp",
+      "https://deepsense.ai/wp-content/smush-webp/2025/03/partnerzy_blog-1024x614.png.webp",
+      "https://media.geeksforgeeks.org/img-practice/prod/courses/808/Web/Content/ai-for-kids-webp_1728467027.webp",
+      "https://addepto.com/wp-content/uploads/2022/09/featured-images_blog-4.webp",
+      "https://ars.els-cdn.com/content/image/3-s2.0-B9781782421795500055-f05-65-9781782421795.jpg",
+      "https://www.simplilearn.com/ice9/free_resources_article_thumb/ArtificalNeuralNetwork.PNG",
+      "https://deepsense.ai/wp-content/uploads/2024/11/Figure-6-Language-model-pretraining.png",
+      "https://media.geeksforgeeks.org/wp-content/uploads/20220805171912/ProposedSemisupervisedLearningProcess.jpg",
+      "https://images.prismic.io/turing/65980fa0531ac2845a2728e0_reinforcement_learning_techniques_0d7f3f5e9c.webp?auto=format,compress",
+      "https://deepsense.ai/wp-content/uploads/2024/11/Figure-5-ChatGPT-fine-tuning-steps.png",
+      "https://addepto.com/wp-content/uploads/2024/12/contextcheck-2.jpg",
+      "https://deepsense.ai/wp-content/uploads/2024/11/Figure-4-Reinforcement-learning-from-human-feedback-training-loop.png",
+      "https://addepto.com/wp-content/uploads/2023/03/e-learning-consulting-featured-image.webp",
+      "https://deepsense.ai/wp-content/uploads/2024/10/6-a-3.png",
+      "https://deepsense.ai/wp-content/smush-webp/2024/11/How-can-we-improve-language-models-using-reinforcement-learning-ChatGPT-case-study-1024x303.jpeg.webp",
+      "https://deepsense.ai/wp-content/uploads/2024/11/Figure-2-Classic-reinforcement-learning-training-loop.png"
+    ],
+    "videos": [
+      "https://www.youtube.com/watch?v=oC7Cw3fu3gU",
+      "https://www.youtube.com/@deepsenseai",
+      "https://www.youtube.com/googlecloud",
+      "https://www.youtube.com/user/Simplilearn",
+      "https://www.youtube.com/c/sasusers",
+      "https://www.youtube.com/geeksforgeeksvideos",
+      "https://www.youtube.com/channel/UCLfxdtB3H0JdnniBnd4DoNA",
+      "https://www.youtube.com/SASsoftware",
+      "https://www.youtube.com/googlecloudplatform"
+    ],
+    "links": [
+      {
+        "text": "Learn more about this provider",
+        "url": "https://usercentrics.com/privacy-policy/"
+      },
+      {
+        "text": "Contact and support",
+        "url": "https://service.elsevier.com/app/contact/supporthub/sciencedirect/"
+      },
+      {
+        "text": "Cookiebot",
+        "url": "https://www.cookiebot.com"
+      },
+      {
+        "text": "Learn more about this provider",
+        "url": "https://privacy.microsoft.com/en-US/privacystatement"
+      },
+      {
+        "text": "Email",
+        "url": "mailto:subject=A%20guide%20to%20the%20types%20of%20machine%20learning%20algorithms%20%7C%20SAS%20Ireland&body=https%3A%2F%2Fwww.sas.com%2Fen_ie%2Finsights%2Farticles%2Fanalytics%2Fmachine-learning-algorithms.html"
+      },
+      {
+        "text": "",
+        "url": "https://www.facebook.com/simplilearn"
+      },
+      {
+        "text": "",
+        "url": "https://www.facebook.com/addeptoanalytics/"
+      },
+      {
+        "text": "Open In App",
+        "url": "https://geeksforgeeksapp.page.link/?link=https://www.geeksforgeeks.org/ml-semi-supervised-learning/?type%3Darticle%26id%3D308122&apn=free.programming.programming&isi=1641848816&ibi=org.geeksforgeeks.GeeksforGeeksDev&efr=1"
+      },
+      {
+        "text": "YouTube Channel",
+        "url": "https://www.youtube.com/c/sasusers"
+      },
+      {
+        "text": "YouTube",
+        "url": "https://www.youtube.com/SASsoftware"
+      },
+      {
+        "text": "Twitter",
+        "url": "https://twitter.com/intent/tweet?text=A%20guide%20to%20the%20types%20of%20machine%20learning%20algorithms%20%7C%20SAS%20Ireland&url=https%3A%2F%2Fwww.sas.com%2Fen_ie%2Finsights%2Farticles%2Fanalytics%2Fmachine-learning-algorithms.html"
+      },
+      {
+        "text": "",
+        "url": "https://www.twitter.com/simplilearn"
+      },
+      {
+        "text": "https://arxiv.org/abs/1706.03741",
+        "url": "https://arxiv.org/abs/1706.03741"
+      },
+      {
+        "text": "OpenCueOpen source render manager for visual effects and animation.",
+        "url": "https://www.opencue.io/docs/getting-started/"
+      },
+      {
+        "text": "Learn more about this provider",
+        "url": "https://www.evergage.com/privacy-policy/"
+      },
+      {
+        "text": "Learn more about this provider",
+        "url": "https://legal.hubspot.com/privacy-policy?__hstc=198943664.258746a941bc90ce1f5f381e8fb22ac0.1741350864696.1741350864696.1741350864696.1&__hssc=198943664.1.1741350864696&__hsfp=1951743191"
+      },
+      {
+        "text": "Learn more about this provider",
+        "url": "https://www.spotify.com/uk/legal/privacy-policy/"
+      },
+      {
+        "text": "",
+        "url": "https://www.instagram.com/geeks_for_geeks/"
+      },
+      {
+        "text": "Learn more about this provider",
+        "url": "http://www.sitescout.com/privacy"
+      },
+      {
+        "text": "https://openai.com/research/learning-from-human-preferences",
+        "url": "https://openai.com/research/learning-from-human-preferences"
+      },
+      {
+        "text": "Google Cloud Community",
+        "url": "https://www.googlecloudcommunity.com"
+      },
+      {
+        "text": "",
+        "url": "https://pl.linkedin.com/company/addepto"
+      },
+      {
+        "text": "Learn more about this provider",
+        "url": "https://legal.hubspot.com/privacy-policy"
+      },
+      {
+        "text": "",
+        "url": "https://twitter.com/geeksforgeeks"
+      },
+      {
+        "text": "Learn more about this provider",
+        "url": "https://www.linkedin.com/legal/privacy-policy"
+      },
+      {
+        "text": "AppSheetNo-code development platform to build and extend applications.",
+        "url": "https://about.appsheet.com/home/"
+      },
+      {
+        "text": "Check it out on Github!",
+        "url": "https://github.com/Addepto/contextcheck?utm_source=website&utm_medium=banner&utm_campaign=contextcheck"
+      },
+      {
+        "text": "",
+        "url": "https://twitter.com/addepto"
+      },
+      {
+        "text": "Learn more about this provider",
+        "url": "https://www.home.neustar/privacy"
+      },
+      {
+        "text": "",
+        "url": "https://www.elsevier.com/"
+      },
+      {
+        "text": "",
+        "url": "https://www.linkedin.com/company/simplilearn"
+      },
+      {
+        "text": "Press Corner",
+        "url": "https://www.googlecloudpresscorner.com"
+      },
+      {
+        "text": "LinkedIn",
+        "url": "https://www.linkedin.com/company/sas"
+      },
+      {
+        "text": "Get the Android App",
+        "url": "https://play.google.com/store/apps/details?id=com.mobile.simplilearn"
+      },
+      {
+        "text": "",
+        "url": "https://www.instagram.com/turingcom"
+      },
+      {
+        "text": "Learn more about this provider",
+        "url": "https://www.techtarget.com/privacy-policy-may25/?utm_source=cmp&utm_medium=banner&utm_campaign=consent&utm_term=privacy"
+      },
+      {
+        "text": "",
+        "url": "https://in.linkedin.com/company/geeksforgeeks"
+      },
+      {
+        "text": "https://openai.com/blog/chatgpt/",
+        "url": "https://openai.com/blog/chatgpt/"
+      },
+      {
+        "text": "Chrome EnterpriseChromeOS, Chrome Browser, and Chrome devices built for business.",
+        "url": "https://chromeenterprise.google"
+      },
+      {
+        "text": "Facebook",
+        "url": "https://www.facebook.com/SASsoftware"
+      },
+      {
+        "text": "Learn more about this provider",
+        "url": "https://www.adobe.com/privacy.html"
+      },
+      {
+        "text": "Sign In",
+        "url": "javascript:handleLogin('en_ie');"
+      },
+      {
+        "text": "",
+        "url": "https://www.youtube.com/geeksforgeeksvideos"
+      },
+      {
+        "text": "Learn more about this provider",
+        "url": "https://www.amazon.com/gp/help/customer/display.html/ref=footer_privacy?ie=UTF8&nodeId=468496"
+      },
+      {
+        "text": "Privacy policy",
+        "url": "https://www.elsevier.com/legal/privacy-policy"
+      },
+      {
+        "text": "hi@addepto.com",
+        "url": "mailto:hi@addepto.com"
+      },
+      {
+        "text": "",
+        "url": "https://www.facebook.com/turingcom"
+      },
+      {
+        "text": "Learn more about this provider",
+        "url": "https://documents.marketo.com/legal/cookies/"
+      },
+      {
+        "text": "Terms and conditions",
+        "url": "https://www.elsevier.com/legal/elsevier-website-terms-and-conditions"
+      },
+      {
+        "text": "https://openai.com/blog/instruction-following/",
+        "url": "https://openai.com/blog/instruction-following/"
+      },
+      {
+        "text": "",
+        "url": "https://t.me/simplilearnupdates"
+      },
+      {
+        "text": "",
+        "url": "https://www.cookiebot.com/en/what-is-behind-powered-by-cookiebot/"
+      },
+      {
+        "text": "LinkedIn",
+        "url": "https://www.linkedin.com/company/deepsense-ai/"
+      },
+      {
+        "text": "Learn more about this provider",
+        "url": "https://www.openx.com/legal/privacy-policy/"
+      },
+      {
+        "text": "",
+        "url": "https://web.telegram.org/#/im?p=@simplilearnupdates"
+      },
+      {
+        "text": "ContextClue",
+        "url": "https://context-clue.com/"
+      },
+      {
+        "text": "Facebook",
+        "url": "https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Faddepto.com%2Fblog%2Fdeep-learning-architecture%2F"
+      },
+      {
+        "text": "Learn more about this provider",
+        "url": "https://soundcloud.com/pages/privacy"
+      },
+      {
+        "text": "About Google",
+        "url": "https://about.google"
+      },
+      {
+        "text": "Google Cloud on YouTube",
+        "url": "https://www.youtube.com/googlecloud"
+      },
+      {
+        "text": "About ScienceDirect",
+        "url": "https://www.elsevier.com/solutions/sciencedirect"
+      },
+      {
+        "text": "Follow on X",
+        "url": "https://x.com/googlecloud"
+      },
+      {
+        "text": "Shopping cart",
+        "url": "https://sd-cart.elsevier.com/"
+      },
+      {
+        "text": "",
+        "url": "https://www.instagram.com/simplilearn_official/"
+      },
+      {
+        "text": "Learn more about this provider",
+        "url": "https://twitter.com/en/privacy"
+      },
+      {
+        "text": "Learn more about this provider",
+        "url": "https://www.cookiebot.com/goto/privacy-policy/"
+      },
+      {
+        "text": "",
+        "url": "https://www.relx.com/"
+      },
+      {
+        "text": "",
+        "url": "https://x.com/deepsense_ai"
+      },
+      {
+        "text": "Add to Mendeley",
+        "url": "https://www.mendeley.com/reference-management/web-importer?utm_source=science_direct&utm_campaign=web_importer_cross_sell"
+      },
+      {
+        "text": "KnativeComponents to create Kubernetes-native cloud-based software.",
+        "url": "https://knative.dev/docs/"
+      },
+      {
+        "text": "Twitter",
+        "url": "https://twitter.com/SASsoftware"
+      },
+      {
+        "text": "",
+        "url": "https://www.youtube.com/user/Simplilearn"
+      },
+      {
+        "text": "",
+        "url": "https://www.youtube.com/channel/UCLfxdtB3H0JdnniBnd4DoNA"
+      },
+      {
+        "text": "Facebook",
+        "url": "https://www.facebook.com/sharer/sharer.php?u=https://deepsense.ai/blog/using-reinforcement-learning-to-improve-large-language-models/&nb=1"
+      },
+      {
+        "text": "Learn more about this provider",
+        "url": "https://www.hotjar.com/legal/policies/privacy/"
+      },
+      {
+        "text": "LinkedIn",
+        "url": "https://www.linkedin.com/sharing/share-offsite/?url=https://deepsense.ai/blog/using-reinforcement-learning-to-improve-large-language-models/&nb=1"
+      },
+      {
+        "text": "Twitter",
+        "url": "https://twitter.com/intent/tweet?text=Deep+Learning+Architecture+Examples&url=https%3A%2F%2Faddepto.com%2Fblog%2Fdeep-learning-architecture%2F"
+      },
+      {
+        "text": "Merchandise",
+        "url": "https://www.sascompanystore.com/"
+      },
+      {
+        "text": "Chrome Enterprise PremiumGet secure enterprise browsing with extensive endpoint visibility.",
+        "url": "https://chromeenterprise.google/products/chrome-enterprise-premium/"
+      },
+      {
+        "text": "Careers",
+        "url": "https://geeksforgeeks.zohorecruit.in/careers?ref=footer"
+      },
+      {
+        "text": "Subscribe to newsletter",
+        "url": "https://addepto.us20.list-manage.com/subscribe?u=06ea2fe321b296590739d716f&id=0b963312a3"
+      },
+      {
+        "text": "LinkedIn",
+        "url": "https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Faddepto.com%2Fblog%2Fdeep-learning-architecture%2F&title=Deep+Learning+Architecture+Examples"
+      },
+      {
+        "text": "",
+        "url": "https://twitter.com/turingcom"
+      },
+      {
+        "text": "Medium",
+        "url": "https://medium.com/deepsense-ai"
+      },
+      {
+        "text": "Google Cloud Tech on YouTube",
+        "url": "https://www.youtube.com/googlecloudplatform"
+      },
+      {
+        "text": "X",
+        "url": "https://twitter.com/intent/tweet?text=https://deepsense.ai/blog/using-reinforcement-learning-to-improve-large-language-models/&nb=1"
+      },
+      {
+        "text": "https://huggingface.co/blog/rlhf",
+        "url": "https://huggingface.co/blog/rlhf"
+      },
+      {
+        "text": "https://wandb.ai/ayush-thakur/RLHF/reports/Understanding-Reinforcement-Learning-from-Human-Feedback-RLHF-Part-1\u2013VmlldzoyODk5MTIx",
+        "url": "https://wandb.ai/ayush-thakur/RLHF/reports/Understanding-Reinforcement-Learning-from-Human-Feedback-RLHF-Part-1--VmlldzoyODk5MTIx"
+      },
+      {
+        "text": "X",
+        "url": "https://twitter.com/deepsense_ai"
+      },
+      {
+        "text": "Facebook",
+        "url": "http://www.facebook.com/sharer.php?u=https%3A%2F%2Fwww.sas.com%2Fen_ie%2Finsights%2Farticles%2Fanalytics%2Fmachine-learning-algorithms.html"
+      },
+      {
+        "text": "",
+        "url": "mailto:?subject=Semi-Supervised%20Learning%20in%20Artificial%20Intelligence&body=Hello,%0A %0A I found this at datarobot.com and thought you might be interested. Take a look here: https%3A%2F%2Fwww.datarobot.com%2Fblog%2Fsemi-supervised-learning%2F%0A %0A Thank you."
+      },
+      {
+        "text": "",
+        "url": "https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fwww.datarobot.com%2Fblog%2Fsemi-supervised-learning%2F"
+      },
+      {
+        "text": "Facebook",
+        "url": "https://www.facebook.com/deepsenseai"
+      },
+      {
+        "text": "Learn more about this provider",
+        "url": "https://business.safety.google/privacy/"
+      },
+      {
+        "text": "LinkedIn",
+        "url": "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fwww.sas.com%2Fen_ie%2Finsights%2Farticles%2Fanalytics%2Fmachine-learning-algorithms.html"
+      },
+      {
+        "text": "",
+        "url": "https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fwww.datarobot.com%2Fblog%2Fsemi-supervised-learning%2F"
+      },
+      {
+        "text": "video",
+        "url": "https://www.youtube.com/watch?v=oC7Cw3fu3gU"
+      },
+      {
+        "text": "Search Jobs",
+        "url": "https://globalcareers-sas.icims.com/jobs/intro"
+      },
+      {
+        "text": "",
+        "url": "https://geeksforgeeksapp.page.link/gfg-app"
+      },
+      {
+        "text": "",
+        "url": "https://github.com/Addepto/contextcheck"
+      },
+      {
+        "text": "Advertise",
+        "url": "https://www.elsmediakits.com"
+      },
+      {
+        "text": "Evaluate Your RAG-Powered Chatbots",
+        "url": "https://context-clue.com/contextcheck/"
+      },
+      {
+        "text": "Learn more about this provider",
+        "url": "https://www.facebook.com/policy.php/"
+      },
+      {
+        "text": "",
+        "url": "https://twitter.com/intent/tweet?url=https%3A%2F%2Fwww.datarobot.com%2Fblog%2Fsemi-supervised-learning%2F&text="
+      },
+      {
+        "text": "YouTube",
+        "url": "https://www.youtube.com/@deepsenseai"
+      },
+      {
+        "text": "Follow",
+        "url": "https://news.google.com/publications/CAAqBwgKMLTrzwsw44bnAw?hl=en-IN&gl=IN&ceid=IN%3Aen"
+      },
+      {
+        "text": "",
+        "url": "https://www.facebook.com/geeksforgeeks.org/"
+      },
+      {
+        "text": "Learn more about this provider",
+        "url": "https://vwo.com/privacy-policy/"
+      },
+      {
+        "text": "Learn more about this provider",
+        "url": "https://www.zoho.com/privacy.html"
+      },
+      {
+        "text": "Get the iOS App",
+        "url": "https://apps.apple.com/app/simplilearn/id963042747?ls=1"
+      },
+      {
+        "text": "",
+        "url": "https://www.linkedin.com/company/turingcom"
+      }
+    ],
+    "references": []
+  },
+  "research_tree": {
+    "query": "what are the different types of deep learning models",
+    "depth": 0,
+    "children": [
+      {
+        "query": "deep learning model architectures comparison",
+        "depth": 1,
         "children": [
-            {
-                "query": "Investigate the specific molecular mechanisms by which sleep deprivation impacts cognitive function, focusing on neurotransmitter systems and synaptic plasticity.",
-                "importance": 0.9,
-                "depth": 1,
-                "children": [
-                    {
-                        "query": "Investigate the specific epigenetic modifications induced by sleep deprivation in different brain regions and their correlation with changes in neurotransmitter receptor expression and synaptic plasticity markers.",
-                        "importance": 0.9,
-                        "depth": 2,
-                        "children": []
-                    },
-                    {
-                        "query": "Explore the role of specific neurotransmitter systems (e.g., dopamine, acetylcholine, glutamate) in mediating the cognitive deficits observed after sleep deprivation, focusing on the impact on synaptic transmission and plasticity.",
-                        "importance": 0.8,
-                        "depth": 2,
-                        "children": []
-                    },
-                    {
-                        "query": "Determine the reversibility of sleep deprivation-induced cognitive impairments and the underlying molecular mechanisms, including the potential for interventions targeting epigenetic modifications or neurotransmitter imbalances to restore cognitive function.",
-                        "importance": 0.7,
-                        "depth": 2,
-                        "children": []
-                    }
-                ]
-            },
-            {
-                "query": "Explore the relationship between sleep quality, duration, and the development of chronic diseases (e.g., cardiovascular disease, diabetes) across different age groups and demographics.",
-                "importance": 0.8,
-                "depth": 1,
-                "children": [
-                    {
-                        "query": "Investigate the mediating role of specific lifestyle behaviors (e.g., diet, physical activity, substance use) in the relationship between sleep duration/quality and the development of cardiovascular disease, diabetes, and obesity across different age groups and demographics. This should include longitudinal studies to establish causality.",
-                        "importance": 0.9,
-                        "depth": 2,
-                        "children": []
-                    },
-                    {
-                        "query": "Conduct a comparative analysis of the impact of different sleep disorders (e.g., insomnia, sleep apnea, restless legs syndrome) on the risk of developing chronic diseases, considering age, gender, and socioeconomic status. Explore potential mechanisms linking specific sleep disorders to disease development.",
-                        "importance": 0.85,
-                        "depth": 2,
-                        "children": []
-                    },
-                    {
-                        "query": "Examine the bidirectional relationship between sleep and chronic diseases. Specifically, how do chronic diseases impact sleep quality and duration, and how do changes in sleep patterns influence the progression and management of these diseases? This should include studies on the impact of disease treatments on sleep.",
-                        "importance": 0.75,
-                        "depth": 2,
-                        "children": []
-                    }
-                ]
-            },
-            {
-                "query": "Conduct a longitudinal study to assess the impact of consistent sleep schedules and interventions promoting healthy sleep habits on mental health outcomes, including mood regulation and resilience to stress.",
-                "importance": 0.7,
-                "depth": 1,
-                "children": []
-            }
+          {
+            "query": "Transformer models in NLP: advancements and applications",
+            "depth": 2,
+            "children": []
+          },
+          {
+            "query": "Graph Neural Networks (GNNs) for social network analysis",
+            "depth": 2,
+            "children": []
+          },
+          {
+            "query": "Deep Reinforcement Learning with DQNs: challenges and solutions",
+            "depth": 2,
+            "children": []
+          }
         ]
-    },
-    "metadata": {
-        "total_sources": 9,
-        "max_depth_reached": 2,
-        "total_tokens": 4706
-    }
+      },
+      {
+        "query": "applications of semi-supervised learning in deep learning",
+        "depth": 1,
+        "children": [
+          {
+            "query": "Transformer models advancements in NLP and computer vision",
+            "depth": 2,
+            "children": []
+          },
+          {
+            "query": "Applications of Graph Neural Networks (GNNs) in various domains",
+            "depth": 2,
+            "children": []
+          },
+          {
+            "query": "Semi-supervised learning techniques for handling imbalanced datasets",
+            "depth": 2,
+            "children": []
+          }
+        ]
+      },
+      {
+        "query": "advanced reinforcement learning algorithms and implementations",
+        "depth": 1,
+        "children": [
+          {
+            "query": "deep learning model architectures comparison RNN LSTM GRU CNN Transformer GAN",
+            "depth": 2,
+            "children": []
+          },
+          {
+            "query": "reinforcement learning for large language models RLHF PPO algorithm challenges",
+            "depth": 2,
+            "children": []
+          },
+          {
+            "query": "semi-supervised learning applications text classification clustering examples",
+            "depth": 2,
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  "metadata": {
+    "total_queries": 12,
+    "total_sources": 10,
+    "max_depth_reached": 2,
+    "total_tokens": 573199
+  }
 }

@@ -15,9 +15,10 @@ async def main():
     # Create an instance of AsyncWebCrawler
     async with AsyncWebCrawler(config=base_browser) as crawler:
         # Run the crawler on a URL
-        result = await crawler.arun(url=sys.argv[1], screenshot=False, cache_mode=CacheMode.BYPASS, wait_for="js:() => window.loaded === true")
+        result = await crawler.arun(url=sys.argv[1], screenshot=False, cache_mode=CacheMode.BYPASS)
         # Print the extracted content
         hr = lambda: print(("-" * 80) * 2)
+        hr()
         print(result.markdown)
         hr()
         print(json.dumps(result.media, indent=2))
@@ -25,6 +26,7 @@ async def main():
         print(json.dumps(result.links, indent=2))
         hr()
         print(json.dumps(result.downloaded_files, indent=2))
+        hr()
 
         # if result.success:
         #     # Save screenshot
