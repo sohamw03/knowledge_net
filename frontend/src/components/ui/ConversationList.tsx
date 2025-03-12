@@ -26,7 +26,7 @@ const ConversationList: React.FC<ConversationListProps> = ({ conversations, onNe
       <div className="px-4 py-2">
         <Button onClick={onNewConversation} className="w-full justify-start" variant="outline">
           <PlusCircle className="mr-2 h-4 w-4" />
-          New Research
+          New Chat
         </Button>
       </div>
 

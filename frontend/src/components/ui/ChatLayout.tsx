@@ -18,7 +18,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ sidebar, mainContent, settingsP
   return (
     <div className="h-screen flex flex-col">
       <header className="border-b-2 h-14 flex items-center px-6">
-        <h1 className="text-xl font-semibold">Deep Research Assistant</h1>
+        <h1 className="text-xl font-semibold">KnowledgeNet: Deep Research</h1>
         <div className="flex-1" />
         <ThemeToggle />
         <Sheet>

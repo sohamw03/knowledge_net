@@ -23,7 +23,7 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, isLoading }) => {
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center p-8 text-center">
             <div className="max-w-md space-y-2">
-              <h2 className="text-2xl font-bold">Welcome to Deep Research</h2>
+              <h2 className="text-2xl font-bold">Welcome to the KNet demo</h2>
               <p className="text-muted-foreground">Ask any research question to get started. The assistant will provide detailed answers backed by research and sources.</p>
             </div>
           </div>
@@ -39,8 +39,8 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, isLoading }) => {
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
+                  <div className="font-medium">KNet</div>
                   <div className="text-xs text-muted-foreground">Just now</div>
-                  <div className="font-medium">Research Assistant</div>
                 </div>
                 <div className="mt-1 bg-muted/50 p-3 rounded-2xl rounded-tl-sm">
                   <div className="flex space-x-2">
