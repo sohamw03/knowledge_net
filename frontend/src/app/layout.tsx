@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Research Chatbot",
-  description: "Deep research assistant with real-time updates",
+  title: "KNet: Deep Research",
+  description: "KNet is a deep research tool that uses AI to help you find answers to your questions.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

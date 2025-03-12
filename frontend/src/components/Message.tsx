@@ -51,8 +51,9 @@ const Message: React.FC<MessageProps> = ({ message }) => {
 
         <div className={`flex-1 ${isUser ? "items-end" : "items-start"}`}>
           <div className={`flex items-center gap-2 mb-1 ${isUser ? "justify-end" : "justify-start"}`}>
-            <div className="text-xs text-muted-foreground">{new Date(message.timestamp).toLocaleTimeString()}</div>
-            <div className="font-medium">{isUser ? "You" : "Research Assistant"}</div>
+            {isUser && <div className="text-xs text-muted-foreground">{new Date(message.timestamp).toLocaleTimeString()}</div>}
+            <div className="font-medium">{isUser ? "You" : "KNet"}</div>
+            {!isUser && <div className="text-xs text-muted-foreground">{new Date(message.timestamp).toLocaleTimeString()}</div>}
 
             {!isUser && (
               <div className="ml-auto flex items-center gap-2">
