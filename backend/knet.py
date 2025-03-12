@@ -1,4 +1,5 @@
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Any
+from textwrap import dedent
 import google.generativeai as genai
 from google.ai.generativelanguage_v1beta.types import content
 import logging
@@ -8,7 +9,6 @@ from datetime import datetime
 from dotenv import load_dotenv
 from research_node import ResearchNode
 from collections import deque
-import asyncio
 
 # Load environment variables
 load_dotenv()
@@ -36,15 +36,40 @@ class KNet:
         genai.configure(api_key=self.api_key)
 
         # Keep both models with original configurations
+        generation_config = {"temperature": 0.9}
+        safe = [
+            {
+                "category": "HARM_CATEGORY_DANGEROUS",
+                "threshold": "BLOCK_NONE",
+            },
+            {
+                "category": "HARM_CATEGORY_HARASSMENT",
+                "threshold": "BLOCK_NONE",
+            },
+            {
+                "category": "HARM_CATEGORY_HATE_SPEECH",
+                "threshold": "BLOCK_NONE",
+            },
+            {
+                "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                "threshold": "BLOCK_NONE",
+            },
+            {
+                "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                "threshold": "BLOCK_NONE",
+            },
+        ]
         self.llm = genai.GenerativeModel(
             "gemini-2.0-flash-lite-preview-02-05",
-            generation_config={"temperature": 0.7},
+            generation_config=generation_config,
+            safety_settings=safe,
         )
         self.ctx_researcher = []
 
         self.research_manager = genai.GenerativeModel(
             "gemini-2.0-flash-lite-preview-02-05",
-            generation_config={"temperature": 0.3},
+            generation_config=generation_config,
+            safety_settings=safe,
         )
         self.ctx_manager = []
 
@@ -118,30 +143,37 @@ class KNet:
     def _track_tokens(self, tokens: int) -> None:
         self.token_count += tokens
 
-    def _should_branch_deeper(self, node: ResearchNode, topic: str) -> bool:
-        # Generate summary of key findings into research_manager's context
-        if node.data:
-            findings = ("\n" + "-"*10 + "Next data" + "-"*10 + "\n").join([json.dumps(d, indent=2) for d in node.data])
-            response = self.llm.generate_content(f"Extract key findings from the following data related to the topic '{topic}':\n{findings}")
+    def _should_branch_deeper(self, node: ResearchNode, topic: str, retry_count=0) -> bool:
+        try:
+            # Generate summary of key findings into research_manager's context
+            if node.data:
+                findings = ("\n" + "-"*10 + "Next data" + "-"*10 + "\n").join([json.dumps(d, indent=2) for d in node.data])
+                response = self.llm.generate_content(f"Extract key findings from the following data related to the topic '{topic}':\n{findings}")
+                self._track_tokens(response.usage_metadata.total_token_count)
+                findings = response.text
+                self.ctx_manager.append(findings)
+
+            # Research manager takes decision to proceed or not
+            prompt = self.branch_decision_prompt.format(
+                query=node.query,
+                depth=node.depth,
+                path=" -> ".join(node.get_path_to_root()),
+                findings="\n".join(self.ctx_manager),
+            )
+            response = self.research_manager.generate_content(
+                prompt, generation_config={**self.branch_schema}
+            )
             self._track_tokens(response.usage_metadata.total_token_count)
-            findings = response.text
-            self.ctx_manager.append(findings)
+            result = json.loads(response.text)
+            self.logger.info(f"Branch decision for '{node.query}': {result['decision']}")
 
-        # Research manager takes decision to proceed or not
-        prompt = self.branch_decision_prompt.format(
-            query=node.query,
-            depth=node.depth,
-            path=" -> ".join(node.get_path_to_root()),
-            findings="\n".join(self.ctx_manager),
-        )
-        response = self.research_manager.generate_content(
-            prompt, generation_config={**self.branch_schema}
-        )
-        self._track_tokens(response.usage_metadata.total_token_count)
-        result = json.loads(response.text)
-        self.logger.info(f"Branch decision for '{node.query}': {result['decision']}")
-
-        return result["decision"]
+            return result["decision"]
+        except Exception as e:
+            if result["candidates"][0]["finishReason"] == "RECITATION":
+                self.logger.error(f"Retrying branch decision: {str(e)}\nC:{retry_count/3}")
+                self._should_branch_deeper(node, topic, retry_count+1)
+            self.logger.error(f"Branch decision failed: {str(e)}")
+            raise e
 
     async def conduct_research(self, topic: str, progress_callback=None) -> Dict[str, Any]:
         self.token_count = 0
@@ -184,7 +216,7 @@ class KNet:
             self.logger.info(f"Research completed. Explored {len(explored_queries)} queries across {root_node.max_depth()} levels")
             await progress.update(100, "Research complete!")
 
-            with open("output.json", "w") as f:
+            with open("output.json", "a") as f:
                 json.dump(final_report, f, indent=2)
             return final_report
 
@@ -192,23 +224,23 @@ class KNet:
             self.logger.error(f"Research failed: {str(e)}")
             raise e
 
-    def _analyze_and_branch(self, node: ResearchNode, topic: str) -> List[ResearchNode]:
-        if not node.data:
-            return []
-
-        analysis_prompt = f"""Based on the following findings about "{topic}", suggest new research directions.
-        Findings:
-        {json.dumps(self.ctx_manager, indent=2)}
-
-        Suggest up to {self.max_breadth} specific google search queries that would help data which:
-        - Builds upon these findings
-        - Explores different aspects
-        - Goes deeper into important details
-
-        Return as JSON array of objects with properties:
-        - query (string)"""
-
+    def _analyze_and_branch(self, node: ResearchNode, topic: str, retry_count=0) -> List[ResearchNode]:
         try:
+            if not node.data:
+                return []
+
+            analysis_prompt = dedent(f"""Based on the following findings about "{topic}", suggest new research directions.
+            Findings:
+            {json.dumps(self.ctx_manager, indent=2)}
+
+            Suggest up to {self.max_breadth} specific google search queries that would help data which:
+            - Builds upon these findings
+            - Explores different aspects
+            - Goes deeper into important details
+
+            Return as JSON array of objects with properties:
+            - query (string)""")
+
             response = self.research_manager.generate_content(
                 analysis_prompt, generation_config={**self.analysis_schema}
             )
@@ -227,56 +259,65 @@ class KNet:
             return new_nodes
 
         except Exception as e:
+            if result["candidates"][0]["finishReason"] == "RECITATION" and retry_count <= 3:
+                self.logger.error(f"Retrying analysis: {str(e)}\nC:{retry_count/3}")
+                self._analyze_and_branch(node, topic, retry_count+1)
             self.logger.error(f"Branch analysis failed: {str(e)}")
-            return []
+            raise e
 
-    def _generate_final_report(self, root_node: ResearchNode) -> Dict[str, Any]:
-        findings = "\n".join(self.ctx_manager)
-        print(f"""----------------- Findings -----------------""")
-        print(findings)
-        print(f"""----------------- Findings -----------------""")
-        prompt = f"""Generate a comprehensive report on the topic "{root_node.query}" based on the following research findings:
-        {findings}
-        """
-        response = self.research_manager.generate_content(prompt)
-        self._track_tokens(response.usage_metadata.total_token_count)
+    def _generate_final_report(self, root_node: ResearchNode, retry_count=0) -> Dict[str, Any]:
+        try:
+            findings = "\n".join(self.ctx_manager)
+            with open("output.json", "w") as f:
+                f.write(findings)
+            prompt = f"""Generate a comprehensive report on the topic "{root_node.query}" based on the following research findings:
+            {findings}
+            """
+            response = self.research_manager.generate_content(prompt)
+            self._track_tokens(response.usage_metadata.total_token_count)
 
-        # Collate multimedia content
-        media_content = {"images": [], "videos": [], "links": [], "references": []}
-        all_sources_data = root_node.get_all_data()
-        for data in all_sources_data:
-            if data.get("images"):
-                media_content["images"].extend(data["images"])
-            if data.get("videos"):
-                media_content["videos"].extend(data["videos"])
-            if data.get("links"):
-                media_content["links"].extend([{"url": l["href"], "text": l["text"]} for l in data["links"]])
-        # Deduplicate
-        media_content["images"] = list(set(media_content["images"]))
-        media_content["videos"] = list(set(media_content["videos"]))
-        media_content["links"] = list({json.dumps(d, sort_keys=True) for d in media_content["links"]})
-        media_content["links"] = [json.loads(d) for d in media_content["links"]]
+            # Collate multimedia content
+            media_content = {"images": [], "videos": [], "links": [], "references": []}
+            all_sources_data = root_node.get_all_data()
+            for data in all_sources_data:
+                if data.get("images"):
+                    media_content["images"].extend(data["images"])
+                if data.get("videos"):
+                    media_content["videos"].extend(data["videos"])
+                if data.get("links"):
+                    media_content["links"].extend([{"url": l["href"], "text": l["text"]} for l in data["links"]])
+            # Deduplicate
+            media_content["images"] = list(set(media_content["images"]))
+            media_content["videos"] = list(set(media_content["videos"]))
+            media_content["links"] = list({json.dumps(d, sort_keys=True) for d in media_content["links"]})
+            media_content["links"] = [json.loads(d) for d in media_content["links"]]
 
-        # Build research tree structure
-        def build_tree_structure(node: ResearchNode) -> Dict:
-            if not node:
-                return {}
+            # Build research tree structure
+            def build_tree_structure(node: ResearchNode) -> Dict:
+                if not node:
+                    return {}
+                return {
+                    "query": node.query,
+                    "depth": node.depth,
+                    "children": [build_tree_structure(child) for child in node.children],
+                }
+
             return {
-                "query": node.query,
-                "depth": node.depth,
-                "children": [build_tree_structure(child) for child in node.children],
+                "topic": root_node.query,
+                "timestamp": datetime.now().isoformat(),
+                "content": response.text,
+                "media": media_content,
+                "research_tree": build_tree_structure(root_node),
+                "metadata": {
+                    "total_queries": root_node.total_children(),
+                    "total_sources": len(all_sources_data),
+                    "max_depth_reached": root_node.max_depth(),
+                    "total_tokens": self.token_count,
+                },
             }
-
-        return {
-            "topic": root_node.query,
-            "timestamp": datetime.now().isoformat(),
-            "content": response.text,
-            "media": media_content,
-            "research_tree": build_tree_structure(root_node),
-            "metadata": {
-                "total_queries": root_node.total_children(),
-                "total_sources": len(all_sources_data),
-                "max_depth_reached": root_node.max_depth(),
-                "total_tokens": self.token_count,
-            },
-        }
+        except Exception as e:
+            if response["candidates"][0]["finishReason"] == "RECITATION":
+                self.logger.error(f"Retrying final report: {str(e)}\nC:{retry_count/3}")
+                self._generate_final_report(root_node, retry_count+1)
+            self.logger.error(f"Error generating final report: {str(e)}")
+            raise e
