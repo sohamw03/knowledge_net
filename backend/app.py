@@ -1,20 +1,21 @@
 # pip install asyncio eventlet
 # pip install google-genai beautifulsoup4 selenium newspaper3k lxml_html_clean
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import socketio
 import json, logging
 from knet import KNet
 from scraper import CrawlForAIScraper, WebScraper
 from dotenv import load_dotenv
 load_dotenv()
-import asyncio
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
-# Increased pingTimeout and added logger
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+
 sio = socketio.AsyncServer(cors_allowed_origins="*", ping_timeout=60, ping_interval=10, async_mode="asgi")
 app.mount('/', socketio.ASGIApp(sio))
 
@@ -43,7 +44,7 @@ async def health_check(sid, data):
 @sio.event
 async def start_research(sid, data):
     try:
-        data = json.loads(data)
+        data = json.loads(data) if type(data) != dict else data
         topic = data.get("topic")
         session_id = sid
         logger.info(f"Starting research for client {session_id} on topic: {topic}")
@@ -56,25 +57,19 @@ async def start_research(sid, data):
                 logger.error(f"Error in progress callback: {str(e)}")
                 raise e
 
-        try:
-            research_results = await knet.conduct_research(topic, progress_callback)
-            logger.info(f"Research completed for topic: {topic}")
-            await sio.emit("research_complete", research_results, room=session_id)
-        except Exception as e:
-            logger.error(f"Research error: {str(e)}")
-            await sio.emit("error", {"message": str(e)}, room=session_id)
-            raise e
+        research_results = await knet.conduct_research(topic, progress_callback)
+        logger.info(f"Research completed for topic: {topic}")
+        await sio.emit("research_complete", research_results, room=session_id)
 
     except Exception as e:
-        logger.error(f"Error handling research request: {str(e)}")
-        await sio.emit("error", {"message": str(e)}, room=sid)
-        raise e
+        logger.error(f"Research error: {str(e)}")
+        await sio.emit("error", {"message": str(e)}, room=session_id)
 
 
 @sio.event
 async def test(sid, data):
     print("Testing...")
-    data = json.loads(data)
+    data = json.loads(data) if type(data) != dict else data
     res = await knet.scraper._scrape_page(data["url"])
     print(json.dumps(res, indent=2))
     await scraper_instance.close()
