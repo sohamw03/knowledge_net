@@ -58,3 +58,11 @@ export interface ResearchResults {
   research_tree: ResearchNode;
   metadata: ResearchMetadata;
 }
+
+export interface ConversationListProps {
+  conversations: Conversation[];
+  onNewConversation: () => void;
+  onSelectConversation: (id: string) => void;
+  onDeleteConversation: (id: string) => void;
+  onDeleteAllConversations: () => void;
+}

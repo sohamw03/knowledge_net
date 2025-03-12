@@ -46,6 +46,19 @@ const ChatInterface = () => {
     citations: false,
   });
 
+  const userInputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Add this effect for focus management
+  useEffect(() => {
+    const focusInput = () => {
+      setTimeout(() => {
+        userInputRef.current?.focus();
+      }, 100);
+    };
+
+    focusInput();
+  }, [currentConversationId]);
+
   // Initialize socket once
   useEffect(() => {
     const socket = initializeSocket();
@@ -224,12 +237,13 @@ const ChatInterface = () => {
   };
 
   const handleNewConversation = () => {
+    userInputRef.current?.focus();
     setCurrentConversationId(null);
-    setChatState({
+    setChatState((prev) => ({
       messages: [],
       isLoading: false,
       error: null,
-    });
+    }));
   };
 
   const handleSelectConversation = (id: string) => {
@@ -249,12 +263,22 @@ const ChatInterface = () => {
         active: conv.id === id,
       }))
     );
-    userInputRef.current?.focus();
   };
 
-  const sidebar = <ConversationList conversations={conversations} onNewConversation={handleNewConversation} onSelectConversation={handleSelectConversation} />;
+  const handleDeleteConversation = (id: string) => {
+    setConversations((prev) => prev.filter((conv) => conv.id !== id));
+    if (currentConversationId === id) {
+      handleNewConversation();
+    }
+  };
 
-  const userInputRef = useRef<HTMLTextAreaElement>();
+  const handleDeleteAllConversations = () => {
+    setConversations([]);
+    handleNewConversation();
+  };
+
+  const sidebar = <ConversationList conversations={conversations} onNewConversation={handleNewConversation} onSelectConversation={handleSelectConversation} onDeleteConversation={handleDeleteConversation} onDeleteAllConversations={handleDeleteAllConversations} />;
+
   const mainContent = (
     <div className="flex flex-col w-full h-full relative" tabIndex={-1}>
       <ChatHistory messages={chatState.messages} isLoading={chatState.isLoading} />

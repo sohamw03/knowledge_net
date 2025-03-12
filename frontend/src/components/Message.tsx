@@ -32,11 +32,7 @@ const MarkdownComponents: Record<string, React.ComponentType<any>> = {
   thead: ({ children }) => <thead className="bg-muted/50">{children}</thead>,
 };
 
-interface MessageProps {
-  message: MessageType;
-}
-
-const Message: React.FC<MessageProps> = ({ message }) => {
+const Message = ({ message }: { message: MessageType }) => {
   const isUser = message.role === "user";
   const isProgress = message.content.includes("%)") && message.role === "assistant";
 

@@ -1,33 +1,26 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, PlusCircle } from "lucide-react";
+import { ConversationListProps } from "@/lib/types";
+import { MessageSquare, PlusCircle, Trash2, XCircle } from "lucide-react";
 import React from "react";
 
-interface Conversation {
-  id: string;
-  title: string;
-  lastUpdated: string;
-  active?: boolean;
-}
-
-interface ConversationListProps {
-  conversations: Conversation[];
-  onNewConversation: () => void;
-  onSelectConversation: (id: string) => void;
-}
-
-const ConversationList: React.FC<ConversationListProps> = ({ conversations, onNewConversation, onSelectConversation }) => {
+const ConversationList: React.FC<ConversationListProps> = ({ conversations, onNewConversation, onSelectConversation, onDeleteConversation, onDeleteAllConversations }) => {
   const handleSelectConversation = (id: string) => {
     onSelectConversation(id);
   };
 
   return (
     <div className="flex flex-col h-full py-2">
-      <div className="px-4 py-2">
-        <Button onClick={onNewConversation} className="w-full justify-start" variant="outline">
+      <div className="px-4 py-2 flex gap-2">
+        <Button onClick={onNewConversation} className="flex-1 justify-start" variant="outline">
           <PlusCircle className="mr-2 h-4 w-4" />
           New Chat
         </Button>
+        {conversations.length > 0 && (
+          <Button onClick={onDeleteAllConversations} variant="destructive" size="icon">
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        )}
       </div>
 
       <div className="px-2 py-2">
@@ -37,10 +30,22 @@ const ConversationList: React.FC<ConversationListProps> = ({ conversations, onNe
             <p className="text-sm text-muted-foreground px-2">No conversations yet</p>
           ) : (
             conversations.map((conversation) => (
-              <Button key={conversation.id} variant={conversation.active ? "secondary" : "ghost"} className={`w-full justify-start text-left truncate ${conversation.active ? "bg-accent" : ""}`} onClick={() => handleSelectConversation(conversation.id)}>
-                <MessageSquare className="mr-2 h-4 w-4 shrink-0" />
-                <span className="truncate">{conversation.title}</span>
-              </Button>
+              <div key={conversation.id} className="flex items-center gap-1 px-1">
+                <Button variant={conversation.active ? "secondary" : "ghost"} className={`flex-1 pr-0.5 justify-start text-left truncate ${conversation.active ? "bg-accent" : ""} group`} onClick={() => handleSelectConversation(conversation.id)}>
+                  <MessageSquare className="mr-2 h-4 w-4 shrink-0" />
+                  <span className="truncate">{conversation.title}</span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 ml-auto hidden group-hover:flex hover:bg-destructive"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteConversation(conversation.id);
+                    }}>
+                    <XCircle className="h-4 w-4" />
+                  </Button>
+                </Button>
+              </div>
             ))
           )}
         </div>
