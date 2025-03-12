@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LayoutGrid, MessageCircle, Settings } from "lucide-react";
 import React from "react";
 import { ThemeToggle } from "./ThemeToggle";
+import Link from "next/link";
 
 interface ChatLayoutProps {
   sidebar: React.ReactNode;
@@ -18,7 +19,9 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ sidebar, mainContent, settingsP
   return (
     <div className="h-screen flex flex-col">
       <header className="border-b-2 h-14 flex items-center px-6">
-        <h1 className="text-xl font-semibold">KnowledgeNet: Deep Research</h1>
+        <Link href={"/"}>
+          <h1 className="text-xl font-semibold">KnowledgeNet: Deep Research</h1>
+        </Link>
         <div className="flex-1" />
         <ThemeToggle />
         <Sheet>
