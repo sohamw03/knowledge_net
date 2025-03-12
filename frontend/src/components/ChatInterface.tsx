@@ -2,7 +2,7 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { disconnectSocket, getSocket, initializeSocket } from "@/lib/socket";
 import { ChatData, ChatState, Conversation, Message, ResearchOptions, ResearchResults, StatusUpdate } from "@/lib/types";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import ChatHistory from "./ChatHistory";
 import MessageInput from "./MessageInput";
@@ -249,10 +249,12 @@ const ChatInterface = () => {
         active: conv.id === id,
       }))
     );
+    userInputRef.current?.focus();
   };
 
   const sidebar = <ConversationList conversations={conversations} onNewConversation={handleNewConversation} onSelectConversation={handleSelectConversation} />;
 
+  const userInputRef = useRef<HTMLTextAreaElement>();
   const mainContent = (
     <div className="flex flex-col w-full h-full relative" tabIndex={-1}>
       <ChatHistory messages={chatState.messages} isLoading={chatState.isLoading} />
@@ -264,7 +266,7 @@ const ChatInterface = () => {
         </Alert>
       )}
 
-      <MessageInput onSendMessage={handleSendMessage} isLoading={chatState.isLoading} />
+      <MessageInput onSendMessage={handleSendMessage} isLoading={chatState.isLoading} userInputRef={userInputRef} />
     </div>
   );
 
