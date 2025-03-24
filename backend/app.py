@@ -1,12 +1,17 @@
-# pip install asyncio eventlet
+# pip install asyncio eventlet 
 # pip install google-genai beautifulsoup4 selenium newspaper3k lxml_html_clean
+import json
+import logging
+
+import socketio
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import socketio
-import json, logging
+
 from knet import KNet
 from scraper import CrawlForAIScraper, WebScraper
-from dotenv import load_dotenv
+
+
 load_dotenv()
 
 # Configure logging
@@ -14,10 +19,12 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(
+    CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"]
+)
 
 sio = socketio.AsyncServer(cors_allowed_origins="*", ping_timeout=60, ping_interval=10, async_mode="asgi")
-app.mount('/', socketio.ASGIApp(sio))
+app.mount("/", socketio.ASGIApp(sio))
 
 # Initialize the scraper and KNet
 scraper_instance = CrawlForAIScraper()
@@ -52,7 +59,9 @@ async def start_research(sid, data):
         async def progress_callback(status):
             try:
                 logger.debug(f"Progress update: {status['progress']}% - {status['message']}")
-                await sio.emit("status", {"message": status["message"], "progress": status["progress"]}, room=session_id)
+                await sio.emit(
+                    "status", {"message": status["message"], "progress": status["progress"]}, room=session_id
+                )
             except Exception as e:
                 logger.error(f"Error in progress callback: {str(e)}")
                 raise e
@@ -75,7 +84,9 @@ async def test(sid, data):
     await scraper_instance.close()
     await sio.emit("test", res, room=sid)
 
+
 if __name__ == "__main__":
     logger.info("Starting KnowledgeNet server...")
     import uvicorn
-    uvicorn.run(app, host='127.0.0.1', port=5000)
+
+    uvicorn.run(app, host="127.0.0.1", port=5000)

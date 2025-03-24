@@ -1,7 +1,12 @@
 import asyncio
-from crawl4ai import AsyncWebCrawler, CacheMode, BrowserConfig
-import json, sys
+import json
+import sys 
+
+from crawl4ai import AsyncWebCrawler, BrowserConfig, CacheMode
+
+
 # from base64 import b64decode
+
 
 async def main():
     base_browser = BrowserConfig(
@@ -42,6 +47,7 @@ async def main():
         #     print("[OK] PDF & screenshot captured.")
         # else:
         #     print("[ERROR]", result.error_message)
+
 
 if __name__ == "__main__":
     asyncio.run(main())
