@@ -179,31 +179,25 @@ class CrawlForAIScraper:
             await self.crawler.close()
             self._is_started = False
 
-    async def search_and_scrape(self, query: str, num_sites: int = 3) -> List[Dict[str, Any]]:
+    async def search_and_scrape(self, query: str, num_sites: int = 10) -> List[Dict[str, Any]]:
         await self.start()
         self.logger.info(f"Starting search for: {query}")
 
-        # Perform a Google search to get a list of webpages
-        search_results = await self._google_search(query, num_sites)
+        # Perform a search to get a list of webpages
+        search_results = await self._search(query, num_sites)
         self.logger.info(f"Found {len(search_results)} search results")
 
         # Scrape each webpage
         scraped_data = []
-        for idx, url in enumerate(search_results):
-            try:
-                self.logger.info(f"Scraping [{idx + 1}/{len(search_results)}]: {url}")
-                data = await self._scrape_page(url)
-                if data:
-                    scraped_data.append(data)
-                    self.logger.info(f"Successfully scraped: {url}")
-            except Exception as e:
-                self.logger.error(f"Error scraping {url}: {str(e)}")
-                continue
+        self.logger.info(f"Scraping {len(search_results)} sites...")
+        data = await self._scrape_pages(search_results)
+        if data:
+            scraped_data.extend(data)
 
         self.logger.info(f"Completed scraping {len(scraped_data)} sites")
         return scraped_data
 
-    async def _google_search(self, query: str, num_results: int) -> List[str]:
+    async def _search(self, query: str, num_results: int) -> List[str]:
         self.logger.info("Performing Google search...")
         try:
             encoded_query = quote_plus(query)
@@ -214,7 +208,6 @@ class CrawlForAIScraper:
                 screenshot=False,
                 cache_mode=CacheMode.BYPASS,
                 delay_before_return_html=2,
-                page_timeout=25000,
                 scan_full_page=True,
             )
 
@@ -239,33 +232,36 @@ class CrawlForAIScraper:
             self.logger.error(f"Google search error: {str(e)}")
             return []
 
-    async def _scrape_page(self, url: str) -> Dict[str, Any]:
+    async def _scrape_pages(self, urls: str) -> Dict[str, Any]:
         await self.start()
 
         try:
             # Run the crawler on a URL
-            result = await self.crawler.arun(
-                url=url,
+            results = await self.crawler.arun_many(
+                urls=urls,
                 screenshot=False,
                 cache_mode=CacheMode.BYPASS,
-                delay_before_return_html=2,
-                page_timeout=25000,
                 scan_full_page=True,
+                semaphore_count=4,
+                wait_for_images=True,
+                page_timeout=25000,
             )
-            soup = BeautifulSoup(result.html, "html.parser")
-            data = {
-                "url": url,
-                "text": result.markdown,
-                "images": self._extract_images(soup, result.url),
-                "videos": self._extract_videos(soup),
-                "links": result.links["external"],
-            }
-
-            return data
+            scraped_sites = []
+            for result in results:
+                if result.success:
+                    soup = BeautifulSoup(result.html, "html.parser")
+                    data = {
+                        "url": result.url,
+                        "text": result.markdown,
+                        "images": self._extract_images(soup, result.url),
+                        "videos": self._extract_videos(soup),
+                        "links": result.links["external"],
+                    }
+                    scraped_sites.append(data)
+            return scraped_sites
 
         except Exception as e:
-            self.logger.error(f"Scraping error for {url}: {str(e)}")
-            # raise e
+            self.logger.error(f"Scraping error while {urls}: {str(e)}")
             return {}
 
     def _extract_images(self, soup: BeautifulSoup, url: str) -> List[str]:
@@ -274,9 +270,14 @@ class CrawlForAIScraper:
         for img in soup.find_all("img"):
             if "src" in img.attrs:
                 src = img["src"]
-                # remove px or any characters from width and height
-                width = int("".join(filter(str.isdigit, img.get("width", "0"))))
-                height = int("".join(filter(str.isdigit, img.get("height", "0"))))
+                if not "width" or not "height" in img.attrs:
+                    continue
+                if "width" in img.attrs and img.get("width").lower() == "auto":
+                    images.append((src, 999, 0))
+                # Remove units from width and height: get start of the entity till the first non-digit character
+                width = "".join([i for i in img.get("width", "0") if i.isdigit() or i == "."])
+                height = "".join([i for i in img.get("height", "0") if i.isdigit() or i == "."])
+                width, height = float(width), float(height)
                 if width > 300 and height > 300 and "pixel" not in src and "icon" not in src:
                     images.append((src, width, height))
         images = sorted(images, key=lambda img: -1 * (img[1] * img[2]))
@@ -310,14 +311,21 @@ class CrawlForAIScraper:
 if __name__ == "__main__":
     import sys
 
-    url = "https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview"
+    urls = [
+        "https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview",
+        "https://docs.crawl4ai.com/advanced/multi-url-crawling/",
+        "https://github.com/SesameAILabs/csm",
+        "https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview",
+        "https://docs.crawl4ai.com/advanced/multi-url-crawling/",
+        "https://github.com/SesameAILabs/csm",
+    ]
     if len(sys.argv) > 1:
-        url = sys.argv[1]
+        urls = sys.argv[1:]
 
     async def main():
         scraper = CrawlForAIScraper()
         await scraper.start()
-        data = await scraper.search_and_scrape("what is ai")
+        data = await scraper.search_and_scrape("quantum computing")
         await scraper.close()
         with open("output.json", "w") as f:
             f.write(json.dumps(data, indent=2))

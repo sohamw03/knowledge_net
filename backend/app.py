@@ -1,7 +1,8 @@
-# pip install asyncio eventlet 
+# pip install asyncio eventlet
 # pip install google-genai beautifulsoup4 selenium newspaper3k lxml_html_clean
 import json
 import logging
+from typing import Dict
 
 import socketio
 from dotenv import load_dotenv
@@ -20,26 +21,49 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 app.add_middleware(
-    CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"]
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 sio = socketio.AsyncServer(cors_allowed_origins="*", ping_timeout=60, ping_interval=10, async_mode="asgi")
 app.mount("/", socketio.ASGIApp(sio))
 
-# Initialize the scraper and KNet
-scraper_instance = CrawlForAIScraper()
-# scraper_instance = WebScraper()
-knet = KNet(scraper_instance)
+
+class SessionManager:
+    def __init__(self):
+        self.sessions: Dict[str, tuple[KNet, CrawlForAIScraper]] = {}
+
+    async def get_or_create_session(self, sid: str) -> tuple[KNet, CrawlForAIScraper]:
+        if sid not in self.sessions:
+            scraper = CrawlForAIScraper()
+            await scraper.start()
+            knet = KNet(scraper)
+            self.sessions[sid] = (knet, scraper)
+        return self.sessions[sid]
+
+    async def cleanup_session(self, sid: str):
+        if sid in self.sessions:
+            _, scraper = self.sessions[sid]
+            await scraper.close()
+            del self.sessions[sid]
+
+
+session_manager = SessionManager()
 
 
 @sio.event
-def connect(sid, environ, auth):
+async def connect(sid, environ, auth):
     logger.info(f"Client connected: {sid}")
+    await session_manager.get_or_create_session(sid)
 
 
 @sio.event
-def disconnect(sid, reason):
+async def disconnect(sid, reason):
     logger.info(f"Client disconnected: {sid}")
+    await session_manager.cleanup_session(sid)
 
 
 @sio.event
@@ -50,6 +74,8 @@ async def health_check(sid, data):
 
 @sio.event
 async def start_research(sid, data):
+    knet, scraper = await session_manager.get_or_create_session(sid)
+
     try:
         data = json.loads(data) if type(data) != dict else data
         topic = data.get("topic")
@@ -60,7 +86,9 @@ async def start_research(sid, data):
             try:
                 logger.debug(f"Progress update: {status['progress']}% - {status['message']}")
                 await sio.emit(
-                    "status", {"message": status["message"], "progress": status["progress"]}, room=session_id
+                    "status",
+                    {"message": status["message"], "progress": status["progress"]},
+                    room=session_id,
                 )
             except Exception as e:
                 logger.error(f"Error in progress callback: {str(e)}")
@@ -77,11 +105,11 @@ async def start_research(sid, data):
 
 @sio.event
 async def test(sid, data):
+    knet, scraper = await session_manager.get_or_create_session(sid)
     print("Testing...")
     data = json.loads(data) if type(data) != dict else data
     res = await knet.scraper._scrape_page(data["url"])
     print(json.dumps(res, indent=2))
-    await scraper_instance.close()
     await sio.emit("test", res, room=sid)
 
 

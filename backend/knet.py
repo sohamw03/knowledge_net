@@ -82,6 +82,7 @@ class KNet:
         self.logger = logging.getLogger(__name__)
         self.max_depth = 2
         self.max_breadth = 3
+        self.num_sites_per_query = 5
 
         self.search_prompt = """Generate 3-5 specific search queries to research the following topic: {topic}
 
@@ -152,7 +153,7 @@ class KNet:
             if node.data:
                 findings = ("\n" + "-" * 10 + "Next data" + "-" * 10 + "\n").join(
                     [json.dumps(d, indent=2) for d in node.data]
-                ) 
+                )
                 response = self.llm.generate_content(
                     f"Extract key findings from the following data related to the topic '{topic}':\n{findings}"
                 )
@@ -181,6 +182,8 @@ class KNet:
             raise e
 
     async def conduct_research(self, topic: str, progress_callback=None) -> Dict[str, Any]:
+        self.ctx_researcher = []
+        self.ctx_manager = []
         self.token_count = 0
         progress = ResearchProgress(progress_callback)
         self.logger.info(f"Starting research on topic: {topic}")
@@ -203,7 +206,7 @@ class KNet:
 
                 # Search and scrape
                 current_node.data = await self.scraper.search_and_scrape(
-                    current_node.query, 3
+                    current_node.query, self.num_sites_per_query
                 )  # node -> data = [{url:...}, {url:...}, ...]
                 self.ctx_researcher.append(json.dumps(current_node.data, indent=2))
                 explored_queries.add(current_node.query)
