@@ -1,15 +1,16 @@
-from typing import List, Dict, Any, Optional
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
 
 class ResearchNode:
-    def __init__(self, query: str, parent: Optional['ResearchNode'] = None, depth: int = 0):
+    def __init__(self, query: str, parent: Optional["ResearchNode"] = None, depth: int = 0):
         self.query = query
         self.parent = parent
         self.depth = depth
         self.children: List[ResearchNode] = []
         self.data: List[Dict[str, Any]] = []
 
-    def add_child(self, query: str) -> 'ResearchNode':
+    def add_child(self, query: str) -> "ResearchNode":
         child = ResearchNode(query, parent=self, depth=self.depth + 1)
         self.children.append(child)
         return child
