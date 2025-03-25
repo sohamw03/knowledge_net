@@ -1,5 +1,3 @@
-# pip install asyncio eventlet
-# pip install google-genai beautifulsoup4 selenium newspaper3k lxml_html_clean
 import json
 import logging
 from typing import Dict
@@ -20,15 +18,19 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
+CORS_ALLOWED_ORIGINS = [
+    "*",
+    "https://knowledge-net.vercel.app",
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-sio = socketio.AsyncServer(cors_allowed_origins="*", ping_timeout=60, ping_interval=10, async_mode="asgi")
+sio = socketio.AsyncServer(cors_allowed_origins=CORS_ALLOWED_ORIGINS, ping_timeout=60, ping_interval=10, async_mode="asgi")
 app.mount("/", socketio.ASGIApp(sio))
 
 
