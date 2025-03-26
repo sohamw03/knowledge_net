@@ -185,7 +185,6 @@ class CrawlForAIScraper:
 
         # Perform a search to get a list of webpages
         search_results = await self._search(query, num_sites)
-        self.logger.info(f"Found {len(search_results)} search results")
 
         # Scrape each webpage
         scraped_data = []
@@ -219,11 +218,9 @@ class CrawlForAIScraper:
                 if not url.startswith(("http://", "https://")):
                     url = "https://" + url
                 search_results.append(url)
-                if len(search_results) >= num_results:
-                    break
 
-            self.logger.info(f"Found {len(search_results)} URLs")
-            return search_results
+            self.logger.info(f"Found {len(search_results)} results.")
+            return search_results[:num_results]
 
         except requests.exceptions.RequestException as e:
             self.logger.error(f"Google search error: {str(e)}")

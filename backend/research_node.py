@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
+import copy
 
 
 class ResearchNode:
@@ -34,7 +35,7 @@ class ResearchNode:
         return len(self.children) + sum([child.total_children() for child in self.children])
 
     def get_all_data(self) -> List[Dict[str, Any]]:
-        data = self.data
+        data = copy.deepcopy(self.data)
         for child in self.children:
             data.extend(child.get_all_data())
         return data

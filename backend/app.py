@@ -30,7 +30,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-sio = socketio.AsyncServer(cors_allowed_origins=CORS_ALLOWED_ORIGINS, ping_timeout=60, ping_interval=10, async_mode="asgi")
+sio = socketio.AsyncServer(cors_allowed_origins=CORS_ALLOWED_ORIGINS, ping_timeout=120, ping_interval=10, async_mode="asgi")
 app.mount("/", socketio.ASGIApp(sio))
 
 
@@ -76,11 +76,15 @@ async def health_check(sid, data):
 
 @sio.event
 async def start_research(sid, data):
-    knet, scraper = await session_manager.get_or_create_session(sid)
-
     try:
         data = json.loads(data) if type(data) != dict else data
         topic = data.get("topic")
+        max_depth: int = data.get("max_depth")
+        max_breadth: int = data.get("max_breadth")
+        num_sites_per_query: int = data.get("num_sites_per_query")
+
+        knet, _ = await session_manager.get_or_create_session(sid)
+
         session_id = sid
         logger.info(f"Starting research for client {session_id} on topic: {topic}")
 
@@ -96,7 +100,7 @@ async def start_research(sid, data):
                 logger.error(f"Error in progress callback: {str(e)}")
                 raise e
 
-        research_results = await knet.conduct_research(topic, progress_callback)
+        research_results = await knet.conduct_research(topic, progress_callback, max_depth, max_breadth, num_sites_per_query)
         logger.info(f"Research completed for topic: {topic}")
         await sio.emit("research_complete", research_results, room=session_id)
 
@@ -107,7 +111,7 @@ async def start_research(sid, data):
 
 @sio.event
 async def test(sid, data):
-    knet, scraper = await session_manager.get_or_create_session(sid)
+    knet, _ = await session_manager.get_or_create_session(sid)
     print("Testing...")
     data = json.loads(data) if type(data) != dict else data
     res = await knet.scraper._scrape_page(data["url"])

@@ -18,7 +18,7 @@ load_dotenv()
 
 
 class ResearchProgress:
-    def __init__(self, callback=None):
+    def __init__(self, callback):
         self.progress = 0
         self.callback = callback
 
@@ -31,7 +31,7 @@ class ResearchProgress:
 
 
 class KNet:
-    def __init__(self, scraper_instance=None):
+    def __init__(self, scraper_instance, max_depth: int = 1, max_breadth: int = 1, num_sites_per_query: int = 5):
         self.api_key = os.getenv("GOOGLE_API_KEY")
         assert self.api_key, "Google API key is required"
 
@@ -80,9 +80,9 @@ class KNet:
         self.scraper = scraper_instance
 
         self.logger = logging.getLogger(__name__)
-        self.max_depth = 2
-        self.max_breadth = 3
-        self.num_sites_per_query = 5
+        self.max_depth = max_depth
+        self.max_breadth = max_breadth
+        self.num_sites_per_query = num_sites_per_query
 
         self.search_prompt = """Generate 3-5 specific search queries to research the following topic: {topic}
 
@@ -147,13 +147,14 @@ class KNet:
     def _track_tokens(self, tokens: int) -> None:
         self.token_count += tokens
 
-    def _should_branch_deeper(self, node: ResearchNode, topic: str, retry_count=0) -> bool:
+    def _should_branch_deeper(self, node: ResearchNode, topic: str, retry_count: int = 0) -> bool:
         try:
+            if node.depth > self.max_depth:
+                return False
+
             # Generate summary of key findings into research_manager's context
             if node.data:
-                findings = ("\n" + "-" * 10 + "Next data" + "-" * 10 + "\n").join(
-                    [json.dumps(d, indent=2) for d in node.data]
-                )
+                findings = ("\n" + "-" * 10 + "Next data" + "-" * 10 + "\n").join([json.dumps(d, indent=2) for d in node.data])
                 response = self.llm.generate_content(
                     f"Extract key findings from the following data related to the topic '{topic}':\n{findings}"
                 )
@@ -181,7 +182,13 @@ class KNet:
             self.logger.error(f"Branch decision failed: {str(e)}")
             raise e
 
-    async def conduct_research(self, topic: str, progress_callback=None) -> Dict[str, Any]:
+    async def conduct_research(
+        self, topic: str, progress_callback, max_depth: int, max_breadth: int, num_sites_per_query: int
+    ) -> Dict[str, Any]:
+        self.max_depth = max_depth
+        self.max_breadth = max_breadth
+        self.num_sites_per_query = num_sites_per_query
+
         self.ctx_researcher = []
         self.ctx_manager = []
         self.token_count = 0
@@ -198,7 +205,7 @@ class KNet:
             while to_explore:
                 current_node, current_depth = to_explore.popleft()
 
-                if current_node.query in explored_queries or current_depth >= self.max_depth:
+                if current_node.query in explored_queries or current_depth > self.max_depth:
                     continue
 
                 self.logger.info(f"Exploring: {current_node.query} (Depth: {current_depth})")
@@ -223,12 +230,10 @@ class KNet:
             await progress.update(30, "Generating comprehensive report...")
             final_report = self._generate_final_report(root_node)
 
-            self.logger.info(
-                f"Research completed. Explored {len(explored_queries)} queries across {root_node.max_depth()} levels"
-            )
+            self.logger.info(f"Research completed. Explored {len(explored_queries)} queries across {root_node.max_depth()} levels")
             await progress.update(100, "Research complete!")
 
-            with open("output.json", "a") as f:
+            with open("output.json", "a", encoding="utf-8") as f:
                 json.dump(final_report, f, indent=2)
             return final_report
 
@@ -236,9 +241,9 @@ class KNet:
             self.logger.error(f"Research failed: {str(e)}")
             raise e
 
-    def _analyze_and_branch(self, node: ResearchNode, topic: str, retry_count=0) -> List[ResearchNode]:
+    def _analyze_and_branch(self, node: ResearchNode, topic: str, retry_count: int = 0) -> List[ResearchNode]:
         try:
-            if not node.data:
+            if not node.data or node.depth > self.max_depth:
                 return []
 
             analysis_prompt = dedent(
@@ -255,9 +260,7 @@ class KNet:
             - query (string)"""
             )
 
-            response = self.research_manager.generate_content(
-                analysis_prompt, generation_config={**self.analysis_schema}
-            )
+            response = self.research_manager.generate_content(analysis_prompt, generation_config={**self.analysis_schema})
             self._track_tokens(response.usage_metadata.total_token_count)
             result = json.loads(response.text)
             self.logger.info(f"New branches for '{node.query}': {result['branches']}")
@@ -279,7 +282,7 @@ class KNet:
             self.logger.error(f"Branch analysis failed: {str(e)}")
             raise e
 
-    def _generate_final_report(self, root_node: ResearchNode, retry_count=0) -> Dict[str, Any]:
+    def _generate_final_report(self, root_node: ResearchNode, retry_count: int = 0) -> Dict[str, Any]:
         try:
             findings = "\n".join(self.ctx_manager)
             with open("output.json", "w") as f:
@@ -310,9 +313,12 @@ class KNet:
             def build_tree_structure(node: ResearchNode) -> Dict:
                 if not node:
                     return {}
+
+                sources = [d["url"] for d in node.data if d.get("url")]
                 return {
                     "query": node.query,
                     "depth": node.depth,
+                    "sources": sources,
                     "children": [build_tree_structure(child) for child in node.children],
                 }
 
