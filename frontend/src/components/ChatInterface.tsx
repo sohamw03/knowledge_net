@@ -44,6 +44,9 @@ const ChatInterface = () => {
     depth: "basic",
     sources: true,
     citations: false,
+    max_depth: 2,
+    max_breadth: 3,
+    num_sites_per_query: 5,
   });
 
   const userInputRef = useRef<HTMLTextAreaElement>(null);
@@ -226,6 +229,9 @@ const ChatInterface = () => {
       const socket = getSocket();
       socket.emit("start_research", {
         topic: content,
+        max_depth: researchOptions.max_depth,
+        max_breadth: researchOptions.max_breadth,
+        num_sites_per_query: researchOptions.num_sites_per_query,
       });
     } catch (error) {
       setChatState((prevState) => ({
