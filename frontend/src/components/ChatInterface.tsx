@@ -44,7 +44,7 @@ const ChatInterface = () => {
     depth: "basic",
     sources: true,
     citations: false,
-    max_depth: 2,
+    max_depth: 1,
     max_breadth: 3,
     num_sites_per_query: 5,
   });
