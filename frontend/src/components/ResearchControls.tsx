@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { ResearchOptions } from "@/lib/types";
 import React from "react";
+import { Input } from "@/components/ui/input";  // Make sure you have an Input component
 
 interface ResearchControlsProps {
   options: ResearchOptions;
@@ -45,6 +46,45 @@ const ResearchControls: React.FC<ResearchControlsProps> = ({ options, onOptionCh
           <Label htmlFor="citations" className="text-sm font-normal">
             Include citations
           </Label>
+        </div>
+      </div>
+
+      <Separator />
+
+      <div className="space-y-3">
+        <Label>Settings</Label>
+
+        <div className="space-y-2">
+          <Label htmlFor="max-depth">Max Depth</Label>
+          <Input
+            type="number"
+            id="max-depth"
+            value={options.max_depth}
+            onChange={(e) => onOptionChange({ ...options, max_depth: parseInt(e.target.value, 10) })}
+            className="w-full"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="max-breadth">Max Breadth</Label>
+          <Input
+            type="number"
+            id="max-breadth"
+            value={options.max_breadth}
+            onChange={(e) => onOptionChange({ ...options, max_breadth: parseInt(e.target.value, 10) })}
+            className="w-full"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="num-sites-per-query">Number of Sites per Query</Label>
+          <Input
+            type="number"
+            id="num-sites-per-query"
+            value={options.num_sites_per_query}
+            onChange={(e) => onOptionChange({ ...options, num_sites_per_query: parseInt(e.target.value, 10) })}
+            className="w-full"
+          />
         </div>
       </div>
 
