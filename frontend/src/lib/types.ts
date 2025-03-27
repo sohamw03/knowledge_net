@@ -15,6 +15,9 @@ export interface ResearchOptions {
   depth: "basic" | "intermediate" | "deep";
   sources: boolean;
   citations: boolean;
+  max_depth: number;
+  max_breadth: number;
+  num_sites_per_query: number;
 }
 
 export interface ChatData {
