@@ -1,6 +1,6 @@
+import copy
 from datetime import datetime
 from typing import Any, Dict, List, Optional
-import copy
 
 
 class ResearchNode:

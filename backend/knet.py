@@ -12,7 +12,6 @@ from google.ai.generativelanguage_v1beta.types import content
 
 from research_node import ResearchNode
 
-
 # Load environment variables
 load_dotenv()
 
@@ -177,7 +176,7 @@ class KNet:
             return result["decision"]
         except Exception as e:
             if result["candidates"][0]["finishReason"] == "RECITATION":
-                self.logger.error(f"Retrying branch decision: {str(e)}\nC:{retry_count/3}")
+                self.logger.error(f"Retrying branch decision: {str(e)}\nC:{retry_count / 3}")
                 self._should_branch_deeper(node, topic, retry_count + 1)
             self.logger.error(f"Branch decision failed: {str(e)}")
             raise e
@@ -277,7 +276,7 @@ class KNet:
 
         except Exception as e:
             if result["candidates"][0]["finishReason"] == "RECITATION" and retry_count <= 3:
-                self.logger.error(f"Retrying analysis: {str(e)}\nC:{retry_count/3}")
+                self.logger.error(f"Retrying analysis: {str(e)}\nC:{retry_count / 3}")
                 self._analyze_and_branch(node, topic, retry_count + 1)
             self.logger.error(f"Branch analysis failed: {str(e)}")
             raise e
@@ -337,7 +336,7 @@ class KNet:
             }
         except Exception as e:
             if response["candidates"][0]["finishReason"] == "RECITATION":
-                self.logger.error(f"Retrying final report: {str(e)}\nC:{retry_count/3}")
+                self.logger.error(f"Retrying final report: {str(e)}\nC:{retry_count / 3}")
                 self._generate_final_report(root_node, retry_count + 1)
             self.logger.error(f"Error generating final report: {str(e)}")
             raise e

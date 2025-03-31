@@ -10,7 +10,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from knet import KNet
 from scraper import CrawlForAIScraper, WebScraper
 
-
 load_dotenv()
 
 # Configure logging

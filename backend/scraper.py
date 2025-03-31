@@ -274,7 +274,7 @@ class CrawlForAIScraper:
                 # Remove units from width and height: get start of the entity till the first non-digit character
                 width = "".join([i for i in img.get("width", "0") if i.isdigit() or i == "."])
                 height = "".join([i for i in img.get("height", "0") if i.isdigit() or i == "."])
-                if width == '' or height == '':
+                if width == "" or height == "":
                     continue
                 width, height = float(width), float(height)
                 if width > 300 and height > 300 and "pixel" not in src and "icon" not in src:
