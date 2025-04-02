@@ -1,10 +1,11 @@
 import copy
-from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 
 class ResearchNode:
-    def __init__(self, query: str, parent: Optional["ResearchNode"] = None, depth: int = 0):
+    def __init__(
+        self, query: str, parent: Optional["ResearchNode"] = None, depth: int = 0
+    ):
         self.query = query
         self.parent = parent
         self.depth = depth
@@ -32,7 +33,9 @@ class ResearchNode:
     def total_children(self) -> int:
         if not self.children:
             return 0
-        return len(self.children) + sum([child.total_children() for child in self.children])
+        return len(self.children) + sum(
+            [child.total_children() for child in self.children]
+        )
 
     def get_all_data(self) -> List[Dict[str, Any]]:
         data = copy.deepcopy(self.data)

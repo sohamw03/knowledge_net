@@ -267,7 +267,7 @@ class CrawlForAIScraper:
         for img in soup.find_all("img"):
             if "src" in img.attrs:
                 src = img["src"]
-                if not "width" or not "height" in img.attrs:
+                if not "width" or "height" not in img.attrs:
                     continue
                 if "width" in img.attrs and img.get("width").lower() == "auto":
                     images.append((src, 999, 0))

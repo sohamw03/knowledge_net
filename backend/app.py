@@ -31,7 +31,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-sio = socketio.AsyncServer(cors_allowed_origins=CORS_ALLOWED_ORIGINS, ping_timeout=120, ping_interval=10, async_mode="asgi")
+sio = socketio.AsyncServer(
+    cors_allowed_origins=CORS_ALLOWED_ORIGINS,
+    ping_timeout=120,
+    ping_interval=10,
+    async_mode="asgi",
+)
 app.mount("/", socketio.ASGIApp(sio))
 
 
@@ -78,7 +83,7 @@ async def health_check(sid, data):
 @sio.event
 async def start_research(sid, data):
     try:
-        data = json.loads(data) if type(data) != dict else data
+        data = json.loads(data) if type(data) is not dict else data
         topic = data.get("topic")
         max_depth: int = data.get("max_depth")
         max_breadth: int = data.get("max_breadth")
@@ -114,7 +119,7 @@ async def start_research(sid, data):
 async def test(sid, data):
     knet, _ = await session_manager.get_or_create_session(sid)
     print("Testing...")
-    data = json.loads(data) if type(data) != dict else data
+    data = json.loads(data) if type(data) is not dict else data
     res = await knet.scraper._scrape_page(data["url"])
     print(json.dumps(res, indent=2))
     await sio.emit("test", res, room=sid)

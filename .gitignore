@@ -10,6 +10,7 @@ backend/.venv/
 backend/.env*
 backend/downloads/*
 backend/output.json
+backend/.ruff_cache/
 
 # Next.js ignore files
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.

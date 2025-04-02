@@ -16,84 +16,9 @@ from research_node import ResearchNode
 load_dotenv()
 
 
-class ResearchProgress:
-    def __init__(self, callback):
-        self.progress = 0
-        self.callback = callback
-
-    async def update(self, progress: int, message: str):
-        self.progress += progress
-        if self.progress > 100:
-            self.progress = 100
-        if self.callback:
-            await self.callback({"progress": self.progress, "message": message})
-
-
-class KNet:
-    def __init__(self, scraper_instance, max_depth: int = 1, max_breadth: int = 1, num_sites_per_query: int = 5):
-        self.api_key = os.getenv("GOOGLE_API_KEY")
-        assert self.api_key, "Google API key is required"
-
-        # Initialize Google GenAI
-        genai.configure(api_key=self.api_key)
-
-        # Keep both models with original configurations
-        generation_config = {"temperature": 0.9}
-        safe = [
-            {
-                "category": "HARM_CATEGORY_DANGEROUS",
-                "threshold": "BLOCK_NONE",
-            },
-            {
-                "category": "HARM_CATEGORY_HARASSMENT",
-                "threshold": "BLOCK_NONE",
-            },
-            {
-                "category": "HARM_CATEGORY_HATE_SPEECH",
-                "threshold": "BLOCK_NONE",
-            },
-            {
-                "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                "threshold": "BLOCK_NONE",
-            },
-            {
-                "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-                "threshold": "BLOCK_NONE",
-            },
-        ]
-        self.llm = genai.GenerativeModel(
-            "gemini-2.0-flash-lite-preview-02-05",
-            generation_config=generation_config,
-            safety_settings=safe,
-        )
-        self.ctx_researcher = []
-
-        self.research_manager = genai.GenerativeModel(
-            "gemini-2.0-flash-lite-preview-02-05",
-            generation_config=generation_config,
-            safety_settings=safe,
-        )
-        self.ctx_manager = []
-
-        # Initialize scraper
-        self.scraper = scraper_instance
-
-        self.logger = logging.getLogger(__name__)
-        self.max_depth = max_depth
-        self.max_breadth = max_breadth
-        self.num_sites_per_query = num_sites_per_query
-
-        self.search_prompt = """Generate 3-5 specific search queries to research the following topic: {topic}
-
-        Requirements:
-        1. Queries should cover different aspects of the topic
-        2. Be specific and technical
-        3. Include key terms and concepts
-        4. Format each query on a new line
-        5. Return only the queries, no explanations"""
-
-        self.token_count = 0
-        self.branch_decision_prompt = """Given the current research context and findings, should we explore this branch deeper?
+class Prompt:
+    def __init__(self) -> None:
+        self.continue_branch = dedent("""Given the current research context and findings, should we explore this branch deeper?
 
         Current Topic: {query}
         Current Depth: {depth}
@@ -107,10 +32,24 @@ class KNet:
         3. Depth vs breadth tradeoff
         4. Information saturation
 
-        Return only: decision: true/false"""
+        Return only: decision: true/false""")
 
-        # Simplified decision schema for branching
-        self.branch_schema = {
+        self.search_query = dedent("""Based on the following findings about "{topic}", suggest new research directions.
+        Findings:
+        {ctx_manager}
+
+        Suggest up to {max_breadth} specific google search queries that would help data which:
+        - Builds upon these findings
+        - Explores different aspects
+        - Goes deeper into important details
+
+        Return as JSON array of objects with properties:
+        - query (string)""")
+
+
+class Schema:
+    def __init__(self) -> None:
+        self.continue_branch = {
             "response_schema": content.Schema(
                 type=content.Type.OBJECT,
                 required=["decision"],
@@ -121,8 +60,7 @@ class KNet:
             "response_mime_type": "application/json",
         }
 
-        # Analysis schema
-        self.analysis_schema = {
+        self.search_query = {
             "response_schema": content.Schema(
                 type=content.Type.OBJECT,
                 required=["branches"],
@@ -143,55 +81,63 @@ class KNet:
             "response_mime_type": "application/json",
         }
 
-    def _track_tokens(self, tokens: int) -> None:
-        self.token_count += tokens
 
-    def _should_branch_deeper(self, node: ResearchNode, topic: str, retry_count: int = 0) -> bool:
-        try:
-            if node.depth > self.max_depth:
-                return False
+class ResearchProgress:
+    def __init__(self, callback):
+        self.progress = 0
+        self.callback = callback
 
-            # Generate summary of key findings into research_manager's context
-            if node.data:
-                findings = ("\n" + "-" * 10 + "Next data" + "-" * 10 + "\n").join([json.dumps(d, indent=2) for d in node.data])
-                response = self.llm.generate_content(
-                    f"Extract key findings from the following data related to the topic '{topic}':\n{findings}"
-                )
-                self._track_tokens(response.usage_metadata.total_token_count)
-                findings = response.text
-                self.ctx_manager.append(findings)
+    async def update(self, progress: int, message: str):
+        self.progress += progress
+        if self.progress > 100:
+            self.progress = 100
+        if self.callback:
+            await self.callback({"progress": self.progress, "message": message})
 
-            # Research manager takes decision to proceed or not
-            prompt = self.branch_decision_prompt.format(
-                query=node.query,
-                depth=node.depth,
-                path=" -> ".join(node.get_path_to_root()),
-                findings="\n".join(self.ctx_manager),
-            )
-            response = self.research_manager.generate_content(prompt, generation_config={**self.branch_schema})
-            self._track_tokens(response.usage_metadata.total_token_count)
-            result = json.loads(response.text)
-            self.logger.info(f"Branch decision for '{node.query}': {result['decision']}")
 
-            return result["decision"]
-        except Exception as e:
-            if result["candidates"][0]["finishReason"] == "RECITATION":
-                self.logger.error(f"Retrying branch decision: {str(e)}\nC:{retry_count / 3}")
-                self._should_branch_deeper(node, topic, retry_count + 1)
-            self.logger.error(f"Branch decision failed: {str(e)}")
-            raise e
+class KNet:
+    def __init__(self, scraper_instance, max_depth: int = 1, max_breadth: int = 1, num_sites_per_query: int = 5):
+        self.api_key = os.getenv("GOOGLE_API_KEY")
+        assert self.api_key, "Google API key is required"
+        self.scraper = scraper_instance
+        self.logger = logging.getLogger(__name__)
+        self.prompt = Prompt()
+        self.schema = Schema()
 
-    async def conduct_research(
-        self, topic: str, progress_callback, max_depth: int, max_breadth: int, num_sites_per_query: int
-    ) -> Dict[str, Any]:
+        # Init Agents' Base Model
+        genai.configure(api_key=self.api_key)
+        generation_config = {"temperature": 0.9}
+        safe = [
+            {"category": "HARM_CATEGORY_DANGEROUS", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+        ]
+        self.researcher = genai.GenerativeModel("gemini-2.0-flash", generation_config=generation_config, safety_settings=safe)
+        self.research_manager = genai.GenerativeModel("gemini-2.0-flash", generation_config=generation_config, safety_settings=safe)
+
+        # Parameters
         self.max_depth = max_depth
         self.max_breadth = max_breadth
         self.num_sites_per_query = num_sites_per_query
 
+        # Global State
+        self.ctx_researcher: list[str] = []
+        self.ctx_manager: list[str] = []
+        self.token_count: int = 0
+
+    async def conduct_research(self, topic: str, progress_callback, max_depth: int, max_breadth: int, num_sites_per_query: int) -> dict:
+        # Local Runtime State
+        progress = ResearchProgress(progress_callback)
+        self.max_depth = max_depth
+        self.max_breadth = max_breadth
+        self.num_sites_per_query = num_sites_per_query
+
+        # Reset global state
         self.ctx_researcher = []
         self.ctx_manager = []
         self.token_count = 0
-        progress = ResearchProgress(progress_callback)
         self.logger.info(f"Starting research on topic: {topic}")
 
         try:
@@ -219,8 +165,8 @@ class KNet:
 
                 # Only branch if we have data and haven't reached max depth
                 if current_node.data and current_depth < self.max_depth:
-                    if self._should_branch_deeper(current_node, topic):
-                        new_branches = self._analyze_and_branch(current_node, topic)
+                    if self._should_continue_branch(current_node, topic):
+                        new_branches = self._gen_queries(current_node, topic)
                         for branch in new_branches:
                             to_explore.append((branch, current_depth + 1))
                         self.logger.info(f"Added {len(new_branches)} new branch(es) at depth {current_depth + 1}")
@@ -236,52 +182,11 @@ class KNet:
                 json.dump(final_report, f, indent=2)
             return final_report
 
-        except Exception as e:
-            self.logger.error(f"Research failed: {str(e)}")
-            raise e
+        except Exception:
+            self.logger.error("Research failed", exc_info=True)
+            raise
 
-    def _analyze_and_branch(self, node: ResearchNode, topic: str, retry_count: int = 0) -> List[ResearchNode]:
-        try:
-            if not node.data or node.depth > self.max_depth:
-                return []
-
-            analysis_prompt = dedent(
-                f"""Based on the following findings about "{topic}", suggest new research directions.
-            Findings:
-            {json.dumps(self.ctx_manager, indent=2)}
-
-            Suggest up to {self.max_breadth} specific google search queries that would help data which:
-            - Builds upon these findings
-            - Explores different aspects
-            - Goes deeper into important details
-
-            Return as JSON array of objects with properties:
-            - query (string)"""
-            )
-
-            response = self.research_manager.generate_content(analysis_prompt, generation_config={**self.analysis_schema})
-            self._track_tokens(response.usage_metadata.total_token_count)
-            result = json.loads(response.text)
-            self.logger.info(f"New branches for '{node.query}': {result['branches']}")
-
-            # Add children to current node
-            #        +> child1
-            # node - +> child2
-            #        +> child3
-            new_nodes = []
-            for branch in result.get("branches", []):
-                child_node = node.add_child(branch["query"])
-                new_nodes.append(child_node)
-            return new_nodes
-
-        except Exception as e:
-            if result["candidates"][0]["finishReason"] == "RECITATION" and retry_count <= 3:
-                self.logger.error(f"Retrying analysis: {str(e)}\nC:{retry_count / 3}")
-                self._analyze_and_branch(node, topic, retry_count + 1)
-            self.logger.error(f"Branch analysis failed: {str(e)}")
-            raise e
-
-    def _generate_final_report(self, root_node: ResearchNode, retry_count: int = 0) -> Dict[str, Any]:
+    def _generate_final_report(self, root_node: ResearchNode, retry_count: int = 1) -> Dict[str, Any]:
         try:
             findings = "\n".join(self.ctx_manager)
             with open("output.json", "w") as f:
@@ -289,8 +194,7 @@ class KNet:
             prompt = f"""Generate a comprehensive report on the topic "{root_node.query}" based on the following research findings:
             {findings}
             """
-            response = self.research_manager.generate_content(prompt)
-            self._track_tokens(response.usage_metadata.total_token_count)
+            response = self.generate_content(prompt)
 
             # Collate multimedia content
             media_content = {"images": [], "videos": [], "links": [], "references": []}
@@ -301,8 +205,8 @@ class KNet:
                 if data.get("videos"):
                     media_content["videos"].extend(data["videos"])
                 if data.get("links"):
-                    media_content["links"].extend([{"url": l["href"], "text": l["text"]} for l in data["links"]])
-            # Deduplicate
+                    media_content["links"].extend([{"url": link["href"], "text": link["text"]} for link in data["links"]])
+            # Dedupe
             media_content["images"] = list(set(media_content["images"]))
             media_content["videos"] = list(set(media_content["videos"]))
             media_content["links"] = list({json.dumps(d, sort_keys=True) for d in media_content["links"]})
@@ -324,7 +228,7 @@ class KNet:
             return {
                 "topic": root_node.query,
                 "timestamp": datetime.now().isoformat(),
-                "content": response.text,
+                "content": response,
                 "media": media_content,
                 "research_tree": build_tree_structure(root_node),
                 "metadata": {
@@ -334,9 +238,79 @@ class KNet:
                     "total_tokens": self.token_count,
                 },
             }
+
         except Exception as e:
-            if response["candidates"][0]["finishReason"] == "RECITATION":
-                self.logger.error(f"Retrying final report: {str(e)}\nC:{retry_count / 3}")
+            if e == "GEMINI_RECITATION" and retry_count < 3:
+                self.logger.error(f"Retrying final report:C:{retry_count / 3}", exc_info=True)
                 self._generate_final_report(root_node, retry_count + 1)
-            self.logger.error(f"Error generating final report: {str(e)}")
-            raise e
+            self.logger.error("Error generating final report", exc_info=True)
+            raise
+
+    def _gen_queries(self, node: ResearchNode, topic: str, retry_count: int = 1) -> List[ResearchNode]:
+        try:
+            if not node.data or node.depth > self.max_depth:
+                return []
+
+            prompt = self.prompt.search_query.format(topic=topic, ctx_manager=json.dumps(self.ctx_manager, indent=2), max_breadth=self.max_breadth)
+            response = self.generate_content(prompt, generation_config=self.schema.search_query)
+            self.logger.info(f"New branches for '{node.query}': {response['branches']}")
+
+            # Add children to current node
+            #       |-> child
+            # node -|-> child
+            #       |-> child
+            new_nodes = []
+            for branch in response.get("branches", []):
+                child_node = node.add_child(branch["query"])
+                new_nodes.append(child_node)
+            return new_nodes
+
+        except Exception as e:
+            if e == "GEMINI_RECITATION" and retry_count < 3:
+                self.logger.error(f"Retrying analysis:C:{retry_count / 3}", exc_info=True)
+                self._gen_queries(node, topic, retry_count + 1)
+            self.logger.error("Branch analysis failed:", exc_info=True)
+            raise
+
+    def _should_continue_branch(self, node: ResearchNode, topic: str, retry_count: int = 1) -> bool:
+        try:
+            if node.depth > self.max_depth:
+                return False
+
+            # Generate summary of key findings into the manager's context
+            if node.data:
+                findings = ("\n" + "-" * 10 + "Next data" + "-" * 10 + "\n").join([json.dumps(d, indent=2) for d in node.data])
+                response = self.generate_content(f"Extract key findings from the following data related to the topic '{topic}':\n{findings}")
+                self.ctx_manager.append(response)
+
+            # Research manager takes decision to proceed or not
+            prompt = self.prompt.continue_branch.format(
+                query=node.query,
+                depth=node.depth,
+                path=" -> ".join(node.get_path_to_root()),
+                findings="\n".join(self.ctx_manager),
+            )
+            response = self.generate_content(prompt, generation_config=self.schema.continue_branch)
+            self.logger.info(f"Branch decision for '{node.query}': {response['decision']}")
+
+            return response["decision"]
+
+        except Exception as e:
+            if e == "GEMINI_RECITATION" and retry_count < 3:
+                self.logger.error(f"Retrying branch decision:C:{retry_count / 3}", exc_info=True)
+                self._should_continue_branch(node, topic, retry_count + 1)
+            self.logger.error("Branch decision failed:", exc_info=True)
+            raise
+
+    def generate_content(self, prompt: str, generation_config: Dict[str, Any] = {}) -> Dict[str, Any] | str:
+        try:
+            response = self.researcher.generate_content(prompt, generation_config=generation_config)
+            self.token_count += response.usage_metadata.total_token_count
+            if generation_config:
+                return json.loads(response.text)
+            return response.text
+
+        except Exception:
+            if response["candidates"][0]["finishReason"] == "RECITATION":
+                raise Exception("GEMINI_RECITATION")
+            raise
