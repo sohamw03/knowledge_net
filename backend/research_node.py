@@ -15,7 +15,7 @@ class ResearchNode:
     def add_child(self, query: str) -> "ResearchNode":
         child = ResearchNode(query, parent=self, depth=self.depth + 1)
         self.children.append(child)
-        return copy.deepcopy(child)
+        return child
 
     def get_path_to_root(self) -> List[str]:
         path = [self.query]

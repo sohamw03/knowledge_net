@@ -68,9 +68,7 @@ class WebScraper:
             self.logger.info(f"Found {len(search_results)} URLs")
             return search_results
 
-        except (
-            requests.exceptions.RequestException
-        ) as e:  # Catch network errors specifically
+        except requests.exceptions.RequestException as e:  # Catch network errors specifically
             self.logger.error(f"DuckDuckGo search error: {str(e)}")
             return []
         except Exception as e:  # Catch any other errors
@@ -136,9 +134,7 @@ class WebScraper:
     def _extract_links(self, soup: BeautifulSoup) -> List[str]:
         return [a.get("href") for a in soup.find_all("a") if a.get("href")]
 
-    def _merge_extraction_results(
-        self, news_data: Dict, selenium_data: Dict
-    ) -> Dict[str, Any]:
+    def _merge_extraction_results(self, news_data: Dict, selenium_data: Dict) -> Dict[str, Any]:
         merged = selenium_data.copy()
 
         if news_data:
@@ -184,9 +180,7 @@ class CrawlForAIScraper:
             await self.crawler.close()
             self._is_started = False
 
-    async def search_and_scrape(
-        self, query: str, num_sites: int = 10
-    ) -> List[Dict[str, Any]]:
+    async def search_and_scrape(self, query: str, num_sites: int = 10) -> List[Dict[str, Any]]:
         await self.start()
         self.logger.info(f"Querying: {query}")
 
@@ -279,21 +273,12 @@ class CrawlForAIScraper:
                 if "width" in img.attrs and img.get("width").lower() == "auto":
                     images.append((src, 999, 0))
                 # Remove units from width and height: get start of the entity till the first non-digit character
-                width = "".join(
-                    [i for i in img.get("width", "0") if i.isdigit() or i == "."]
-                )
-                height = "".join(
-                    [i for i in img.get("height", "0") if i.isdigit() or i == "."]
-                )
+                width = "".join([i for i in img.get("width", "0") if i.isdigit() or i == "."])
+                height = "".join([i for i in img.get("height", "0") if i.isdigit() or i == "."])
                 if width == "" or height == "":
                     continue
                 width, height = float(width), float(height)
-                if (
-                    width > 300
-                    and height > 300
-                    and "pixel" not in src
-                    and "icon" not in src
-                ):
+                if width > 300 and height > 300 and "pixel" not in src and "icon" not in src:
                     images.append((src, width, height))
         images = sorted(images, key=lambda img: -1 * (img[1] * img[2]))
         images = [img[0] for img in images]
@@ -306,11 +291,7 @@ class CrawlForAIScraper:
     def _extract_videos(self, soup: BeautifulSoup) -> List[str]:
         # Extract videos from iframes and video tags
         videos = []
-        nodes = (
-            list(soup.find_all("iframe"))
-            + list(soup.find_all("video"))
-            + list(soup.find_all("a"))
-        )
+        nodes = list(soup.find_all("iframe")) + list(soup.find_all("video")) + list(soup.find_all("a"))
         for node in nodes:
             if node.name == "iframe":
                 src = node.get("src", "")

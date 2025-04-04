@@ -101,9 +101,7 @@ async def start_research(sid, data):
                 room=session_id,
             )
 
-        research_results = await knet.conduct_research(
-            topic, progress_callback, max_depth, max_breadth, num_sites_per_query
-        )
+        research_results = await knet.conduct_research(topic, progress_callback, max_depth, max_breadth, num_sites_per_query)
         logger.info(f"Research completed for topic: {topic}")
         await sio.emit("research_complete", research_results, room=session_id)
 
