@@ -84,7 +84,7 @@ async def health_check(sid, data):
 async def start_research(sid, data):
     try:
         data = json.loads(data) if type(data) is not dict else data
-        topic = data.get("topic")
+        topic = data.get("topic").strip()
         max_depth: int = data.get("max_depth")
         max_breadth: int = data.get("max_breadth")
         num_sites_per_query: int = data.get("num_sites_per_query")
@@ -92,21 +92,18 @@ async def start_research(sid, data):
         knet, _ = await session_manager.get_or_create_session(sid)
 
         session_id = sid
-        logger.info(f"Starting research for client {session_id} on topic: {topic}")
+        logger.info(f"Starting research for client {session_id}.\nTopic '{topic}'")
 
         async def progress_callback(status):
-            try:
-                logger.debug(f"Progress update: {status['progress']}% - {status['message']}")
-                await sio.emit(
-                    "status",
-                    {"message": status["message"], "progress": status["progress"]},
-                    room=session_id,
-                )
-            except Exception as e:
-                logger.error(f"Error in progress callback: {str(e)}")
-                raise e
+            await sio.emit(
+                "status",
+                {"message": status["message"], "progress": status["progress"]},
+                room=session_id,
+            )
 
-        research_results = await knet.conduct_research(topic, progress_callback, max_depth, max_breadth, num_sites_per_query)
+        research_results = await knet.conduct_research(
+            topic, progress_callback, max_depth, max_breadth, num_sites_per_query
+        )
         logger.info(f"Research completed for topic: {topic}")
         await sio.emit("research_complete", research_results, room=session_id)
 
