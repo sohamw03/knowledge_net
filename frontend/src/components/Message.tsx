@@ -1,4 +1,5 @@
 import { Avatar } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -17,11 +18,13 @@ const MarkdownComponents: Record<string, React.ComponentType<any>> = {
   ol: ({ children }) => <ol className="list-decimal ml-6 mb-4">{children}</ol>,
   li: ({ children }) => <li className="mb-1">{children}</li>,
   code: ({ node, inline, className, children, ...props }) => (
-    <code className={`${inline ? "bg-muted px-1 py-0.5 rounded-md text-sm" : "block bg-muted/50 p-3 rounded-lg text-sm overflow-x-auto"}`} {...props}>
-      {children}
-    </code>
+    // <ScrollArea asChild >
+      <code className={`${Object.keys(node.properties).length === 0 ? "bg-muted px-1 py-0.5 rounded-md text-sm" : "block bg-muted p-1 rounded-lg text-sm overflow-x-auto max-w-full mb-1"}`} {...props}>
+        {children}
+      </code>
+    // </ScrollArea>
   ),
-  pre: ({ children }) => <pre className="bg-transparent p-0">{children}</pre>,
+  pre: ({ children }) => <pre className="bg-transparent p-0 max-w-full overflow-x-auto">{children}</pre>,
   a: ({ children, href }) => (
     <a href={href} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
       {children}
@@ -45,7 +48,7 @@ const Message = ({ message }: { message: MessageType }) => {
       <div className={`max-w-2xl mx-auto flex gap-4 relative ${isUser ? "flex-row-reverse" : ""}`}>
         <Avatar className={`h-8 w-8 shrink-0 absolute justify-center item-center ${isUser ? "-right-12" : "-left-12"} top-0`}>{isUser ? <User2 className="h-5 w-5" /> : <Bot className="h-5 w-5" />}</Avatar>
 
-        <div className={`flex-1 ${isUser ? "items-end" : "items-start"}`}>
+        <div className={`max-w-2xl flex-1 ${isUser ? "items-end" : "items-start"}`}>
           <div className={`flex items-center gap-2 mb-1 ${isUser ? "justify-end" : "justify-start"}`}>
             {isUser && <div className="text-xs text-muted-foreground">{new Date(message.timestamp).toLocaleTimeString()}</div>}
             <div className="font-medium">{isUser ? "You" : "KNet"}</div>

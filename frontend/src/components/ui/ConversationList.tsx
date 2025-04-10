@@ -29,11 +29,12 @@ const ConversationList: React.FC<ConversationListProps> = ({ conversations, onNe
           {conversations.length === 0 ? (
             <p className="text-sm text-muted-foreground px-2">No conversations yet</p>
           ) : (
-            conversations.map((conversation) => (
-              <div key={conversation.id} className="flex items-center gap-1 px-1">
-                <Button variant={conversation.active ? "secondary" : "ghost"} className={`flex-1 pr-0.5 justify-start text-left truncate ${conversation.active ? "bg-accent" : ""} group`} onClick={() => handleSelectConversation(conversation.id)}>
-                  <MessageSquare className="mr-2 h-4 w-4 shrink-0" />
-                  <span className="truncate">{conversation.title}</span>
+              conversations.map((conversation) => (
+                <div key={conversation.id} className="flex items-center gap-1 px-1 group">
+                  <Button variant={conversation.active ? "secondary" : "ghost"} className={`flex-1 pr-0.5 justify-start text-left truncate ${conversation.active ? "bg-accent" : ""}`} onClick={() => handleSelectConversation(conversation.id)}>
+                    <MessageSquare className="mr-2 h-4 w-4 shrink-0" />
+                    <span className="truncate">{conversation.title}</span>
+                  </Button>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -44,10 +45,9 @@ const ConversationList: React.FC<ConversationListProps> = ({ conversations, onNe
                     }}>
                     <XCircle className="h-4 w-4" />
                   </Button>
-                </Button>
-              </div>
-            ))
-          )}
+                </div>
+              ))
+            )}
         </div>
       </div>
     </div>
