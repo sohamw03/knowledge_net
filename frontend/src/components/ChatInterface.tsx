@@ -45,7 +45,6 @@ const ChatInterface = () => {
     sources: true,
     citations: false,
     max_depth: 1,
-    max_breadth: 3,
     num_sites_per_query: 5,
   });
 
@@ -131,11 +130,25 @@ const ChatInterface = () => {
           },
         ];
 
-        return {
+        // Save updated messages to localStorage
+        const updatedState = {
           ...prevState,
           isLoading: false,
           messages: newMessages,
         };
+
+        // Update localStorage with the new messages
+        const updatedData: ChatData = {
+          conversations: conversations.map((conv) => ({
+            ...conv,
+            messages: conv.id === currentConversationId ? newMessages : conv.messages || [],
+            lastUpdated: conv.id === currentConversationId ? new Date().toISOString() : conv.lastUpdated,
+          })),
+          currentConversationId,
+        };
+        saveToStorage(updatedData);
+
+        return updatedState;
       });
     });
 
@@ -230,7 +243,6 @@ const ChatInterface = () => {
       socket.emit("start_research", {
         topic: content,
         max_depth: researchOptions.max_depth,
-        max_breadth: researchOptions.max_breadth,
         num_sites_per_query: researchOptions.num_sites_per_query,
       });
     } catch (error) {

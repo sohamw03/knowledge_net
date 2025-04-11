@@ -66,17 +66,6 @@ const ResearchControls: React.FC<ResearchControlsProps> = ({ options, onOptionCh
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="max-breadth">Max Breadth</Label>
-          <Input
-            type="number"
-            id="max-breadth"
-            value={options.max_breadth}
-            onChange={(e) => onOptionChange({ ...options, max_breadth: parseInt(e.target.value, 10) })}
-            className="w-full"
-          />
-        </div>
-
-        <div className="space-y-2">
           <Label htmlFor="num-sites-per-query">Number of Sites per Query</Label>
           <Input
             type="number"

@@ -2,12 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LayoutGrid, MessageCircle, Settings } from "lucide-react";
 import React from "react";
 import { ThemeToggle } from "./ThemeToggle";
 import Link from "next/link";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 interface ChatLayoutProps {
   sidebar: React.ReactNode;
@@ -24,24 +24,27 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ sidebar, mainContent, settingsP
         </Link>
         <div className="flex-1" />
         <ThemeToggle />
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon">
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-9 w-9" title="Settings">
               <Settings size={20} />
             </Button>
-          </SheetTrigger>
-          <SheetContent>
-            <div className="py-4">
-              <h2 className="text-lg font-semibold mb-4">Research Settings</h2>
-              {settingsPanel}
-            </div>
-          </SheetContent>
-        </Sheet>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Research Settings</DialogTitle>
+              <DialogDescription>
+                Configure your research parameters and preferences.
+              </DialogDescription>
+            </DialogHeader>
+            {settingsPanel}
+          </DialogContent>
+        </Dialog>
       </header>
 
       <div className="flex-1 overflow-hidden">
         <ResizablePanelGroup direction="horizontal">
-          <ResizablePanel defaultSize={20} minSize={15} maxSize={30} className="hidden md:block">
+          <ResizablePanel defaultSize={25} minSize={17} maxSize={30} className="hidden md:block">
             <Card className="h-full rounded-none border-r border-t-0 border-l-0 border-b-0">
               <ScrollArea className="h-full">{sidebar}</ScrollArea>
             </Card>
@@ -49,7 +52,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ sidebar, mainContent, settingsP
 
           <ResizableHandle withHandle className="hidden md:flex" />
 
-          <ResizablePanel defaultSize={80}>
+          <ResizablePanel defaultSize={75}>
             <Tabs defaultValue="chat" className="h-full flex flex-col">
               <div className="p-4">
                 <TabsList className="">

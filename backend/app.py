@@ -33,7 +33,7 @@ app.add_middleware(
 
 sio = socketio.AsyncServer(
     cors_allowed_origins=CORS_ALLOWED_ORIGINS,
-    ping_timeout=120,
+    ping_timeout=1200,
     ping_interval=10,
     async_mode="asgi",
 )

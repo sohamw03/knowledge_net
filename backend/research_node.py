@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 
 
 class ResearchNode:
-    def __init__(self, query: str, parent: Optional["ResearchNode"] = None, depth: int = 0):
+    def __init__(self, query: str = "_", parent: Optional["ResearchNode"] = None, depth: int = 0):
         self.query = query
         self.parent = parent
         self.depth = depth
@@ -42,3 +42,11 @@ class ResearchNode:
         for child in self.children:
             data.extend(child.get_all_data())
         return data
+
+    def __repr__(self) -> dict:
+        return {
+            "query": self.query,
+            "depth": self.depth,
+            "children": [child.__repr__() for child in self.children],
+            "data": self.data,
+        }

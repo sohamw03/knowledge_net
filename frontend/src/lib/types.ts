@@ -16,7 +16,6 @@ export interface ResearchOptions {
   sources: boolean;
   citations: boolean;
   max_depth: number;
-  max_breadth: number;
   num_sites_per_query: number;
 }
 

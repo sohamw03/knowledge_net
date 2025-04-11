@@ -138,11 +138,11 @@ class ResearchProgress:
         self.callback = callback
 
     async def update(self, progress: int, message: str):
-        self.progress = min(100, self.progress + progress)  # max 100
+        self.progress = int(min(100, self.progress + progress))  # max 100
         await self.callback({"progress": self.progress, "message": message})
 
     async def setter(self, progress: int, message: str):
-        self.progress = min(100, progress)  # max 100
+        self.progress = int(min(100, progress))  # max 100
         await self.callback({"progress": self.progress, "message": message})
 
 
@@ -189,21 +189,25 @@ class KNet:
             self.research_plan = self.generate_content(self.prompt.research_plan.format(topic=topic), schema=self.schema.research_plan)["steps"]
             self.logger.info(f"Research plan:\n{json.dumps(self.research_plan, indent=2)}")
 
-            # Generate initial search query
-            query = self.generate_content(
-                self.prompt.search_query.format(vertical=self.research_plan[self.idx_research_plan]), schema=self.schema.search_query
-            )["branches"][0]
-
-            # Initialize research tree
-            root_node = ResearchNode(query)
-            to_explore = deque([(root_node, 0)])  # (node, depth) pairs
-            explored_queries = set()  # {string, string, ...}
+            master_node = ResearchNode()
 
             await self.progress.update(0, "Starting research...")
 
             # Iterate on research plan
             for self.idx_research_plan, _ in enumerate(self.research_plan):
-                current_node, current_depth = to_explore.popleft()
+                # Generate initial search query
+                query = self.generate_content(
+                    self.prompt.search_query.format(
+                        vertical=self.research_plan[self.idx_research_plan], research_plan="None", past_queries="None", ctx_manager="None", n=1
+                    ),
+                    schema=self.schema.search_query,
+                )["branches"][0]
+
+                root_node = ResearchNode(query)
+                master_node.add_child(root_node)
+                to_explore = deque([(root_node, 0)])  # (node, depth) pairs
+                explored_queries = set()  # {string, string, ...}
+
                 await self.progress.update(100 / (len(self.research_plan) + 1), f"{self.research_plan[self.idx_research_plan]}")
 
                 while to_explore:
@@ -230,9 +234,9 @@ class KNet:
 
             # Generate final report
             await self.progress.update(100 / (len(self.research_plan) + 1), "Generating final report...")
-            final_report = self._generate_final_report(root_node, topic)
+            final_report = self._generate_final_report(master_node, topic)
 
-            self.logger.info(f"Research completed. Explored {len(explored_queries)} queries across {root_node.max_depth()} levels")
+            self.logger.info(f"Research completed. Explored {len(explored_queries)} queries across {master_node.max_depth()} levels")
             await self.progress.update(100, "Research complete!")
 
             with open("output.log.json", "w", encoding="utf-8") as f:
@@ -256,7 +260,7 @@ class KNet:
             report = []
             # Fill in report outline
             for i, heading in enumerate(outline["headings"]):
-                self.progress.update(100 / (len(outline["headings"] + 1)), "Generating report...")
+                self.progress.update(100 / (len(outline["headings"]) + 1), "Generating report...")
                 content = self.generate_content(
                     self.prompt.report_fillin.format(
                         topic=topic,
@@ -267,6 +271,8 @@ class KNet:
                     schema=self.schema.report_fillin,
                 )["content"]
                 report.append({"heading": heading, "content": content})
+            # Rasterize report
+            raster_report = f"# {outline['title']}\n\n" + "\n\n".join([f"## {r['heading']}\n\n{r['content']}" for r in report])
 
             # Collate multimedia content
             media_content = {"images": [], "videos": [], "links": [], "references": []}
@@ -297,9 +303,9 @@ class KNet:
                 }
 
             return {
-                "topic": root_node.query,
+                "topic": topic,
                 "timestamp": datetime.now().isoformat(),
-                "content": report,
+                "content": raster_report,
                 "media": media_content,
                 "research_tree": build_tree_structure(root_node),
                 "metadata": {
@@ -337,7 +343,7 @@ class KNet:
             # node -|-> child
             #       |-> child
             new_nodes = []
-            for branch in response.get("branches", []):
+            for branch in response.get("branches", [])[:1]:
                 child_node = node.add_child(branch)
                 new_nodes.append(child_node)
 
@@ -360,7 +366,7 @@ class KNet:
             if node.data:
                 findings = ("\n" + "-" * 10 + "Next data" + "-" * 10 + "\n").join([json.dumps(d, indent=2) for d in node.data])
                 response = self.generate_content(self.prompt.site_summary.format(query=node.query, findings=findings), temp=0.2)
-                self.ctx_manager.append(response)
+                self.ctx_manager.append(response) if isinstance(response, str) else None
 
             # Research manager takes decision to proceed or not
             prompt = self.prompt.continue_branch.format(
