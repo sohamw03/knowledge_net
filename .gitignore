@@ -9,7 +9,7 @@ backend/*.pyo
 backend/.venv/
 backend/.env*
 backend/downloads/*
-backend/output.json
+backend/*.log.*
 backend/.ruff_cache/
 
 # Next.js ignore files

@@ -86,7 +86,6 @@ async def start_research(sid, data):
         data = json.loads(data) if type(data) is not dict else data
         topic = data.get("topic").strip()
         max_depth: int = data.get("max_depth")
-        max_breadth: int = data.get("max_breadth")
         num_sites_per_query: int = data.get("num_sites_per_query")
 
         knet, _ = await session_manager.get_or_create_session(sid)
@@ -94,14 +93,10 @@ async def start_research(sid, data):
         session_id = sid
         logger.info(f"Starting research for client {session_id}.\nTopic '{topic}'")
 
-        async def progress_callback(status):
-            await sio.emit(
-                "status",
-                {"message": status["message"], "progress": status["progress"]},
-                room=session_id,
-            )
+        async def progress_callback(status: dict):
+            await sio.emit("status", status, room=session_id)
 
-        research_results = await knet.conduct_research(topic, progress_callback, max_depth, max_breadth, num_sites_per_query)
+        research_results = await knet.conduct_research(topic, progress_callback, max_depth, num_sites_per_query)
         logger.info(f"Research completed for topic: {topic}")
         await sio.emit("research_complete", research_results, room=session_id)
 
