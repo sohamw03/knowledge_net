@@ -10,8 +10,13 @@ class ResearchNode:
         self.children: List[ResearchNode] = []
         self.data: List[Dict[str, Any]] = []
 
-    def add_child(self, query: str) -> "ResearchNode":
-        child = ResearchNode(query, parent=self, depth=self.depth + 1)
+    def add_child(self, query: str, node: Optional["ResearchNode"] = None) -> "ResearchNode":
+        if node:
+            child = node
+            child.parent = self
+            child.depth = self.depth + 1
+        else:
+            child = ResearchNode(query, parent=self, depth=self.depth + 1)
         self.children.append(child)
         return child
 

@@ -27,7 +27,18 @@ const loadFromStorage = (): ChatData => {
   try {
     const parsed = JSON.parse(data);
     return {
-      conversations: Array.isArray(parsed.conversations) ? parsed.conversations : [],
+      conversations: Array.isArray(parsed.conversations)
+        ? parsed.conversations.map((conv: Conversation) => ({
+            ...conv,
+            messages: Array.isArray(conv.messages)
+              ? conv.messages.map((msg: Message) => ({
+                  ...msg,
+                  // Ensure media property is preserved if it exists
+                  media: msg.media || undefined,
+                }))
+              : [],
+          }))
+        : [],
       currentConversationId: parsed.currentConversationId,
     };
   } catch (e) {
@@ -45,7 +56,7 @@ const ChatInterface = () => {
     sources: true,
     citations: false,
     max_depth: 1,
-    num_sites_per_query: 5,
+    num_sites_per_query: 3,
   });
 
   const userInputRef = useRef<HTMLTextAreaElement>(null);
@@ -118,7 +129,10 @@ const ChatInterface = () => {
         // Format research stats and response
         const stats = [`Total Queries: ${results.metadata.total_queries}`, `Sources Used: ${results.metadata.total_sources}`, `Search Depth: ${results.metadata.max_depth_reached}`].join(" | ");
 
-        const formattedResponse = [results.content, `\n\n---\n**Research Stats:**\n${stats}`, results.media?.images?.length ? `\n\n**Relevant Images:**\n${results.media.images.join("\n")}` : ""].join("");
+        // Format images in a way the Message component can extract
+        const imageMarkdown = results.media?.images?.length ? `\n\n**Relevant Images:**\n${results.media.images.map((img) => `![Image](${img})`).join("\n")}` : "";
+
+        const formattedResponse = [results.content, `\n\n---\n**Research Stats:**\n${stats}`, imageMarkdown].join("");
 
         const newMessages = [
           ...messages,
@@ -127,6 +141,8 @@ const ChatInterface = () => {
             content: formattedResponse,
             role: "assistant" as const,
             timestamp: new Date(results.timestamp),
+            // Store the media object directly with the message
+            media: results.media,
           },
         ];
 
@@ -172,9 +188,9 @@ const ChatInterface = () => {
     setCurrentConversationId(data.currentConversationId);
 
     if (data.currentConversationId) {
-      const currentConv = data.conversations.find((c) => c.id === data.currentConversationId);
-      if (currentConv) {
-        setChatState((prev) => ({ ...prev, messages: currentConv.messages }));
+      const conversation = data.conversations.find((c) => c.id === data.currentConversationId);
+      if (conversation) {
+        setChatState((prev) => ({ ...prev, messages: conversation.messages }));
       }
     }
   }, []);
@@ -257,7 +273,7 @@ const ChatInterface = () => {
   const handleNewConversation = () => {
     userInputRef.current?.focus();
     setCurrentConversationId(null);
-    setChatState((prev) => ({
+    setChatState(() => ({
       messages: [],
       isLoading: false,
       error: null,

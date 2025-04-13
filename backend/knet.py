@@ -70,7 +70,7 @@ class Prompt:
         Return as JSON array of objects with properties:
         - query (string)""")
 
-        self.report_outline = dedent("""Generate a comprehensive report outline on the user query based on the following research findings:
+        self.report_outline = dedent("""Generate a comprehensive outline for a report on the user query based on the findings:
         User query:
         {topic}
 
@@ -79,7 +79,8 @@ class Prompt:
 
         The outline should include:
         - Title
-        - List of h2 headings""")
+        - List of h2 headings
+        Do not include hashtags""")
 
         self.report_fillin = dedent("""Fill in the content for the following report outline on the user query based on the following research findings:
         User query:
@@ -88,11 +89,17 @@ class Prompt:
         Findings:
         {ctx_manager}
 
-        Report Outline:
+        Report generated os far:
+        {report_progress}
+
+        The outline:
         {report_outline}
 
-        Current slot to fill in: (h2 heading)
-        {slot}
+        Current heading to fill in:
+        ## {slot}
+
+        The content should be comprehensive, detailed and well-structured, providing detailed information on the topic. Use tables, lists, and other formatting as needed to enhance readability.
+        Do not include the heading in the content.
         """)
 
 
@@ -186,7 +193,9 @@ class KNet:
         try:
             # Generate research plan
             await self.progress.update(0, "Generating research plan...")
-            self.research_plan = self.generate_content(self.prompt.research_plan.format(topic=topic), schema=self.schema.research_plan)["steps"]
+            self.research_plan = self.generate_content(self.prompt.research_plan.format(topic=topic), schema=self.schema.research_plan, temp=1.5)[
+                "steps"
+            ]
             self.logger.info(f"Research plan:\n{json.dumps(self.research_plan, indent=2)}")
 
             master_node = ResearchNode()
@@ -201,11 +210,12 @@ class KNet:
                         vertical=self.research_plan[self.idx_research_plan], research_plan="None", past_queries="None", ctx_manager="None", n=1
                     ),
                     schema=self.schema.search_query,
+                    temp=1.5,
                 )["branches"][0]
 
                 root_node = ResearchNode(query)
-                master_node.add_child(root_node)
-                to_explore = deque([(root_node, 0)])  # (node, depth) pairs
+                master_node.add_child(root_node.query, node=root_node)
+                to_explore = deque([(root_node, 1)])  # (node, depth) pairs
                 explored_queries = set()  # {string, string, ...}
 
                 await self.progress.update(100 / (len(self.research_plan) + 1), f"{self.research_plan[self.idx_research_plan]}")
@@ -234,7 +244,7 @@ class KNet:
 
             # Generate final report
             await self.progress.update(100 / (len(self.research_plan) + 1), "Generating final report...")
-            final_report = self._generate_final_report(master_node, topic)
+            final_report = await self._generate_final_report(master_node, topic)
 
             self.logger.info(f"Research completed. Explored {len(explored_queries)} queries across {master_node.max_depth()} levels")
             await self.progress.update(100, "Research complete!")
@@ -247,9 +257,9 @@ class KNet:
             self.logger.error("Research failed", exc_info=True)
             raise
 
-    def _generate_final_report(self, root_node: ResearchNode, topic: str, retry_count: int = 1) -> Dict[str, Any]:
+    async def _generate_final_report(self, root_node: ResearchNode, topic: str, retry_count: int = 1) -> Dict[str, Any]:
         try:
-            self.progress.setter(0, "Generating report...")
+            await self.progress.setter(0, "Generating report...")
             findings = "\n\n------\n\n".join(self.ctx_manager)
             with open("ctx_manager.log.txt", "w", encoding="utf-8") as f:
                 f.write(findings)
@@ -258,21 +268,26 @@ class KNet:
             outline = self.generate_content(self.prompt.report_outline.format(topic=topic, ctx_manager=findings), schema=self.schema.report_outline)
             self.logger.info(f"Report outline:\n{json.dumps(outline, indent=2)}")
             report = []
+            raster_report = f"# {outline['title']}\n\n"
             # Fill in report outline
             for i, heading in enumerate(outline["headings"]):
-                self.progress.update(100 / (len(outline["headings"]) + 1), "Generating report...")
+                await self.progress.update(100 / (len(outline["headings"]) + 1), "Generating report...")
                 content = self.generate_content(
                     self.prompt.report_fillin.format(
                         topic=topic,
                         ctx_manager=findings,
+                        report_progress=raster_report,
                         report_outline=["[done] " + outline["title"]] + [f"[done] {h}" for _, h in enumerate(outline["headings"]) if i < _],
                         slot=heading,
                     ),
                     schema=self.schema.report_fillin,
                 )["content"]
+                # Remove heading if LLM put it there regardless
+                idx_heading = content.find(heading)
+                if idx_heading != -1:
+                    content = content[idx_heading + len(heading) :].strip()
                 report.append({"heading": heading, "content": content})
-            # Rasterize report
-            raster_report = f"# {outline['title']}\n\n" + "\n\n".join([f"## {r['heading']}\n\n{r['content']}" for r in report])
+                raster_report += f"\n\n## {heading}\n\n{content}"
 
             # Collate multimedia content
             media_content = {"images": [], "videos": [], "links": [], "references": []}
@@ -317,9 +332,11 @@ class KNet:
             }
 
         except Exception as e:
-            if e in ["GEMINI_RECITATION", "NO_RESPONSE"] and retry_count < 3:
-                self.logger.error(f"Retrying final report:C:{retry_count / 3}", exc_info=True)
-                return self._generate_final_report(root_node, retry_count + 1)
+            if e in ["GEMINI_RECITATION", "NO_RESPONSE"]:
+                self.logger.error("GEMINI_RECITATION or NO_RESPONSE")
+            if retry_count < 3:
+                self.logger.error(f"Retrying final report:C:{retry_count} / 3", exc_info=True)
+                return await self._generate_final_report(root_node, retry_count + 1)
             self.logger.error("Error generating final report", exc_info=True)
             raise
 
@@ -351,8 +368,10 @@ class KNet:
             return new_nodes
 
         except Exception as e:
-            if e in ["GEMINI_RECITATION", "NO_RESPONSE"] and retry_count < 3:
-                self.logger.error(f"Retrying _gen_queries | C:{retry_count / 3}", exc_info=True)
+            if e in ["GEMINI_RECITATION", "NO_RESPONSE"]:
+                self.logger.error("GEMINI_RECITATION or NO_RESPONSE")
+            if retry_count < 3:
+                self.logger.error(f"Retrying _gen_queries | C:{retry_count} / 3", exc_info=True)
                 return self._gen_queries(node, topic, retry_count + 1)
             self.logger.error("_gen_queries failed", exc_info=True)
             raise
@@ -381,13 +400,15 @@ class KNet:
             return response["decision"]
 
         except Exception as e:
-            if e in ["GEMINI_RECITATION", "NO_RESPONSE"] and retry_count < 3:
-                self.logger.error(f"Retrying branch decision:C:{retry_count / 3}", exc_info=True)
+            if e in ["GEMINI_RECITATION", "NO_RESPONSE"]:
+                self.logger.error("GEMINI_RECITATION or NO_RESPONSE")
+            if retry_count < 3:
+                self.logger.error(f"Retrying branch decision:C:{retry_count} / 3", exc_info=True)
                 return self._should_continue_branch(node, topic, retry_count + 1)
             self.logger.error("Branch decision failed:", exc_info=True)
             raise
 
-    def generate_content(self, prompt: str, schema: Dict[str, Any] = {}, temp: float = 0.9) -> Dict[str, Any] | str:
+    def generate_content(self, prompt: str, schema: Dict[str, Any] = {}, temp: float = 1, _retry_count: int = 1) -> Dict[str, Any] | str:
         safe = [
             types.SafetySetting(category=types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold=types.HarmBlockThreshold.BLOCK_NONE),
             types.SafetySetting(category=types.HarmCategory.HARM_CATEGORY_HARASSMENT, threshold=types.HarmBlockThreshold.BLOCK_NONE),

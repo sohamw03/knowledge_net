@@ -3,11 +3,12 @@ import { Card } from "@/components/ui/card";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LayoutGrid, MessageCircle, Settings } from "lucide-react";
+import { LayoutGrid, Menu, MessageCircle, Settings } from "lucide-react";
 import React from "react";
 import { ThemeToggle } from "./ThemeToggle";
 import Link from "next/link";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 
 interface ChatLayoutProps {
   sidebar: React.ReactNode;
@@ -19,8 +20,28 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ sidebar, mainContent, settingsP
   return (
     <div className="h-screen flex flex-col">
       <header className="border-b-2 h-14 flex items-center px-6">
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="md:hidden mr-2">
+              <Menu size={20} />
+              <span className="sr-only">Toggle sidebar</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[80%] sm:w-[350px] p-0">
+            <SheetTitle className="sr-only">Mobile Navigation</SheetTitle>
+            <SheetDescription className="sr-only">
+              Sidebar navigation for mobile devices
+            </SheetDescription>
+            <div className="border-b p-4">
+              <h2 className="text-lg font-semibold">Conversations</h2>
+            </div>
+            <ScrollArea className="h-[calc(100%-60px)] py-2">{sidebar}</ScrollArea>
+          </SheetContent>
+        </Sheet>
+
         <Link href={"/"}>
-          <h1 className="text-xl font-semibold">KnowledgeNet: Deep Research</h1>
+          <h1 className="text-xl font-semibold hidden sm:inline">KnowledgeNet: Deep Research</h1>
+          <h1 className="text-lg font-semibold sm:hidden">KNet: Deep Research</h1>
         </Link>
         <div className="flex-1" />
         <ThemeToggle />
@@ -33,9 +54,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ sidebar, mainContent, settingsP
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Research Settings</DialogTitle>
-              <DialogDescription>
-                Configure your research parameters and preferences.
-              </DialogDescription>
+              <DialogDescription>Configure your research parameters and preferences.</DialogDescription>
             </DialogHeader>
             {settingsPanel}
           </DialogContent>
@@ -52,7 +71,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ sidebar, mainContent, settingsP
 
           <ResizableHandle withHandle className="hidden md:flex" />
 
-          <ResizablePanel defaultSize={75}>
+          <ResizablePanel defaultSize={75} className="w-full md:w-auto">
             <Tabs defaultValue="chat" className="h-full flex flex-col">
               <div className="p-4">
                 <TabsList className="">

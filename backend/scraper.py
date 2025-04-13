@@ -163,7 +163,7 @@ class CrawlForAIScraper:
             headless=True,
             viewport_width=1920,
             viewport_height=1080,
-            accept_downloads=True,
+            accept_downloads=False,
             verbose=False,
         )
         self.crawler = AsyncWebCrawler(config=self.base_browser)
@@ -185,19 +185,25 @@ class CrawlForAIScraper:
         self.logger.info(f"Querying: {query}")
 
         # Perform a search to get a list of webpages
-        search_results = await self._search(query, num_sites)
+        search_results = await self._search(query)
 
         # Scrape each webpage
         scraped_data = []
-        self.logger.info(f"Scraping {len(search_results)} sites...")
-        data = await self._scrape_pages(search_results)
-        if data:
-            scraped_data.extend(data)
+        self.logger.info(f"Scraping {num_sites} sites...")
+        data = await self._scrape_pages(search_results[: num_sites + 2], num_sites)
+        scraped_data.extend(data)
+
+        # Scrape next pages when some failed
+        for _ in range(3):
+            if len(scraped_data) < num_sites:
+                idx_last_page = search_results.index(search_results[-1])
+                data = await self._scrape_pages(search_results[idx_last_page + 1 : num_sites + 2], num_sites)
+                scraped_data.extend(data)
 
         self.logger.info(f"Completed scraping {len(scraped_data)} sites")
         return scraped_data
 
-    async def _search(self, query: str, num_results: int) -> List[str]:
+    async def _search(self, query: str) -> List[str]:
         try:
             encoded_query = quote_plus(query)
             search_uri = f"https://www.google.com/search?q={encoded_query}"
@@ -210,26 +216,28 @@ class CrawlForAIScraper:
                 scan_full_page=True,
             )
 
-            soup = BeautifulSoup(result.html, "html.parser")
+            soup = BeautifulSoup(result.cleaned_html, "html.parser")
             search_results = []
 
             for link in list(soup.select("div > span > a"))[2:]:
                 url = link.get("href").replace(" ", "").replace("\n", "").strip()
                 if not url.startswith(("http://", "https://")):
                     url = "https://" + url
+                if "support.google.com" in url or url.startswith("/search?q="):
+                    continue
                 search_results.append(url)
 
             self.logger.info(f"Found {len(search_results)} results")
-            return search_results[:num_results]
+            return search_results
 
         except requests.exceptions.RequestException as e:
-            self.logger.error(f"Google search error: {str(e)}")
-            return []
+            self.logger.error(f"Google search error: {str(e)}", exc_info=True)
+            raise
         except Exception as e:
-            self.logger.error(f"Google search error: {str(e)}")
-            return []
+            self.logger.error(f"Google search error: {str(e)}", exc_info=True)
+            raise
 
-    async def _scrape_pages(self, urls: str) -> Dict[str, Any]:
+    async def _scrape_pages(self, urls: str, max_sites: int) -> Dict[str, Any]:
         await self.start()
 
         try:
@@ -241,22 +249,47 @@ class CrawlForAIScraper:
                 scan_full_page=True,
                 semaphore_count=4,
                 wait_for_images=True,
+                scroll_delay=0.1,
+                delay_before_return_html=2,
+                exclude_external_images=True,
                 page_timeout=25000,
             )
             scraped_sites = []
             for result in results:
                 if result.success:
                     soup = BeautifulSoup(result.html, "html.parser")
+
+                    # Combine images
+                    extracted_images = self._extract_images(soup, result.url)
+                    media_images = []
+                    for img in result.media["images"]:
+                        if img["width"] is None or (isinstance(img["width"], (int, float)) and img["width"] > 300):
+                            # Resolve multiple URLs in the src attribute
+                            src = img["src"]
+                            if " " in src and "w," in src:
+                                urls = [url.strip() for url in src.split(" ") if url.strip()]
+                                if urls:
+                                    last_url = urls[-1].split(" ")[0]
+                                    media_images.append(last_url)
+                            else:
+                                media_images.append(src)
+                    all_images = list(set(extracted_images + media_images))
+
+                    # Combine videos
+                    all_videos = self._extract_videos(soup)
+                    media_videos = [v["src"] for v in result.media["videos"] if v["src"]]
+                    all_videos = list(set(all_videos + media_videos))
+
                     data = {
                         "url": result.url,
                         "text": result.markdown,
-                        "images": self._extract_images(soup, result.url),
-                        "videos": self._extract_videos(soup),
-                        "links": result.links["external"],
+                        "images": all_images,
+                        "videos": all_videos,
+                        "links": self._extract_links(result.links["external"]),
                     }
                     scraped_sites.append(data)
                     self.logger.info(f"  - {result.url[:80]}...")
-            return scraped_sites
+            return scraped_sites[: max_sites]
 
         except Exception as e:
             self.logger.error(f"Scraping error while {urls}: {str(e)}")
@@ -293,19 +326,30 @@ class CrawlForAIScraper:
         videos = []
         nodes = list(soup.find_all("iframe")) + list(soup.find_all("video")) + list(soup.find_all("a"))
         for node in nodes:
-            if node.name == "iframe":
-                src = node.get("src", "")
-                if "youtube.com" in src or "youtu.be" in src:
-                    videos.append(src)
-            elif node.name == "video":
-                src = node.get("src", "")
-                if "youtube.com" in src or "youtu.be" in src:
-                    videos.append(src)
-            elif node.name == "a":
-                href = node.get("href", "")
-                if "youtube.com" in href or "youtu.be" in href:
-                    videos.append(href)
+            if not any(
+                keyword in node.get("src", "") or keyword in node.get("href", "")
+                for keyword in ["accounts.google.com", "blob:", "youtube.com/redirect"]
+            ):
+                continue
+            elif (
+                any(node.name in tag for tag in ["video", "iframe", "a"])
+                and "www.youtube.com/watch?v" in node.get("src", "")
+                or "www.youtube.com/watch?v" in node.get("href", "")
+            ):
+                videos.append(node.get("src", ""))
         return videos
+
+    def _extract_links(self, links: list) -> List[str]:
+        # Filter out unwanted links
+        filtered_links = []
+        for link in links:
+            url = link.get("href")
+            if url.startswith(("http://", "https://")) and not any(
+                keyword in url
+                for keyword in ["support.google.com", "google.com", "accounts.google.com", "youtube.com", "blob:", "mailto:", "javascript:"]
+            ):
+                filtered_links.append(link)
+        return filtered_links
 
 
 if __name__ == "__main__":
@@ -325,9 +369,9 @@ if __name__ == "__main__":
     async def main():
         scraper = CrawlForAIScraper()
         await scraper.start()
-        data = await scraper.search_and_scrape("quantum computing")
+        data = await scraper.search_and_scrape("blender.org")
         await scraper.close()
-        with open("output.json", "w") as f:
+        with open("output.log.json", "w") as f:
             f.write(json.dumps(data, indent=2))
         print(json.dumps(data, indent=2))
 

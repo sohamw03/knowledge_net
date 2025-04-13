@@ -24,15 +24,14 @@ async def main(urls):
             semaphore_count=3,
             wait_for_images=True,
         )
-        with open("output.json", "w") as f:
-            f.write("")
+        open("output.log.json", "w").close()
         for result in results:
             if result.success:
                 dump_result = {
                     "url": result.url,
                     "markdown": result.markdown,
                 }
-                with open("output.json", "a") as f:
+                with open("output.log.json", "a") as f:
                     json.dump(dump_result, f)
                 # Print the extracted content
                 hr = lambda n=1: print(("-" * 80) * 2 * n)

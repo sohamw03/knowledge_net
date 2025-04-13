@@ -3,6 +3,15 @@ export interface Message {
   content: string;
   role: "user" | "assistant" | "system";
   timestamp: Date;
+  media?: {
+    images?: string[];
+    videos?: string[];
+    links?: Array<{
+      text: string;
+      url: string;
+    }>;
+    references?: any[];
+  };
 }
 
 export interface ChatState {
