@@ -2,16 +2,19 @@
 import { Button } from "@/components/ui/button";
 import { AutosizeTextarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Mic, Paperclip, Send } from "lucide-react";
+import { useChatContext } from "@/lib/store/ChatContext";
+import { Mic, Paperclip, Send, Square, StopCircle } from "lucide-react";
 import React, { useState } from "react";
 
 interface MessageInputProps {
   onSendMessage: (content: string) => void;
   isLoading: boolean;
   userInputRef: React.LegacyRef<any>;
+  onCancel: () => void;
 }
 
-const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, isLoading, userInputRef }) => {
+// Traditional component that takes props
+const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, isLoading, userInputRef, onCancel }) => {
   const [message, setMessage] = useState("");
 
   const handleMessageChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -37,7 +40,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, isLoading, u
     <div className="p-4 absolute bottom-0 left-0 right-0 bg-transparent mb-4">
       <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
         <div className="relative flex items-center bg-background shadow-lg rounded-[2rem] border overflow-hidden h-full">
-          <AutosizeTextarea placeholder="Ask a research question..." maxHeight={500} minHeight={52} className="pr-36 pl-6 py-4 font-medium border-none h-auto resize-none" value={message} onChange={handleMessageChange} onKeyDown={handleKeyDown} disabled={isLoading} rows={1} autoFocus ref={userInputRef}/>
+          <AutosizeTextarea placeholder="Ask a research question..." maxHeight={500} minHeight={52} className="pr-36 pl-6 py-4 font-medium border-none h-auto resize-none" value={message} onChange={handleMessageChange} onKeyDown={handleKeyDown} disabled={isLoading} rows={1} autoFocus ref={userInputRef} />
 
           <div className="absolute right-3 flex items-center gap-2 h-full">
             <TooltipProvider>
@@ -62,10 +65,17 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, isLoading, u
               </Tooltip>
             </TooltipProvider>
 
-            <Button type="submit" size="icon" className="h-9 w-9 rounded-full" disabled={isLoading || !message.trim()}>
-              <Send className="h-4 w-4" />
-              <span className="sr-only">Send message</span>
-            </Button>
+            {isLoading && onCancel ? (
+              <Button type="button" size="icon" variant="ghost" className="h-9 w-9 rounded-full" onClick={onCancel}>
+                <Square className="h-4 w-4" />
+                <span className="sr-only">Cancel</span>
+              </Button>
+            ) : (
+              <Button type="submit" size="icon" className="h-9 w-9 rounded-full" disabled={isLoading || !message.trim()}>
+                <Send className="h-4 w-4" />
+                <span className="sr-only">Send message</span>
+              </Button>
+            )}
           </div>
         </div>
       </form>

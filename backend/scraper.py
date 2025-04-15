@@ -158,9 +158,10 @@ class WebScraper:
 class CrawlForAIScraper:
     def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
+        self.session = requests.Session()
         self.base_browser = BrowserConfig(
             browser_type="chromium",
-            headless=True,
+            headless=False,
             viewport_width=1920,
             viewport_height=1080,
             accept_downloads=False,
@@ -216,7 +217,7 @@ class CrawlForAIScraper:
                 scan_full_page=True,
             )
 
-            soup = BeautifulSoup(result.cleaned_html, "html.parser")
+            soup = BeautifulSoup(result.html, "html.parser")
             search_results = []
 
             for link in list(soup.select("div > span > a"))[2:]:
@@ -227,15 +228,46 @@ class CrawlForAIScraper:
                     continue
                 search_results.append(url)
 
+            if not search_results:
+                self.logger.warning("No search results found.")
+                self.logger.info("Performing DuckDuckGo search as fallback...")
+                search_results = self._duckduckgo_search(query)
+
             self.logger.info(f"Found {len(search_results)} results")
             return search_results
 
-        except requests.exceptions.RequestException as e:
-            self.logger.error(f"Google search error: {str(e)}", exc_info=True)
-            raise
         except Exception as e:
             self.logger.error(f"Google search error: {str(e)}", exc_info=True)
             raise
+
+    def _duckduckgo_search(self, query: str) -> List[str]:
+        self.logger.info("Performing DuckDuckGo search...")
+        try:
+            encoded_query = quote_plus(query)
+            url = f"https://html.duckduckgo.com/html/?q={encoded_query}"
+
+            response = self.session.get(url, headers=self.headers, timeout=self.timeout)
+            response.raise_for_status()
+
+            soup = BeautifulSoup(response.text, "html.parser")
+            search_results = []
+
+            # DuckDuckGo search results are in elements with class 'result__url'
+            for result in soup.select(".result__url"):
+                url = result.get("href").replace(" ", "").replace("\\n", "")
+                if not url.startswith(("http://", "https://")):
+                    url = "https://" + url
+                search_results.append(url)
+
+            self.logger.info(f"Found {len(search_results)} URLs")
+            return search_results
+
+        except requests.exceptions.RequestException as e:  # Catch network errors specifically
+            self.logger.error(f"DuckDuckGo search error: {str(e)}")
+            return []
+        except Exception as e:  # Catch any other errors
+            self.logger.error(f"DuckDuckGo search error: {str(e)}")
+            return []
 
     async def _scrape_pages(self, urls: str, max_sites: int) -> Dict[str, Any]:
         await self.start()
@@ -289,7 +321,7 @@ class CrawlForAIScraper:
                     }
                     scraped_sites.append(data)
                     self.logger.info(f"  - {result.url[:80]}...")
-            return scraped_sites[: max_sites]
+            return scraped_sites[:max_sites]
 
         except Exception as e:
             self.logger.error(f"Scraping error while {urls}: {str(e)}")

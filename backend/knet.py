@@ -1,6 +1,8 @@
+import asyncio
 import json
 import logging
 import os
+import time
 from collections import deque
 from datetime import datetime
 from textwrap import dedent
@@ -13,8 +15,10 @@ from google.genai import types
 from research_node import ResearchNode
 from scraper import CrawlForAIScraper
 
-# Load environment variables
 load_dotenv()
+
+# Today's Date | Format 15th Dec, 2025
+DATE = datetime.now().strftime("%d %b, %Y")
 
 
 class Prompt:
@@ -51,7 +55,7 @@ class Prompt:
 
         Return only decision: true/false""")
 
-        self.search_query = dedent("""Based on the following findings on topic {vertical}, suggest new research directions.
+        self.search_query = dedent("""Based on the following findings on topic {vertical}, create google search queries
         Global Research Plan:
         {research_plan}
 
@@ -67,6 +71,8 @@ class Prompt:
         - Explores different aspects
         - Goes deeper into important details
 
+        - Do not do quote searches
+        - Keep the queries short and to the point
         Return as JSON array of objects with properties:
         - query (string)""")
 
@@ -101,6 +107,9 @@ class Prompt:
         The content should be comprehensive, detailed and well-structured, providing detailed information on the topic. Use tables, lists, and other formatting as needed to enhance readability.
         Do not include the heading in the content.
         """)
+
+        for prompt in [self.research_plan, self.site_summary, self.continue_branch, self.search_query]:
+            prompt += f"\n\nFYI Date {DATE}"
 
 
 class Schema:
@@ -177,7 +186,7 @@ class KNet:
         self.ctx_manager: list[str] = []
         self.token_count: int = 0
 
-    async def conduct_research(self, topic: str, progress_callback, max_depth: int, num_sites_per_query: int) -> dict:
+    async def conduct_research(self, topic: str, progress_callback, max_depth: int, num_sites_per_query: int) -> dict | bool:
         # Local Runtime State
         self.progress = ResearchProgress(progress_callback)
         self.max_depth = max_depth
@@ -193,6 +202,8 @@ class KNet:
         try:
             # Generate research plan
             await self.progress.update(0, "Generating research plan...")
+            self._check_cancelled()
+
             self.research_plan = self.generate_content(self.prompt.research_plan.format(topic=topic), schema=self.schema.research_plan, temp=1.5)[
                 "steps"
             ]
@@ -204,6 +215,8 @@ class KNet:
 
             # Iterate on research plan
             for self.idx_research_plan, _ in enumerate(self.research_plan):
+                self._check_cancelled()
+
                 # Generate initial search query
                 query = self.generate_content(
                     self.prompt.search_query.format(
@@ -221,6 +234,8 @@ class KNet:
                 await self.progress.update(100 / (len(self.research_plan) + 1), f"{self.research_plan[self.idx_research_plan]}")
 
                 while to_explore:
+                    self._check_cancelled()
+
                     current_node, current_depth = to_explore.popleft()
                     if current_depth > self.max_depth:
                         continue
@@ -242,6 +257,8 @@ class KNet:
                             for branch in new_branches:
                                 to_explore.appendleft((branch, current_depth + 1))
 
+            self._check_cancelled()
+
             # Generate final report
             await self.progress.update(100 / (len(self.research_plan) + 1), "Generating final report...")
             final_report = await self._generate_final_report(master_node, topic)
@@ -253,24 +270,38 @@ class KNet:
                 json.dump(final_report, f, indent=2)
             return final_report
 
+        except asyncio.CancelledError:
+            self.logger.info(f"Research task for topic '{topic}' was cancelled")
+            return {"status": False}
         except Exception:
             self.logger.error("Research failed", exc_info=True)
             raise
 
+    def _check_cancelled(self):
+        """Check if the current task has been cancelled and raise CancelledError if so"""
+        if asyncio.current_task() and asyncio.current_task().cancelled():
+            raise asyncio.CancelledError("Research task was cancelled")
+
     async def _generate_final_report(self, root_node: ResearchNode, topic: str, retry_count: int = 1) -> Dict[str, Any]:
         try:
+            self._check_cancelled()
+
             await self.progress.setter(0, "Generating report...")
             findings = "\n\n------\n\n".join(self.ctx_manager)
             with open("ctx_manager.log.txt", "w", encoding="utf-8") as f:
                 f.write(findings)
 
             # Generate report outline
+            self._check_cancelled()
             outline = self.generate_content(self.prompt.report_outline.format(topic=topic, ctx_manager=findings), schema=self.schema.report_outline)
             self.logger.info(f"Report outline:\n{json.dumps(outline, indent=2)}")
             report = []
             raster_report = f"# {outline['title']}\n\n"
+
             # Fill in report outline
             for i, heading in enumerate(outline["headings"]):
+                self._check_cancelled()
+
                 await self.progress.update(100 / (len(outline["headings"]) + 1), "Generating report...")
                 content = self.generate_content(
                     self.prompt.report_fillin.format(
@@ -290,7 +321,7 @@ class KNet:
                 raster_report += f"\n\n## {heading}\n\n{content}"
 
             # Collate multimedia content
-            media_content = {"images": [], "videos": [], "links": [], "references": []}
+            media_content = {"images": [], "videos": [], "links": []}
             all_sources_data = root_node.get_all_data()
             for data in all_sources_data:
                 if data.get("images"):
@@ -331,12 +362,14 @@ class KNet:
                 },
             }
 
+        except asyncio.CancelledError:
+            raise
         except Exception as e:
             if e in ["GEMINI_RECITATION", "NO_RESPONSE"]:
                 self.logger.error("GEMINI_RECITATION or NO_RESPONSE")
             if retry_count < 3:
                 self.logger.error(f"Retrying final report:C:{retry_count} / 3", exc_info=True)
-                return await self._generate_final_report(root_node, retry_count + 1)
+                return await self._generate_final_report(root_node, topic, retry_count + 1)
             self.logger.error("Error generating final report", exc_info=True)
             raise
 
@@ -408,7 +441,7 @@ class KNet:
             self.logger.error("Branch decision failed:", exc_info=True)
             raise
 
-    def generate_content(self, prompt: str, schema: Dict[str, Any] = {}, temp: float = 1, _retry_count: int = 1) -> Dict[str, Any] | str:
+    def generate_content(self, prompt: str, schema: Dict[str, Any] = {}, temp: float = 1) -> Dict[str, Any] | str:
         safe = [
             types.SafetySetting(category=types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold=types.HarmBlockThreshold.BLOCK_NONE),
             types.SafetySetting(category=types.HarmCategory.HARM_CATEGORY_HARASSMENT, threshold=types.HarmBlockThreshold.BLOCK_NONE),
@@ -434,4 +467,28 @@ class KNet:
         except Exception:
             if response.candidates[0].finish_reason == types.FinishReason.RECITATION:
                 raise Exception("GEMINI_RECITATION")
+            raise
+
+    async def test(self, topic: str, progress_callback):
+        self.progress = ResearchProgress(progress_callback)
+        try:
+            for i in range(5):
+                self._check_cancelled()
+
+                await self.progress.setter(i * 10, f"Researching {topic} {i * 10}%")
+                time.sleep(1)
+                for j in range(5):
+                    self._check_cancelled()
+
+                    await self.progress.setter(i * 10, f"s_ example google search {str(j)}")
+                    time.sleep(1)
+
+            for i in range(10):
+                self._check_cancelled()
+
+                await self.progress.setter(i * 10, "Generating report...")
+                time.sleep(1)
+
+        except asyncio.CancelledError:
+            self.logger.info(f"Test task for '{topic}' was cancelled")
             raise

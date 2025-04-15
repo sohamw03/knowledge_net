@@ -1,17 +1,15 @@
 export interface Message {
   id: string;
   content: string;
-  role: "user" | "assistant" | "system";
+  role: "user" | "assistant";
   timestamp: Date;
   media?: {
+    links?: Array<{ text: string; url: string }>;
     images?: string[];
-    videos?: string[];
-    links?: Array<{
-      text: string;
-      url: string;
-    }>;
-    references?: any[];
   };
+  research_tree?: ResearchTree;
+  progress?: number;
+  isProgress?: boolean;
 }
 
 export interface ChatState {
@@ -46,28 +44,28 @@ export interface StatusUpdate {
   progress: number;
 }
 
-export interface ResearchNode {
-  query: string;
-  children?: ResearchNode[];
-}
-
-export interface ResearchMetadata {
-  total_queries: number;
-  total_sources: number;
-  max_depth_reached: number;
-  total_tokens: number;
-}
-
+// Simplified research results based on actual server output
 export interface ResearchResults {
   topic: string;
   timestamp: string;
-  content: string;
+  // Optional fields not present in basic server response
+  content?: string;
   media?: {
     images?: string[];
     videos?: string[];
+    links?: Array<{
+      text: string;
+      url: string;
+    }>;
   };
-  research_tree: ResearchNode;
-  metadata: ResearchMetadata;
+  research_tree?: ResearchTree;
+}
+
+export interface ResearchTree {
+  query: string;
+  depth: number;
+  sources: string[];
+  children: ResearchTree[];
 }
 
 export interface ConversationListProps {

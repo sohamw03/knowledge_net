@@ -2,15 +2,17 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { useChatContext } from "@/lib/store/ChatContext";
 import { ResearchOptions } from "@/lib/types";
 import React from "react";
-import { Input } from "@/components/ui/input";  // Make sure you have an Input component
+import { Input } from "@/components/ui/input"; // Make sure you have an Input component
 
 interface ResearchControlsProps {
   options: ResearchOptions;
   onOptionChange: (options: ResearchOptions) => void;
 }
 
+// Traditional prop-based component
 const ResearchControls: React.FC<ResearchControlsProps> = ({ options, onOptionChange }) => {
   return (
     <div className="space-y-6">
@@ -56,24 +58,12 @@ const ResearchControls: React.FC<ResearchControlsProps> = ({ options, onOptionCh
 
         <div className="space-y-2">
           <Label htmlFor="max-depth">Max Depth</Label>
-          <Input
-            type="number"
-            id="max-depth"
-            value={options.max_depth}
-            onChange={(e) => onOptionChange({ ...options, max_depth: parseInt(e.target.value, 10) })}
-            className="w-full"
-          />
+          <Input type="number" id="max-depth" value={options.max_depth} onChange={(e) => onOptionChange({ ...options, max_depth: parseInt(e.target.value, 10) })} className="w-full" />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="num-sites-per-query">Number of Sites per Query</Label>
-          <Input
-            type="number"
-            id="num-sites-per-query"
-            value={options.num_sites_per_query}
-            onChange={(e) => onOptionChange({ ...options, num_sites_per_query: parseInt(e.target.value, 10) })}
-            className="w-full"
-          />
+          <Input type="number" id="num-sites-per-query" value={options.num_sites_per_query} onChange={(e) => onOptionChange({ ...options, num_sites_per_query: parseInt(e.target.value, 10) })} className="w-full" />
         </div>
       </div>
 
@@ -97,6 +87,13 @@ const ResearchControls: React.FC<ResearchControlsProps> = ({ options, onOptionCh
       </div>
     </div>
   );
+};
+
+// Context-based component
+export const ResearchControlsWithContext: React.FC = () => {
+  const { researchOptions, setResearchOptions } = useChatContext();
+
+  return <ResearchControls options={researchOptions} onOptionChange={setResearchOptions} />;
 };
 
 export default ResearchControls;

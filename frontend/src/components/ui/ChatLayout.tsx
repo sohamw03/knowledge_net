@@ -29,9 +29,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ sidebar, mainContent, settingsP
           </SheetTrigger>
           <SheetContent side="left" className="w-[80%] sm:w-[350px] p-0">
             <SheetTitle className="sr-only">Mobile Navigation</SheetTitle>
-            <SheetDescription className="sr-only">
-              Sidebar navigation for mobile devices
-            </SheetDescription>
+            <SheetDescription className="sr-only">Sidebar navigation for mobile devices</SheetDescription>
             <div className="border-b p-4">
               <h2 className="text-lg font-semibold">Conversations</h2>
             </div>
@@ -63,7 +61,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ sidebar, mainContent, settingsP
 
       <div className="flex-1 overflow-hidden">
         <ResizablePanelGroup direction="horizontal">
-          <ResizablePanel defaultSize={25} minSize={17} maxSize={30} className="hidden md:block">
+          <ResizablePanel defaultSize={15} className="hidden md:block min-w-[15rem] max-w-[35rem]">
             <Card className="h-full rounded-none border-r border-t-0 border-l-0 border-b-0">
               <ScrollArea className="h-full">{sidebar}</ScrollArea>
             </Card>
@@ -71,7 +69,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ sidebar, mainContent, settingsP
 
           <ResizableHandle withHandle className="hidden md:flex" />
 
-          <ResizablePanel defaultSize={75} className="w-full md:w-auto">
+          <ResizablePanel defaultSize={85} className="w-full md:w-auto">
             <Tabs defaultValue="chat" className="h-full flex flex-col">
               <div className="p-4">
                 <TabsList className="">
@@ -86,7 +84,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ sidebar, mainContent, settingsP
                 </TabsList>
               </div>
 
-              <TabsContent value="chat" className="overflow-auto flex flex-1" tabIndex={-1}>
+              <TabsContent value="chat" className="overflow-auto flex flex-1 !mt-0" tabIndex={-1}>
                 {mainContent}
               </TabsContent>
 
