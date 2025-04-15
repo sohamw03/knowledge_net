@@ -43,16 +43,22 @@ graph TD
 
 ## Installation
 
-To set up the KnowledgeNet environment, follow these steps:
+1.  **Install UV - Package Manager (Recommended)**
 
-1.  **Clone the Repository:**
+    [https://docs.astral.sh/uv/getting-started/installation/](https://docs.astral.sh/uv/getting-started/installation/)
+
+    **Install Bun - Package Manager (Recommended)**
+
+    [https://bun.sh/docs/installation](https://bun.sh/docs/installation)
+
+2.  **Clone the repository**
 
     ```bash
-    git clone [https://github.com/sohamw03/knowledge_net.git](https://github.com/sohamw03/knowledge_net.git)
+    git clone https://github.com/sohamw03/knowledge_net.git
     cd knowledge_net
     ```
 
-2.  **Backend Setup:**
+3.  **Backend Setup:**
 
     Navigate to the backend directory:
 
@@ -60,32 +66,43 @@ To set up the KnowledgeNet environment, follow these steps:
     cd backend
     ```
 
-    Create a virtual environment:
-
+    Create virtual environment and install dependencies:
     ```bash
-    python -m venv env
-    source env/bin/activate  # On Windows, use 'env\Scripts\activate'
+    uv sync
     ```
 
-    Install the required packages:
-
+    Activate the virtual environment:
     ```bash
-    pip install -r requirements.txt
+    source .venv/bin/activate # For Linux/Mac
+    .venv\Scripts\activate # For Windows
     ```
+
+    Install playwright chromium:
+    ```bash
+    playwright install chromium --with-deps
+    ```
+
+    Add environment variables to `.env` file:
+    ```bash
+    cp .env.example .env
+    ```
+
 
 3.  **Frontend Setup:**
 
     Navigate to the frontend directory:
-
     ```bash
     cd ../frontend
     ```
 
     Install the dependencies:
-
     ```bash
-    npm install
+    bun install --force
     ```
+
+    Add environment variables to `.env` file:
+    ```bash
+    cp .env.example .env
 
 ## Usage
 
@@ -93,10 +110,9 @@ To set up the KnowledgeNet environment, follow these steps:
 
     Ensure you're in the backend directory and the virtual environment is activated.
 
-    Run the Flask application:
-
+    Run the Flask-SocketIO asynchronous server:
     ```bash
-    flask run
+    uvicorn app:app --host 0.0.0.0 --port 5000
     ```
 
 2.  **Start the Frontend:**
@@ -106,7 +122,7 @@ To set up the KnowledgeNet environment, follow these steps:
     Start the development server:
 
     ```bash
-    npm run dev
+    bun dev
     ```
 
 3.  **Access the Application:**
@@ -141,12 +157,3 @@ We welcome contributions to enhance KnowledgeNet. To contribute:
 ## License
 
 This project is licensed under the Apache-2.0 License. See the `LICENSE` file for more details.
-
-## Acknowledgements
-
-* Crawl4AI for web crawling capabilities.
-* Playwright for browser automation.
-* Celery for distributed task management.
-* AWS for cloud infrastructure services.
-
-

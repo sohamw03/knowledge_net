@@ -17,7 +17,7 @@ from scraper import CrawlForAIScraper
 
 load_dotenv()
 
-# Today's Date | Format 15th Dec, 2025
+# Today's Date
 DATE = datetime.now().strftime("%d %b, %Y")
 
 

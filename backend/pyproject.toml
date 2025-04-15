@@ -76,7 +76,6 @@ dependencies = [
     "mdurl==0.1.2",
     "multidict==6.1.0",
     "mypy-extensions==1.0.0",
-    "newspaper3k==0.2.8",
     "nltk==3.9.1",
     "numpy==1.26.4",
     "openai==1.62.0",

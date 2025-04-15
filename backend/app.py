@@ -11,7 +11,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from knet import KNet
-from scraper import CrawlForAIScraper, WebScraper
+from scraper import CrawlForAIScraper
 
 load_dotenv()
 
