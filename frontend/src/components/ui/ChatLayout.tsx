@@ -1,14 +1,17 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LayoutGrid, Menu, MessageCircle, Settings } from "lucide-react";
-import React from "react";
+import { LayoutGrid, Menu, MessageCircle, Network, Settings } from "lucide-react";
+import React, { useState } from "react";
 import { ThemeToggle } from "./ThemeToggle";
 import Link from "next/link";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import ResearchGraph from "@/components/visualizations/ResearchGraph";
+import { useChatContext } from "@/lib/store/ChatContext";
 
 interface ChatLayoutProps {
   sidebar: React.ReactNode;
@@ -17,6 +20,25 @@ interface ChatLayoutProps {
 }
 
 const ChatLayout: React.FC<ChatLayoutProps> = ({ sidebar, mainContent, settingsPanel }) => {
+  const { chatState } = useChatContext();
+  const [activeTab, setActiveTab] = useState<string>("chat");
+  const [visualizationType, setVisualizationType] = useState<"d3" | "reactflow">("d3");
+
+  // Get the latest research tree from messages
+  const latestResearchTree = React.useMemo(() => {
+    // First look for the most recent completed research message
+    const completedResearch = [...chatState.messages].reverse().find((msg) => msg.role === "assistant" && !msg.isProgress && msg.research_tree);
+
+    if (completedResearch?.research_tree) {
+      return completedResearch.research_tree;
+    }
+
+    // If no completed research, look for progress messages
+    const progressMessage = [...chatState.messages].reverse().find((msg) => msg.role === "assistant" && msg.isProgress && msg.research_tree);
+
+    return progressMessage?.research_tree;
+  }, [chatState.messages]);
+
   return (
     <div className="h-screen flex flex-col">
       <header className="border-b-2 h-14 flex items-center px-6">
@@ -70,7 +92,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ sidebar, mainContent, settingsP
           <ResizableHandle withHandle className="hidden md:flex" />
 
           <ResizablePanel defaultSize={85} className="w-full md:w-auto">
-            <Tabs defaultValue="chat" className="h-full flex flex-col">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
               <div className="p-4">
                 <TabsList className="">
                   <TabsTrigger value="chat" className="flex items-center gap-2">
@@ -84,18 +106,12 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ sidebar, mainContent, settingsP
                 </TabsList>
               </div>
 
-              <TabsContent value="chat" className="overflow-auto flex flex-1 !mt-0" tabIndex={-1}>
+              <TabsContent value="chat" className="overflow-auto flex-1 !mt-0" tabIndex={-1}>
                 {mainContent}
               </TabsContent>
 
-              <TabsContent value="visualizations" className="p-4 flex-1">
-                <div className="h-full flex items-center justify-center text-muted-foreground">
-                  <div className="text-center">
-                    <LayoutGrid className="mx-auto h-12 w-12 mb-4 opacity-30" />
-                    <h3 className="text-lg font-medium mb-2">Visualizations Coming Soon</h3>
-                    <p>View graphs, charts, and other visual representations of your research data.</p>
-                  </div>
-                </div>
+              <TabsContent value="visualizations" className="p-4 pt-0 overflow-auto flex-1 !mt-0" tabIndex={-1}>
+                <ResearchGraph researchTree={latestResearchTree} />
               </TabsContent>
             </Tabs>
           </ResizablePanel>

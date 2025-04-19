@@ -1,6 +1,6 @@
 "use client";
 
-import { ChatData, ChatState, Conversation, Message, ResearchOptions, ResearchResults, StatusUpdate } from "@/lib/types";
+import { ChatData, ChatState, Conversation, Message, ResearchOptions, ResearchResults, ResearchTree, StatusUpdate } from "@/lib/types";
 import { ReactNode, createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { disconnectSocket, getSocket, initializeSocket } from "@/lib/socket";
@@ -101,13 +101,9 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
       if (conversation) {
         // Check if any loaded message has isProgress true
         let messages = conversation.messages;
-        if (messages.some(msg => msg.isProgress === true)) {
+        if (messages.some((msg) => msg.isProgress === true)) {
           // Convert any progress messages to error messages
-          messages = messages.map(msg =>
-            msg.isProgress === true
-              ? { ...msg, content: "Connection error", isProgress: false }
-              : msg
-          );
+          messages = messages.map((msg) => (msg.isProgress === true ? { ...msg, content: "Connection error", isProgress: false } : msg));
         }
 
         setChatState((prev) => ({ ...prev, messages, isLoading: false }));
@@ -128,17 +124,13 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
 
       // When socket disconnects, update any progress messages to show connection error
       setChatState((prevState) => {
-        const updatedMessages = prevState.messages.map(msg =>
-          msg.isProgress === true
-            ? { ...msg, content: "Connection error", isProgress: false }
-            : msg
-        );
+        const updatedMessages = prevState.messages.map((msg) => (msg.isProgress === true ? { ...msg, content: "Connection error", isProgress: false } : msg));
 
         return {
           ...prevState,
           messages: updatedMessages,
           isLoading: false,
-          error: "Lost connection to research server"
+          error: "Lost connection to research server",
         };
       });
     });
@@ -153,15 +145,16 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         const lastProgressIndex = messages.findLastIndex((msg) => msg.role === "assistant" && msg.isProgress === true);
 
         if (lastProgressIndex !== -1) {
-          // Update existing progress message
+          // Update existing progress message with research_tree data
           messages[lastProgressIndex] = {
             ...messages[lastProgressIndex],
             content: progressText,
             progress: progress,
             timestamp: new Date(),
+            research_tree: data.research_tree, // Update the research_tree in real-time
           };
         } else {
-          // Add new progress message
+          // Add new progress message with research_tree
           messages.push({
             id: uuidv4(),
             content: progressText,
@@ -169,6 +162,8 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
             timestamp: new Date(),
             progress: progress,
             isProgress: true,
+            research_tree: data.research_tree, // Include the research_tree
+            media: {}, // Initialize empty media object
           });
         }
 

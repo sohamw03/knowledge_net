@@ -1,16 +1,16 @@
 import copy
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Self
 
 
 class ResearchNode:
-    def __init__(self, query: str = "_", parent: Optional["ResearchNode"] = None, depth: int = 0):
+    def __init__(self, query: str = "_", parent: Optional[Self] = None, depth: int = 0):
         self.query = query
         self.parent = parent
         self.depth = depth
         self.children: List[ResearchNode] = []
         self.data: List[Dict[str, Any]] = []
 
-    def add_child(self, query: str, node: Optional["ResearchNode"] = None) -> "ResearchNode":
+    def add_child(self, query: str, node: Optional[Self] = None) -> Self:
         if node:
             child = node
             child.parent = self
@@ -48,10 +48,14 @@ class ResearchNode:
             data.extend(child.get_all_data())
         return data
 
-    def __repr__(self) -> dict:
+    # Build research tree structure
+    def build_tree_structure(self) -> Dict:
+        if not self:
+            return {}
+        sources = {d["url"]: d["text"] for d in self.data if d.get("url") and d.get("text")}
         return {
             "query": self.query,
             "depth": self.depth,
-            "children": [child.__repr__() for child in self.children],
-            "data": self.data,
+            "sources": sources,
+            "children": [child.build_tree_structure() for child in self.children],
         }

@@ -42,6 +42,7 @@ export interface Conversation {
 export interface StatusUpdate {
   message: string;
   progress: number;
+  research_tree: ResearchTree;
 }
 
 // Simplified research results based on actual server output
@@ -49,22 +50,22 @@ export interface ResearchResults {
   topic: string;
   timestamp: string;
   // Optional fields not present in basic server response
-  content?: string;
-  media?: {
-    images?: string[];
-    videos?: string[];
-    links?: Array<{
+  content: string;
+  media: {
+    images: string[];
+    videos: string[];
+    links: Array<{
       text: string;
       url: string;
     }>;
   };
-  research_tree?: ResearchTree;
+  research_tree: ResearchTree;
 }
 
 export interface ResearchTree {
   query: string;
   depth: number;
-  sources: string[];
+  sources: Record<string, string>; // it's like { "https://...": "Webpage text..." }
   children: ResearchTree[];
 }
 

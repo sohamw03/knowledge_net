@@ -149,17 +149,18 @@ class Schema:
 
 
 class ResearchProgress:
-    def __init__(self, callback):
+    def __init__(self, callback, master_node: ResearchNode):
         self.progress = 0
         self.callback = callback
+        self.master_node = master_node
 
     async def update(self, progress: int, message: str):
         self.progress = int(min(100, self.progress + progress))  # max 100
-        await self.callback({"progress": self.progress, "message": message})
+        await self.callback({"progress": self.progress, "message": message, "research_tree": self.master_node.build_tree_structure()})
 
     async def setter(self, progress: int, message: str):
         self.progress = int(min(100, progress))  # max 100
-        await self.callback({"progress": self.progress, "message": message})
+        await self.callback({"progress": self.progress, "message": message, "research_tree": self.master_node.build_tree_structure()})
 
 
 class KNet:
@@ -180,6 +181,7 @@ class KNet:
         self.num_sites_per_query = num_sites_per_query
 
         # Global State
+        self.master_node = ResearchNode()
         self.research_plan: list[str] = []
         self.idx_research_plan: int = 0
         self.ctx_researcher: list[str] = []
@@ -188,7 +190,7 @@ class KNet:
 
     async def conduct_research(self, topic: str, progress_callback, max_depth: int, num_sites_per_query: int) -> dict | bool:
         # Local Runtime State
-        self.progress = ResearchProgress(progress_callback)
+        self.progress = ResearchProgress(progress_callback, self.master_node)
         self.max_depth = max_depth
         self.num_sites_per_query = num_sites_per_query
 
@@ -209,8 +211,6 @@ class KNet:
             ]
             self.logger.info(f"Research plan:\n{json.dumps(self.research_plan, indent=2)}")
 
-            master_node = ResearchNode()
-
             await self.progress.update(0, "Starting research...")
 
             # Iterate on research plan
@@ -227,7 +227,7 @@ class KNet:
                 )["branches"][0]
 
                 root_node = ResearchNode(query)
-                master_node.add_child(root_node.query, node=root_node)
+                self.master_node.add_child(root_node.query, node=root_node)
                 to_explore = deque([(root_node, 1)])  # (node, depth) pairs
                 explored_queries = set()  # {string, string, ...}
 
@@ -261,9 +261,9 @@ class KNet:
 
             # Generate final report
             await self.progress.update(100 / (len(self.research_plan) + 1), "Generating final report...")
-            final_report = await self._generate_final_report(master_node, topic)
+            final_report = await self._generate_final_report(topic)
 
-            self.logger.info(f"Research completed. Explored {len(explored_queries)} queries across {master_node.max_depth()} levels")
+            self.logger.info(f"Research completed. Explored {len(explored_queries)} queries across {self.master_node.max_depth()} levels")
             await self.progress.update(100, "Research complete!")
 
             with open("output.log.json", "w", encoding="utf-8") as f:
@@ -282,7 +282,7 @@ class KNet:
         if asyncio.current_task() and asyncio.current_task().cancelled():
             raise asyncio.CancelledError("Research task was cancelled")
 
-    async def _generate_final_report(self, root_node: ResearchNode, topic: str, retry_count: int = 1) -> Dict[str, Any]:
+    async def _generate_final_report(self, topic: str, retry_count: int = 1) -> Dict[str, Any]:
         try:
             self._check_cancelled()
 
@@ -322,7 +322,7 @@ class KNet:
 
             # Collate multimedia content
             media_content = {"images": [], "videos": [], "links": []}
-            all_sources_data = root_node.get_all_data()
+            all_sources_data = self.master_node.get_all_data()
             for data in all_sources_data:
                 if data.get("images"):
                     media_content["images"].extend(data["images"])
@@ -336,28 +336,16 @@ class KNet:
             media_content["links"] = list({json.dumps(d, sort_keys=True) for d in media_content["links"]})
             media_content["links"] = [json.loads(d) for d in media_content["links"]]
 
-            # Build research tree structure
-            def build_tree_structure(node: ResearchNode) -> Dict:
-                if not node:
-                    return {}
-                sources = [d["url"] for d in node.data if d.get("url")]
-                return {
-                    "query": node.query,
-                    "depth": node.depth,
-                    "sources": sources,
-                    "children": [build_tree_structure(child) for child in node.children],
-                }
-
             return {
                 "topic": topic,
                 "timestamp": datetime.now().isoformat(),
                 "content": raster_report,
                 "media": media_content,
-                "research_tree": build_tree_structure(root_node),
+                "research_tree": self.master_node.build_tree_structure(),
                 "metadata": {
-                    "total_queries": root_node.total_children(),
+                    "total_queries": self.master_node.total_children(),
                     "total_sources": len(all_sources_data),
-                    "max_depth_reached": root_node.max_depth(),
+                    "max_depth_reached": self.master_node.max_depth(),
                     "total_tokens": self.token_count,
                 },
             }
@@ -369,7 +357,7 @@ class KNet:
                 self.logger.error("GEMINI_RECITATION or NO_RESPONSE")
             if retry_count < 3:
                 self.logger.error(f"Retrying final report:C:{retry_count} / 3", exc_info=True)
-                return await self._generate_final_report(root_node, topic, retry_count + 1)
+                return await self._generate_final_report(topic, retry_count + 1)
             self.logger.error("Error generating final report", exc_info=True)
             raise
 
@@ -470,7 +458,7 @@ class KNet:
             raise
 
     async def test(self, topic: str, progress_callback):
-        self.progress = ResearchProgress(progress_callback)
+        self.progress = ResearchProgress(progress_callback, self.master_node)
         try:
             for i in range(5):
                 self._check_cancelled()
