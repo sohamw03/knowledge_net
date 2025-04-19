@@ -23,7 +23,7 @@ DATE = datetime.now().strftime("%d %b, %Y")
 
 class Prompt:
     def __init__(self) -> None:
-        self.research_plan = dedent("""You are an expert AI Deep Research agent, part of a Multiagent system.
+        self.research_plan = dedent("""You are an expert Deep Research agent, part of a Multiagent system.
 
         User query:
         "{topic}".
@@ -72,39 +72,41 @@ class Prompt:
         - Goes deeper into important details
 
         - Do not do quote searches
-        - Keep the queries short and to the point
+        - Queries should be generic and short.
         Return as JSON array of objects with properties:
         - query (string)""")
 
-        self.report_outline = dedent("""Generate a comprehensive outline for a report on the user query based on the findings:
-        User query:
+        self.report_outline = dedent("""Generate a comprehensive outline for a report based on the findings:
+        Original user query for your context:
         {topic}
 
         Findings:
         {ctx_manager}
 
+        If there are multiple comparisons, only create one heading for all.
         The outline should include:
         - Title
         - List of h2 headings
         Do not include hashtags""")
 
-        self.report_fillin = dedent("""Fill in the content for the following report outline on the user query based on the following research findings:
-        User query:
+        self.report_fillin = dedent("""Fill in the content for the following report outline based on the following research findings:
+        Original user query for your context:
         {topic}
 
         Findings:
         {ctx_manager}
 
-        Report generated os far:
-        {report_progress}
-
         The outline:
         {report_outline}
+
+        Report generated so far:
+        {report_progress}
 
         Current heading to fill in:
         ## {slot}
 
-        The content should be comprehensive, detailed and well-structured, providing detailed information on the topic. Use tables, lists, and other formatting as needed to enhance readability.
+        The content should be comprehensive, detailed and well-structured, providing detailed information on the topic.
+        If needed use tables, lists. Do not include subheadings.
         Do not include the heading in the content.
         """)
 
