@@ -83,10 +83,11 @@ class CrawlForAIScraper:
                     continue
                 search_results.append(url)
 
-            if not search_results:
-                self.logger.warning("No search results found.")
-                self.logger.info("Performing DuckDuckGo search as fallback...")
-                search_results = self._duckduckgo_search(query)
+            for i in range(3): 
+                if not search_results:
+                    self.logger.info("Performing DuckDuckGo search as fallback...")
+                    self.logger.warning("No search results found.")
+                    search_results = self._duckduckgo_search(query)
 
             self.logger.info(f"Found {len(search_results)} results")
             return search_results
