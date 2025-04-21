@@ -83,11 +83,12 @@ class CrawlForAIScraper:
                     continue
                 search_results.append(url)
 
-            for i in range(3): 
+            for _ in range(3):
                 if not search_results:
                     self.logger.info("Performing DuckDuckGo search as fallback...")
                     self.logger.warning("No search results found.")
                     search_results = self._duckduckgo_search(query)
+                    break
 
             self.logger.info(f"Found {len(search_results)} results")
             return search_results
@@ -102,7 +103,13 @@ class CrawlForAIScraper:
             encoded_query = quote_plus(query)
             url = f"https://html.duckduckgo.com/html/?q={encoded_query}"
 
-            response = self.session.get(url, headers=self.headers, timeout=self.timeout)
+            response = self.session.get(
+                url,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+                },
+                timeout=10,
+            )
             response.raise_for_status()
 
             soup = BeautifulSoup(response.text, "html.parser")

@@ -25,27 +25,35 @@ class Prompt:
     def __init__(self) -> None:
         self.research_plan = dedent("""You are an expert Deep Research agent, part of a Multiagent system.
 
-        User query:
-        "{topic}".
+        <User query>
+        {topic}
+        </User query>
 
         ---
         Generate few very high level steps on which other agents can do info collection runs. Provide only data collection steps, no data identification, summarization, manipulation, selection, etc.
+        Do not presume any knowledge about the topic.
         Return a string array of steps.""")
 
         self.site_summary = dedent("""Extract specific verbatim key information from the following content that is related to the topic "{query}". No small talk.
-        Findings:
-        {findings}""")
+        <Findings>
+        {findings}
+        </Findings>
+        """)
 
         self.continue_branch = dedent("""Given the current state of research, decide whether to continue exploring the current branch or not.
-        Global Research Plan:
+        <Global Research Plan>
         {research_plan}
+        </Global Research Plan>
 
         Current Topic: {query}
-        Searched Queries:
-        {past_queries}
 
-        Findings under current topic:
+        <Past Searched Queries>
+        {past_queries}
+        </Past Searched Queries>
+
+        <Findings under current topic>
         {ctx_manager}
+        </Findings under current topic>
 
         Consider:
         - Information saturation
@@ -56,56 +64,62 @@ class Prompt:
         Return only decision: true/false""")
 
         self.search_query = dedent("""Based on the following findings on topic {vertical}, create google search queries
-        Global Research Plan:
+        <Global Research Plan>
         {research_plan}
+        </Global Research Plan>
 
-        Searched queries:
+        <Past Searched Queries>
         {past_queries}
+        </Past Searched Queries>
 
-        Findings under current topic:
+        <Findings under current topic>
         {ctx_manager}
+        </Findings under current topic>
 
-        Suggest up to {n} specific google search queries that:
+        Suggest {n} specific google search queries that:
         - Covers what has not been covered yet
         - Builds upon these findings
         - Explores different aspects
         - Goes deeper into important details
 
         - Do not do quote searches
-        - Queries should be generic and short.
+        - Queries should be generic and short
+        - Do not presume any knowledge about the topic
         Return as JSON array of objects with properties:
         - query (string)""")
 
-        self.report_outline = dedent("""Generate a comprehensive outline for a report based on the findings:
-        Original user query for your context:
+        self.report_outline = dedent("""Generate a outline for a report based on the findings:
+        <Original user query>
         {topic}
+        </Original user query>
 
-        Findings:
+        <Findings>
         {ctx_manager}
+        </Findings>
 
-        If there are multiple comparisons, only create one heading for all.
+        Deduplicate, reorganize and analyze the findings to create the outline.
+        If there are multiple comparisons, use a table instead of multiple headings.
         The outline should include:
         - Title
         - List of h2 headings
         Do not include hashtags""")
 
-        self.report_fillin = dedent("""Fill in the content for the following report outline based on the following research findings:
-        Original user query for your context:
-        {topic}
-
-        Findings:
+        self.report_fillin = dedent("""Fill in the content for the current outline heading based on the findings:
+        <Findings>
         {ctx_manager}
+        </Findings>
 
-        The outline:
+        <The outline>
         {report_outline}
+        </The outline>
 
-        Report generated so far:
-        {report_progress}
-
-        Current heading to fill in:
+        <Current outline heading to fill in>
         ## {slot}
+        ...
+        </Current outline heading to fill in>
 
-        The content should be comprehensive, detailed and well-structured, providing detailed information on the topic.
+        Assume [done] headings have their respective content.
+        The content should be comprehensive, detailed and well-structured, providing detailed information on current heading.
         If needed use tables, lists. Do not include subheadings.
         Do not include the heading in the content.
         """)
