@@ -87,9 +87,10 @@ class CrawlForAIScraper:
                 if not search_results:
                     self.logger.info("Performing DuckDuckGo search as fallback...")
                     self.logger.warning("No search results found.")
-                    search_results = self._duckduckgo_search(query)
-                    break
+                    search_results = await self._duckduckgo_search(query)
 
+            if not search_results:
+                raise Exception("No results found")
             self.logger.info(f"Found {len(search_results)} results")
             return search_results
 
@@ -97,22 +98,30 @@ class CrawlForAIScraper:
             self.logger.error(f"Google search error: {str(e)}", exc_info=True)
             raise
 
-    def _duckduckgo_search(self, query: str) -> List[str]:
+    async def _duckduckgo_search(self, query: str) -> List[str]:
         self.logger.info("Performing DuckDuckGo search...")
         try:
             encoded_query = quote_plus(query)
-            url = f"https://html.duckduckgo.com/html/?q={encoded_query}"
+            search_uri = f"https://html.duckduckgo.com/html/?q={encoded_query}"
 
-            response = self.session.get(
-                url,
-                headers={
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-                },
-                timeout=10,
+            # response = self.session.get(
+            #     url,
+            #     headers={
+            #         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            #     },
+            #     timeout=10,
+            # )
+            # response.raise_for_status()
+
+            result = await self.crawler.arun(
+                url=search_uri,
+                screenshot=False,
+                cache_mode=CacheMode.BYPASS,
+                delay_before_return_html=2,
+                scan_full_page=True,
             )
-            response.raise_for_status()
 
-            soup = BeautifulSoup(response.text, "html.parser")
+            soup = BeautifulSoup(result.html, "html.parser")
             search_results = []
 
             # DuckDuckGo search results are in elements with class 'result__url'
