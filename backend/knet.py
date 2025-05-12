@@ -64,6 +64,10 @@ class Prompt:
         Return only decision: true/false""")
 
         self.search_query = dedent("""Based on the following findings on topic {vertical}, create google search queries
+        <Original user query>
+        {topic}
+        </Original user query>
+
         <Global Research Plan>
         {research_plan}
         </Global Research Plan>
@@ -236,7 +240,7 @@ class KNet:
                 # Generate initial search query
                 query = self.generate_content(
                     self.prompt.search_query.format(
-                        vertical=self.research_plan[self.idx_research_plan], research_plan="None", past_queries="None", ctx_manager="None", n=1
+                        vertical=self.research_plan[self.idx_research_plan], topic=topic, research_plan="None", past_queries="None", ctx_manager="None", n=1
                     ),
                     schema=self.schema.search_query,
                     temp=1.5,
@@ -292,11 +296,6 @@ class KNet:
         except Exception:
             self.logger.error("Research failed", exc_info=True)
             raise
-
-    def _check_cancelled(self):
-        """Check if the current task has been cancelled and raise CancelledError if so"""
-        if asyncio.current_task() and asyncio.current_task().cancelled():
-            raise asyncio.CancelledError("Research task was cancelled")
 
     async def _generate_final_report(self, topic: str, retry_count: int = 1) -> Dict[str, Any]:
         try:
@@ -384,6 +383,7 @@ class KNet:
 
             prompt = self.prompt.search_query.format(
                 vertical=self.research_plan[self.idx_research_plan],
+                topic=topic,
                 research_plan="\n".join([f"[done] {step}" for i, step in enumerate(self.research_plan) if i < self.idx_research_plan]),
                 past_queries="\n".join([f"[done] {query}" for query in node.get_path_to_root()[1:]]),
                 ctx_manager="\n\n---\n\n".join(self.ctx_manager),
@@ -420,9 +420,11 @@ class KNet:
 
             # Generate summary of key findings into the manager's context
             if node.data:
-                findings = ("\n" + "-" * 10 + "Next data" + "-" * 10 + "\n").join([json.dumps(d, indent=2) for d in node.data])
-                response = self.generate_content(self.prompt.site_summary.format(query=node.query, findings=findings), temp=0.2)
-                self.ctx_manager.append(response) if isinstance(response, str) else None
+                for idx in range(0, len(node.data), 3):
+                    data = node.data[idx : idx + 3]
+                    findings = ("\n" + "-" * 10 + "Next data" + "-" * 10 + "\n").join([json.dumps(d, indent=2) for d in data])
+                    response = self.generate_content(self.prompt.site_summary.format(query=node.query, findings=findings), temp=0.2)
+                    self.ctx_manager.append(response) if isinstance(response, str) else None
 
             # Research manager takes decision to proceed or not
             prompt = self.prompt.continue_branch.format(
@@ -472,6 +474,11 @@ class KNet:
             if response.candidates[0].finish_reason == types.FinishReason.RECITATION:
                 raise Exception("GEMINI_RECITATION")
             raise
+
+    def _check_cancelled(self):
+        """Check if the current task has been cancelled and raise CancelledError if so"""
+        if asyncio.current_task() and asyncio.current_task().cancelled():
+            raise asyncio.CancelledError("Research task was cancelled")
 
     async def test(self, topic: str, progress_callback):
         self.progress = ResearchProgress(progress_callback, self.master_node)

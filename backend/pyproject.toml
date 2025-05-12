@@ -113,6 +113,7 @@ dependencies = [
     "rich==13.9.4",
     "rpds-py==0.22.3",
     "rsa==4.9",
+    "scikit-learn>=1.6.1",
     "selenium==4.28.1",
     "sgmllib3k==1.0.0",
     "simple-websocket==1.1.0",
