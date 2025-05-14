@@ -1,16 +1,17 @@
 **/.env
 
 # Flask ignore files
-backend/__pycache__/
-backend/*.pyc
-backend/*.pyo
-backend/*.pyd
-backend/*.pyo
-backend/.venv/
-backend/.env*
-backend/downloads/*
-backend/*.log.*
-backend/.ruff_cache/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/*.pyo
+**/*.csv
+**/.venv/
+**/.env*
+**/downloads/*
+**/*.log.*
+**/.ruff_cache/
 
 # Next.js ignore files
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
