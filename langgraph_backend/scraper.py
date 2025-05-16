@@ -7,7 +7,7 @@ from urllib.parse import quote_plus
 
 import requests
 from bs4 import BeautifulSoup
-from crawl4ai import AsyncWebCrawler, BrowserConfig, CacheMode
+from crawl4ai import AsyncWebCrawler, BrowserConfig, CacheMode, CrawlerRunConfig
 
 
 class CrawlForAIScraper:
@@ -70,6 +70,7 @@ class CrawlForAIScraper:
                 cache_mode=CacheMode.BYPASS,
                 delay_before_return_html=2,
                 scan_full_page=True,
+                config=CrawlerRunConfig(verbose=False),
             )
 
             soup = BeautifulSoup(result.html, "html.parser")
@@ -119,6 +120,7 @@ class CrawlForAIScraper:
                 cache_mode=CacheMode.BYPASS,
                 delay_before_return_html=2,
                 scan_full_page=True,
+                config=CrawlerRunConfig(verbose=False),
             )
 
             soup = BeautifulSoup(result.html, "html.parser")
@@ -157,6 +159,7 @@ class CrawlForAIScraper:
                 delay_before_return_html=2,
                 exclude_external_images=True,
                 page_timeout=25000,
+                config=CrawlerRunConfig(verbose=False),
             )
             scraped_sites = []
             for result in results:
