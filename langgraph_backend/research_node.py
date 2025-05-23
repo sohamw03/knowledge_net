@@ -75,3 +75,19 @@ class ResearchNode:
             "children": [child.build_tree_structure() for child in self.children],
         }
 
+    # Return deep copy with node pointers | Isolated function
+    def deep_copy_tree(root: Optional[Self] = None) -> Self:
+        """
+        Returns a deep copy of the tree starting from this node.
+        """
+        if root is None:
+            return None
+        new_node = ResearchNode(root.query, depth=root.depth)
+        new_node.id = root.id
+        new_node.data = copy.deepcopy(root.data)
+        for child in root.children:
+            new_child = ResearchNode.deep_copy_tree(child)
+            new_child.parent = new_node
+            new_node.children.append(new_child)
+        return new_node
+

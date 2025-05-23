@@ -188,8 +188,8 @@ class CrawlForAIScraper:
                     all_videos = list(set(all_videos + media_videos))
 
                     data = {
-                        "url": result.url,
-                        "text": result.markdown,
+                        "url": str(result.url),
+                        "text": str(result.markdown),
                         "images": all_images,
                         "videos": all_videos,
                         "links": self._extract_links(result.links["external"]),
