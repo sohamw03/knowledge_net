@@ -16,7 +16,7 @@ class CrawlForAIScraper:
         self.session = requests.Session()
         self.base_browser = BrowserConfig(
             browser_type="chromium",
-            headless=True,
+            headless=False,
             viewport_width=1920,
             viewport_height=1080,
             accept_downloads=False,

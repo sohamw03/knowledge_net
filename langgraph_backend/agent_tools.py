@@ -9,14 +9,14 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent
 from langgraph.types import Command, interrupt
 
-from tools_tools import calc
+from tools_tools import calc, scrape
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 load_dotenv()
 
 checkpointer = MemorySaver()
-tools = [calc]
+tools = [calc, scrape]
 
 # --- LangChain LLM setup (Gemini, correct usage) ---
 model = ChatGoogleGenerativeAI(model="gemini-2.0-flash", google_api_key=os.getenv("GOOGLE_API_KEY"))
