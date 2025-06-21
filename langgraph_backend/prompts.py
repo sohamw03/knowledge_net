@@ -12,11 +12,38 @@ Generate few very high level steps on which other agents can do info collection 
 Do not presume any knowledge about the topic.
 Return a string array of steps.""")
 
-SITE_SUMMARY_PROMPT = dedent("""Extract specific verbatim key information from the following content that is related to the topic "{query}". No small talk.
-<Findings>
+SITE_SUMMARY_PROMPT = dedent("""Extract and filter the following search results from this query "{query}" to get important verbatim information. No small talk.
+<findings>
 {findings}
-</Findings>
+</findings>
 """)
+
+SITE_SUMMARY_PROMPT_V3 = dedent("""
+    You are a specialized data extraction component for a research agent.
+    Your goal is to process a list of web search results and extract only the most critical, relevant, and verbatim information related to the user's query.
+
+    **Original User Query:** "{query}"
+
+    **Processing Instructions:**
+    For each document provided in the `<search_results>`:
+    1.  **Analyze Relevance:** Read the document content and determine if it contains information that directly addresses or relates to the user's query.
+    2.  **Verbatim Extraction:** If relevant, extract the key sentences, data points, commands, or quotes verbatim. Do not rephrase. Focus on concrete facts, not general descriptions.
+    3.  **Maintain Source:** Ensure every piece of extracted information is clearly attributed to its source URL.
+    4.  **Handle Irrelevance:** If a document is completely irrelevant, ignore it in the output. If NONE of the documents are relevant, return an empty response.
+
+    **Output Format:**
+    You MUST format your entire response in structured markdown. For each source that contains relevant information, create a section with the following format:
+
+    ---
+    **Source:** [URL of the source]
+    *   Verbatim fact or quote 1.
+    *   Verbatim fact or quote 2.
+    *   ...
+
+    **Search Results to Process:**
+    <search_results>
+    {findings}
+    </search_results>""")
 
 CONTINUE_BRANCH_PROMPT = dedent("""Given the current state of research, decide whether to continue exploring the current branch or not.
 <Global Research Plan>
