@@ -1,12 +1,14 @@
 import asyncio
 import os
+from datetime import datetime
 from typing import Annotated, Any, Dict, List, Literal, Optional, TypedDict
 
 from dotenv import load_dotenv
 from langchain_core.tools import tool
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-from prompts import SITE_SUMMARY_PROMPT_V3
+from prompts import REPORT_FILLIN_PROMPT, REPORT_OUTLINE_PROMPT, SITE_SUMMARY_PROMPT_V3
+from schema import ReportFillin, ReportOutline
 from scraper import CrawlForAIScraper
 
 load_dotenv()
@@ -15,7 +17,7 @@ model = ChatGoogleGenerativeAI(model="gemini-2.0-flash-lite", google_api_key=os.
 
 
 @tool
-async def search(query: str) -> List[Dict[str, Any]]:
+async def search(query: str) -> str:
     """
     Search in a search engine.
     Always call this tool if there is any knowledge gap in performing the task.
@@ -36,4 +38,50 @@ async def search(query: str) -> List[Dict[str, Any]]:
         summary = model.invoke(SITE_SUMMARY_PROMPT_V3.format(query=query, findings=agg_sites_ctx), config={"temperature": 0.5}).text()
         summ_sites_ctx.append(summary)
 
-    return "\n\n---\n\n".join(summ_sites_ctx)
+    return "\n\n---\n\n".join(summ_sites_ctx) + "\n\nPlease call the search tool to get more information."
+
+
+def gen_report(findings: str, topic: str):
+    # Generate report outline
+    outline = model.with_structured_output(ReportOutline).invoke(REPORT_OUTLINE_PROMPT.format(topic=topic, ctx_manager=findings))
+    report = []
+    raster_report = f"# {outline['title']}\n\n"
+
+    # Fill in report outline
+    for i, heading in enumerate(outline["headings"]):
+        content = model.with_structured_output(ReportFillin).invoke(
+            REPORT_FILLIN_PROMPT.format(
+                topic=topic,
+                ctx_manager=findings,
+                report_progress=raster_report,
+                report_outline=["[done] " + outline["title"]] + [f"[done] {h}" for _, h in enumerate(outline["headings"]) if i < _],
+                slot=heading,
+            ),
+        )["content"]
+        # Remove heading if LLM put it there regardless
+        idx_heading = content.find(heading)
+        if idx_heading != -1:
+            content = content[idx_heading + len(heading) :].strip()
+        report.append({"heading": heading, "content": content})
+        raster_report += f"\n\n## {heading}\n\n{content}"
+
+    return {
+        "topic": topic,
+        "timestamp": datetime.now().isoformat(),
+        "content": raster_report,
+        "metadata": {},
+    }
+
+
+@tool
+def continue_step(cont: str) -> str:
+    """
+    Call this tool while doing analytical tasks when no other tools are called, as calling no tool will end this conversation.
+
+    Args:
+        cont: required string value "true"
+
+    Returns:
+        Confirmation message indicating to continue with further task.
+    """
+    return "Continue"

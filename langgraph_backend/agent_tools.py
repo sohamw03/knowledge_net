@@ -10,16 +10,15 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent
 from langgraph.types import Command, interrupt
 
-from tools_tools import search
+from tools_tools import continue_step, gen_report, search
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 load_dotenv()
 
 checkpointer = MemorySaver()
-tools = [search]
+tools = [search, continue_step]
 
-# --- LangChain LLM setup (Gemini, correct usage) ---
 model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=os.getenv("GOOGLE_API_KEY"))
 
 # System message for the research agent
@@ -28,7 +27,7 @@ SYSTEM_MESSAGE = dedent(
 
     Your Operating Protocol:
 
-    You operate as a state machine and MUST follow these steps in order. In every response, you must first state which step you are currently performing.
+    You operate as a state machine and MUST follow these steps in order. Do not mention the steps to the user.
 
     Step 1: Initial Exploration
     - Your first action is ALWAYS to call the search tool with a broad query to understand the topic.
@@ -42,6 +41,7 @@ SYSTEM_MESSAGE = dedent(
 
     Step 3: Verification & Synthesis
     - State: "Currently in Step 3: Verification & Synthesis."
+    - Required: Call the continue_step tool so you can proceed with step 4.
     - Review all the information gathered from all previous steps.
     - If there are any unverified or conflicting claims, perform one final, targeted search to try and resolve them.
     - If all information is gathered, state that you are ready to generate the final report and do not call any more tools.
@@ -50,11 +50,9 @@ SYSTEM_MESSAGE = dedent(
     - Once you have completed all research steps, generate the final report according to the specified structure. Do not generate this report until all other steps are complete.
 
     5.  **Structured Final Report:** For your final answer, provide a comprehensive report structured with the following headings:
-        - **Summary:** A one-paragraph executive summary of the findings.
         - **Detailed Findings:** A detailed, point-by-point breakdown of the information discovered.
         - **Supporting Evidence:** Use specific data points, timelines, direct quotes, and version numbers where available. Cite your sources clearly.
-        - **Conclusion:** A final conclusion that directly answers the user's query or explains why it cannot be answered.
-        - **Actionable Recommendation:** In the **Conclusion**, after presenting the technical facts, you MUST provide a single, clear, and actionable recommendation for the user. If multiple options are technically equivalent, choose the one that is the most direct, simplest, or officially recommended. State your reasoning for this choice (e.g., "While performance is similar, the standalone installer is recommended as it has no dependencies and is the most direct installation method.").
+        - **Conclusion:** A final conclusion that directly answers the user's query or explains why it cannot be answered. After presenting the technical facts, you MUST provide a single, clear, and actionable recommendation for the user.
     6. **Disambiguation:** If a search result appears to be about a different topic with the same name (e.g., 'UV' for spectroscopy vs. 'uv' for a package manager), you must explicitly state that you are discarding it as irrelevant and refine your subsequent search queries to be more specific (e.g., search for "uv package manager" instead of just "uv").
 
     Suggested Research Avenues (Check multiple types):
@@ -75,16 +73,24 @@ agent = create_react_agent(
 )
 
 
-async def invoke_agent(message: str, thread_id: str):
+async def invoke_agent(message: str, thread_id: str, idx_retry: int = 1, create_report: bool = False):
     config = {"configurable": {"thread_id": thread_id}, "recursion_limit": 50}
 
     async for event in agent.astream({"messages": [{"role": "user", "content": message}]}, config=config):
         print(event)
+
         if "agent" in event:
             response = [
                 {"type": "ai_msg", "content": m.content, "total_tokens": m.usage_metadata["total_tokens"], "tool_calls": m.tool_calls}
                 for m in event["agent"]["messages"]
             ]
+            if not event["agent"]["messages"][0].additional_kwargs:
+                response = [
+                    # TODO: Get messages from checkpointer to provide findings to gen_report
+                    {"type": "ai_msg", "content": gen_report(checkpointer, message), "total_tokens": m.usage_metadata["total_tokens"], "tool_calls": m.tool_calls}
+                    for m in event["agent"]["messages"]
+                ]
+
         elif "tools" in event:
             response = [{"type": "tool_resp", "content": m.content} for m in event["tools"]["messages"]]
         yield response

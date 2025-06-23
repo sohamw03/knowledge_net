@@ -43,9 +43,10 @@ async def chat(request: Request):
     data = await request.json()
     message = data.get("message")
     thread_id = data.get("thread_id")
+    create_report = data.get("create_report", False)
 
     async def event_generator():
-        async for event in invoke_agent(message, thread_id):
+        async for event in invoke_agent(message, thread_id, create_report):
             # Format the event as SSE (Server-Sent Events)
             event_data = json.dumps(event)
             yield f"data: {event_data}\n\n"
