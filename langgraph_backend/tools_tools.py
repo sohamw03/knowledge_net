@@ -71,17 +71,3 @@ def gen_report(findings: str, topic: str):
         "content": raster_report,
         "metadata": {},
     }
-
-
-@tool
-def continue_step(cont: str) -> str:
-    """
-    Call this tool while doing analytical tasks when no other tools are called, as calling no tool will end this conversation.
-
-    Args:
-        cont: required string value "true"
-
-    Returns:
-        Confirmation message indicating to continue with further task.
-    """
-    return "Continue"
