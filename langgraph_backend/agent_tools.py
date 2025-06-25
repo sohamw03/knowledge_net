@@ -85,9 +85,14 @@ async def invoke_agent(message: str, thread_id: str, idx_retry: int = 1, create_
                 for m in event["agent"]["messages"]
             ]
             if not event["agent"]["messages"][0].additional_kwargs:
+                history = [f"{m.type}:\n{m.content}" for m in agent.get_state({"configurable": {"thread_id": "1234"}}).values["messages"]]
                 response = [
-                    # TODO: Get messages from checkpointer to provide findings to gen_report
-                    {"type": "ai_msg", "content": gen_report(checkpointer, message), "total_tokens": m.usage_metadata["total_tokens"], "tool_calls": m.tool_calls}
+                    {
+                        "type": "ai_msg_report",
+                        "content": gen_report("\n\n".join(history), message),
+                        "total_tokens": m.usage_metadata["total_tokens"],
+                        "tool_calls": m.tool_calls,
+                    }
                     for m in event["agent"]["messages"]
                 ]
 
