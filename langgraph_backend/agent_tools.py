@@ -10,14 +10,14 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent
 from langgraph.types import Command, interrupt
 
-from tools_tools import continue_step, gen_report, search
+from tools_tools import gen_report, search
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 load_dotenv()
 
 checkpointer = MemorySaver()
-tools = [search, continue_step]
+tools = [search]
 
 model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=os.getenv("GOOGLE_API_KEY"))
 
@@ -41,10 +41,8 @@ SYSTEM_MESSAGE = dedent(
 
     Step 3: Verification & Synthesis
     - State: "Currently in Step 3: Verification & Synthesis."
-    - Required: Call the continue_step tool so you can proceed with step 4.
     - Review all the information gathered from all previous steps.
     - If there are any unverified or conflicting claims, perform one final, targeted search to try and resolve them.
-    - If all information is gathered, state that you are ready to generate the final report and do not call any more tools.
 
     Step 4: Final Report Generation
     - Once you have completed all research steps, generate the final report according to the specified structure. Do not generate this report until all other steps are complete.
