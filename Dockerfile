@@ -15,7 +15,7 @@ WORKDIR /app
 RUN pip install uv
 COPY --chown=user . /app
 WORKDIR /app/backend
-RUN uv sync
-RUN uv run playwright install chromium --with-deps
+RUN uv pip install -r requirements.txt --system
+RUN playwright install chromium
 
 CMD ["uv", "run", "app.py"]
