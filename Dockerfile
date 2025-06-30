@@ -57,11 +57,11 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
 # Install Bun
 RUN curl -fsSL https://bun.sh/install | bash
 ENV PATH="/root/.bun/bin:${PATH}"
-USER user
 
 RUN bun install
 RUN bun run build
 
 WORKDIR /app
+USER user
 
 CMD ["cd", "backend", "&&", "uv", "run", "app.py", "&&", "cd", "frontend", "bunx", "serve"]
