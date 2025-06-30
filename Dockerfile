@@ -39,6 +39,7 @@ RUN apt install -y libnss3\
  libatspi2.0-0\
  nginx
 RUN mkdir -p /var/lib/nginx/body && chown -R user:user /var/lib/nginx
+RUN mkdir -p /var/log/nginx && chown -R user:user /var/log/nginx
 USER user
 
 # ---------- Frontend ----------
