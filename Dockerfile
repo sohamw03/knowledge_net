@@ -53,6 +53,7 @@ RUN apt-get update && apt-get install -y \
 # Install Node.js (LTS)
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
+USER user
 
 # Install Bun
 RUN curl -fsSL https://bun.sh/install | bash
@@ -62,7 +63,6 @@ RUN bun install
 RUN bun run build
 
 WORKDIR /app
-USER user
 
 RUN chmod +x /app/start.sh
 CMD ["/app/start.sh"]
