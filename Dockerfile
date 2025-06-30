@@ -14,6 +14,8 @@ WORKDIR /app
 
 RUN pip install uv
 COPY --chown=user . /app
+
+# ---------- Backend ----------
 WORKDIR /app/backend
 RUN uv sync
 RUN uv run playwright install chromium
@@ -36,4 +38,30 @@ RUN apt install -y libnss3\
  libatspi2.0-0
 USER user
 
-CMD ["uv", "run", "app.py"]
+# ---------- Frontend ----------
+WORKDIR /app/frontend
+
+# Install system dependencies
+USER root
+RUN apt-get update && apt-get install -y \
+    curl \
+    unzip \
+    bash \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+USER user
+
+# Install Node.js (LTS)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
+
+# Install Bun
+RUN curl -fsSL https://bun.sh/install | bash
+ENV PATH="/root/.bun/bin:${PATH}"
+
+RUN bun install
+RUN bun run build
+
+WORKDIR /app
+
+CMD ["cd", "backend", "&&", "uv", "run", "app.py", "&&", "cd", "frontend", "bunx", "serve"]
