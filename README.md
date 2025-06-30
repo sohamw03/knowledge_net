@@ -1,3 +1,14 @@
+---
+title: Knowledge Net
+emoji: 🏢
+colorFrom: blue
+colorTo: blue
+sdk: docker
+pinned: false
+license: apache-2.0
+short_description: Agentic Deep Research Workflow using Data Cascading
+---
+
 # KnowledgeNet
 
 KnowledgeNet is an AI-driven framework designed to automate the research process by collecting, processing, and presenting information from various online sources. It leverages advanced web crawling, natural language processing, and data visualization techniques to deliver comprehensive research insights.
