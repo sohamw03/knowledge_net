@@ -64,4 +64,5 @@ RUN bun run build
 WORKDIR /app
 USER user
 
-CMD ["cd", "backend", "&&", "uv", "run", "app.py", "&&", "cd", "frontend", "bunx", "serve"]
+RUN chmod +x /app/start.sh
+CMD ["/app/start.sh"]
