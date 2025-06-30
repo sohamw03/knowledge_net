@@ -40,6 +40,13 @@ RUN apt install -y libnss3\
  nginx
 RUN mkdir -p /var/lib/nginx/body && chown -R user:user /var/lib/nginx
 RUN mkdir -p /var/log/nginx && chown -R user:user /var/log/nginx
+RUN apt-get update && apt-get install -y \
+    curl \
+    unzip \
+    bash \
+    build-essential \
+    netcat-traditional \
+    && rm -rf /var/lib/apt/lists/*
 USER user
 
 # ---------- Frontend ----------
