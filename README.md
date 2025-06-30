@@ -1,11 +1,11 @@
 ---
 title: Knowledge Net
-emoji: 🏢
-colorFrom: blue
-colorTo: blue
+emoji: 🔬
+colorFrom: indigo
+colorTo: red
 sdk: docker
 app_port: 3000
-pinned: false
+pinned: true
 license: apache-2.0
 short_description: Agentic Deep Research Workflow using Data Cascading
 ---
