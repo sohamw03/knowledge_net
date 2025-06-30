@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /frontend
+cd /app/frontend
 bun start &
 cd ../backend
 uv run app.py
