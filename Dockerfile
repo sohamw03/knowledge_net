@@ -18,6 +18,7 @@ WORKDIR /app/backend
 RUN uv sync
 RUN uv run playwright install chromium
 
+USER root
 RUN apt-get install libnss3\
                     libnspr4\
                     libdbus-1-3\
@@ -32,5 +33,6 @@ RUN apt-get install libnss3\
                     libxkbcommon0\
                     libasound2\
                     libatspi2.0-0
+USER user
 
 CMD ["uv", "run", "app.py"]
