@@ -4,6 +4,7 @@ emoji: 🏢
 colorFrom: blue
 colorTo: blue
 sdk: docker
+app_port: 5000
 pinned: false
 license: apache-2.0
 short_description: Agentic Deep Research Workflow using Data Cascading
