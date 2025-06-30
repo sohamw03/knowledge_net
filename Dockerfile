@@ -4,11 +4,8 @@
 FROM python:3.12
 
 RUN --mount=type=secret,id=GOOGLE_API_KEY,mode=0444,required=true
-ENV GOOGLE_API_KEY=$(cat /run/secrets/GOOGLE_API_KEY)
 RUN --mount=type=secret,id=ALLOWED_ORIGINS,mode=0444,required=true
-ENV ALLOWED_ORIGINS=$(cat /run/secrets/ALLOWED_ORIGINS)
 RUN --mount=type=secret,id=NEXT_PUBLIC_BACKEND_URL,mode=0444,required=true
-ENV NEXT_PUBLIC_BACKEND_URL=$(cat /run/secrets/NEXT_PUBLIC_BACKEND_URL)
 
 RUN useradd -m -u 1000 user
 USER user
