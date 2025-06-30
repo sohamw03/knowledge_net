@@ -36,7 +36,8 @@ RUN apt install -y libnss3\
  libgbm1\
  libxkbcommon0\
  libasound2\
- libatspi2.0-0
+ libatspi2.0-0\
+ nginx
 USER user
 
 # ---------- Frontend ----------
@@ -64,6 +65,11 @@ RUN bun install
 RUN bun run build
 
 WORKDIR /app
+
+# ---------- Nginx ----------
+USER root
+COPY nginx.conf /etc/nginx/nginx.conf
+USER user
 
 RUN chmod +x /app/start.sh
 CMD ["/app/start.sh"]
