@@ -57,7 +57,7 @@ USER user
 
 # Install Bun
 RUN curl -fsSL https://bun.sh/install | bash
-ENV PATH="/root/.bun/bin:${PATH}"
+ENV PATH="/home/user/.bun/bin:${PATH}"
 
 RUN bun install
 RUN bun run build
