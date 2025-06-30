@@ -20,7 +20,7 @@ RUN uv run playwright install chromium
 
 USER root
 RUN apt update
-RUN apt install libnss3\
+RUN apt install -y libnss3\
  libnspr4\
  libdbus-1-3\
  libatk1.0-0\
