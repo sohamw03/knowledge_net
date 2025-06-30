@@ -38,8 +38,8 @@ RUN apt install -y libnss3\
  libasound2\
  libatspi2.0-0\
  nginx
-USER user
 RUN mkdir -p /var/lib/nginx/body && chown -R user:user /var/lib/nginx
+USER user
 
 # ---------- Frontend ----------
 WORKDIR /app/frontend
