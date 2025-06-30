@@ -3,6 +3,6 @@
 cd /app/backend
 uv run app.py &
 cd /app/frontend
-PORT=3001 bunx serve@latest out &
+PORT=3001 npx serve@latest out &
 nginx -g "daemon off;" &
 wait
