@@ -49,7 +49,6 @@ RUN apt-get update && apt-get install -y \
     bash \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
-USER user
 
 # Install Node.js (LTS)
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
@@ -58,6 +57,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
 # Install Bun
 RUN curl -fsSL https://bun.sh/install | bash
 ENV PATH="/root/.bun/bin:${PATH}"
+USER user
 
 RUN bun install
 RUN bun run build
