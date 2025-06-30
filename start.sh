@@ -1,6 +1,6 @@
 #!/bin/bash
-cd backend
-uv run app.py &
-cd ../frontend
-bun start
+cd /frontend
+bun start &
+cd ../backend
+uv run app.py
 wait
