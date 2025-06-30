@@ -21,19 +21,19 @@ RUN uv run playwright install chromium
 USER root
 RUN apt update
 RUN apt install libnss3\
-libnspr4\
-libdbus-1-3\
-libatk1.0-0\
-libatk-bridge2.0-0\
-libcups2\
-libxcomposite1\
-libxdamage1\
-libxfixes3\
-libxrandr2\
-libgbm1\
-libxkbcommon0\
-libasound2\
-libatspi2.0-0
+ libnspr4\
+ libdbus-1-3\
+ libatk1.0-0\
+ libatk-bridge2.0-0\
+ libcups2\
+ libxcomposite1\
+ libxdamage1\
+ libxfixes3\
+ libxrandr2\
+ libgbm1\
+ libxkbcommon0\
+ libasound2\
+ libatspi2.0-0
 USER user
 
 CMD ["uv", "run", "app.py"]
