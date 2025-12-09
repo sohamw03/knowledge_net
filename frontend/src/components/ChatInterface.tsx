@@ -9,13 +9,13 @@ import ChatLayout from "./ui/ChatLayout";
 import ConversationList from "./ui/ConversationList";
 
 const ChatInterface = () => {
-  const { chatState, conversations, abortResearch, userInputRef, researchOptions, sendMessage, newConversation, selectConversation, deleteConversation, deleteAllConversations, setResearchOptions } = useChatContext();
+  const { chatState, conversations, abortResearch, userInputRef, researchOptions, sendMessage, newConversation, selectConversation, deleteConversation, deleteAllConversations, setResearchOptions, connectionMode } = useChatContext();
 
   const sidebar = <ConversationList conversations={conversations} onNewConversation={newConversation} onSelectConversation={selectConversation} onDeleteConversation={deleteConversation} onDeleteAllConversations={deleteAllConversations} />;
 
   const mainContent = (
     <div className="flex flex-col w-full h-full relative" tabIndex={-1}>
-      <ChatHistory messages={chatState.messages} isLoading={chatState.isLoading} />
+      <ChatHistory messages={chatState.messages} isLoading={chatState.isLoading} connectionMode={connectionMode} />
 
       {chatState.error && (
         <Alert variant="destructive" className="mx-2 my-2 mb-28 w-90 bg-red-950 text-red-50">

@@ -10,6 +10,7 @@ export interface Message {
   research_tree?: ResearchTree;
   progress?: number;
   isProgress?: boolean;
+  tool_calls?: any[];
 }
 
 export interface ChatState {
