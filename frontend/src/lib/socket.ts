@@ -1,6 +1,7 @@
 import { io, Socket } from "socket.io-client";
 
 let socket: Socket | null = null;
+let eventSource: EventSource | null = null;
 
 export const initializeSocket = (url?: string) => {
   // In production (Docker), use the same host where the frontend is served
@@ -17,6 +18,18 @@ export const initializeSocket = (url?: string) => {
     });
   }
   return socket;
+};
+
+export const initializeSse = (url: string) => {
+  eventSource = new EventSource(url);
+  return eventSource;
+};
+
+export const closeSse = () => {
+  if (eventSource) {
+    eventSource.close();
+    eventSource = null;
+  }
 };
 
 export const getSocket = () => {

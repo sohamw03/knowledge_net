@@ -463,7 +463,7 @@ class KNet:
             generate_content_config = types.GenerateContentConfig(temperature=temp, response_mime_type="text/plain", safety_settings=safe)
 
         try:
-            response = self.genai_client.models.generate_content(model="gemini-2.0-flash", contents=prompt, config=generate_content_config)
+            response = self.genai_client.models.generate_content(model="gemini-2.5-flash", contents=prompt, config=generate_content_config)
             if not response:
                 raise Exception("NO_RESPONSE")
 

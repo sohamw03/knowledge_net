@@ -9,6 +9,7 @@ import React, { useState } from "react";
 import { ThemeToggle } from "./ThemeToggle";
 import Link from "next/link";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import ResearchGraph from "@/components/visualizations/ResearchGraph";
 import { useChatContext } from "@/lib/store/ChatContext";
@@ -20,7 +21,7 @@ interface ChatLayoutProps {
 }
 
 const ChatLayout: React.FC<ChatLayoutProps> = ({ sidebar, mainContent, settingsPanel }) => {
-  const { chatState } = useChatContext();
+  const { chatState, connectionMode, setConnectionMode } = useChatContext();
   const [activeTab, setActiveTab] = useState<string>("chat");
   const [visualizationType, setVisualizationType] = useState<"d3" | "reactflow">("d3");
 
@@ -63,6 +64,17 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ sidebar, mainContent, settingsP
           <h1 className="text-xl font-semibold hidden sm:inline">KnowledgeNet: Deep Research</h1>
           <h1 className="text-lg font-semibold sm:hidden">KNet: Deep Research</h1>
         </Link>
+        <div className="ml-4">
+          <Select value={connectionMode} onValueChange={(value) => setConnectionMode(value as "agent" | "workflow")}>
+            <SelectTrigger className="w-[120px]">
+              <SelectValue placeholder="Mode" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="agent">Agent</SelectItem>
+              <SelectItem value="workflow">Workflow</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         <div className="flex-1" />
         <ThemeToggle />
         <Dialog>

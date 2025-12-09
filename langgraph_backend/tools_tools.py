@@ -13,7 +13,7 @@ from scraper import CrawlForAIScraper
 
 load_dotenv()
 scraper_inst = CrawlForAIScraper()
-model = ChatGoogleGenerativeAI(model="gemini-2.0-flash-lite", google_api_key=os.getenv("GOOGLE_API_KEY"))
+model = ChatGoogleGenerativeAI(model="gemini-flash-lite-latest", google_api_key=os.getenv("GOOGLE_API_KEY"))
 
 
 @tool
@@ -41,15 +41,15 @@ async def search(query: str) -> str:
     return "\n\n---\n\n".join(summ_sites_ctx) + "\n\nPlease call the search tool to get more information."
 
 
-def gen_report(findings: str, topic: str):
+async def gen_report(findings: str, topic: str):
     # Generate report outline
-    outline = model.with_structured_output(ReportOutline).invoke(REPORT_OUTLINE_PROMPT.format(topic=topic, ctx_manager=findings))
+    outline = await model.with_structured_output(ReportOutline).ainvoke(REPORT_OUTLINE_PROMPT.format(topic=topic, ctx_manager=findings))
     report = []
     raster_report = f"# {outline['title']}\n\n"
 
     # Fill in report outline
     for i, heading in enumerate(outline["headings"]):
-        content = model.with_structured_output(ReportFillin).invoke(
+        content = await model.with_structured_output(ReportFillin).ainvoke(
             REPORT_FILLIN_PROMPT.format(
                 topic=topic,
                 ctx_manager=findings,
@@ -57,7 +57,8 @@ def gen_report(findings: str, topic: str):
                 report_outline=["[done] " + outline["title"]] + [f"[done] {h}" for _, h in enumerate(outline["headings"]) if i < _],
                 slot=heading,
             ),
-        )["content"]
+        )
+        content = content["content"]
         # Remove heading if LLM put it there regardless
         idx_heading = content.find(heading)
         if idx_heading != -1:

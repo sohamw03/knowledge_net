@@ -74,26 +74,25 @@ agent = create_react_agent(
 async def invoke_agent(message: str, thread_id: str, idx_retry: int = 1, create_report: bool = False):
     config = {"configurable": {"thread_id": thread_id}, "recursion_limit": 50}
 
-    async for event in agent.astream({"messages": [{"role": "user", "content": message}]}, config=config):
-        print(event)
-
+    async for event in agent.astream({"messages": [{"role": "user", "content": message}]}, config=config, stream_mode="updates"):
         if "agent" in event:
             response = [
                 {"type": "ai_msg", "content": m.content, "total_tokens": m.usage_metadata["total_tokens"], "tool_calls": m.tool_calls}
                 for m in event["agent"]["messages"]
             ]
-            if not event["agent"]["messages"][0].additional_kwargs:
-                history = [f"{m.type}:\n{m.content}" for m in agent.get_state({"configurable": {"thread_id": "1234"}}).values["messages"]]
+            last_msg = event["agent"]["messages"][-1]
+            if not last_msg.tool_calls and create_report:
+                history = [f"{m.type}:\n{m.content}" for m in agent.get_state({"configurable": {"thread_id": thread_id}}).values["messages"]]
+                report_data = await gen_report("\n\n".join(history), message)
                 response = [
                     {
                         "type": "ai_msg_report",
-                        "content": gen_report("\n\n".join(history), message),
-                        "total_tokens": m.usage_metadata["total_tokens"],
-                        "tool_calls": m.tool_calls,
+                        "content": report_data,
+                        "total_tokens": last_msg.usage_metadata["total_tokens"],
+                        "tool_calls": last_msg.tool_calls,
                     }
-                    for m in event["agent"]["messages"]
                 ]
 
         elif "tools" in event:
             response = [{"type": "tool_resp", "content": m.content} for m in event["tools"]["messages"]]
-        yield response
+        yield {"event": "progress", "data": response}

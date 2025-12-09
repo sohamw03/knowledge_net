@@ -4,13 +4,39 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Message as MessageType, ResearchTree } from "@/lib/types";
-import { Bot, Copy, MoreHorizontal, User2, ExternalLink, Loader2, SearchIcon } from "lucide-react";
+import { Bot, Copy, MoreHorizontal, User2, ExternalLink, Loader2, SearchIcon, Terminal, ChevronDown, ChevronRight } from "lucide-react";
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+
+// Component to display tool calls nicely
+const ToolCallDisplay = ({ toolCall }: { toolCall: any }) => {
+  const getDisplayArgs = () => {
+    if (!toolCall.args) return "";
+    if (typeof toolCall.args === "string") return toolCall.args;
+    if (toolCall.args.query) return toolCall.args.query;
+    if (toolCall.args.url) return toolCall.args.url;
+    return JSON.stringify(toolCall.args);
+  };
+
+  const args = getDisplayArgs();
+
+  return (
+    <div className="my-1.5 border rounded-md bg-background/50 overflow-hidden group hover:bg-muted/30 transition-colors cursor-pointer">
+      <div className="flex items-start px-3 py-2 gap-2 text-xs font-mono text-muted-foreground">
+        <Terminal className="h-3 w-3 mt-0.5 flex-shrink-0" />
+        <span className="font-semibold flex-shrink-0">{toolCall.name}</span>
+        <span className="flex-1 truncate group-hover:whitespace-pre-wrap group-hover:break-words transition-all">
+          {args}
+        </span>
+      </div>
+    </div>
+  );
+};
 
 // Function to extract all source URLs from the research tree
 const extractAllSources = (tree: ResearchTree | undefined): Array<{ text: string; url: string }> => {
@@ -238,15 +264,14 @@ const MarkdownComponents: Record<string, React.ComponentType<any>> = {
 interface MessageProps {
   message: MessageType;
   isLoading?: boolean;
-  lastProgressMessage?: string;
-  setLastProgressMessage?: React.Dispatch<React.SetStateAction<string>>;
+  connectionMode: "agent" | "workflow";
 }
 
-const Message = ({ message, isLoading, lastProgressMessage, setLastProgressMessage }: MessageProps) => {
+const Message = ({ message, isLoading, connectionMode }: MessageProps) => {
   const isUser = message?.role === "user";
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const progressPercentage = message.progress || 0;
-  const isProgressMessage = message.isProgress === true;
+  const isProgressMessage = message.isProgress === true && connectionMode === "workflow";
   const [isSearchMessage, setIsSearchMessage] = useState(message.content.startsWith("s_"));
 
   // Use useMemo to extract sources only once and only when they change
@@ -285,10 +310,7 @@ const Message = ({ message, isLoading, lastProgressMessage, setLastProgressMessa
     }
 
     setIsSearchMessage(message.content.startsWith("s_"));
-    if ((isLoading || isProgressMessage) && !message.content.startsWith("s_")) {
-      setLastProgressMessage!(message.content);
-    }
-  }, [message.content, message.media, isUser, isLoading, isProgressMessage, setLastProgressMessage]);
+  }, [message.content, message.media, isUser, isLoading]);
 
   const copyToClipboard = () => {
     if (!isLoading) {
@@ -305,7 +327,7 @@ const Message = ({ message, isLoading, lastProgressMessage, setLastProgressMessa
           <div className={`flex items-center gap-2 mb-1 ${isUser ? "justify-end" : "justify-start"}`}>
             <div className="font-medium">{isUser ? "You" : "KNet"}</div>
             {!isUser && !isLoading && <div className="text-xs text-muted-foreground">{new Date(message.timestamp).toLocaleTimeString()}</div>}
-            {isLoading && <div className="text-xs text-muted-foreground">Just now</div>}
+            {(isLoading || isProgressMessage) && connectionMode === "workflow" && <div className="text-xs text-muted-foreground">Just now</div>}
 
             {!isUser && !isLoading && !isProgressMessage && (
               <div className="ml-auto flex items-center gap-2">
@@ -337,9 +359,9 @@ const Message = ({ message, isLoading, lastProgressMessage, setLastProgressMessa
           </div>
 
           <div className={`mt-1 w-full ${isUser ? "bg-slate-300 dark:bg-slate-200 dark:text-background text-foreground" : "bg-muted/50"} p-3 rounded-2xl ${isUser ? "rounded-tr-sm" : "rounded-tl-sm"}`} style={{ overflowWrap: "anywhere" }}>
-            {isLoading || isProgressMessage ? (
+            {(isLoading || isProgressMessage) && connectionMode === "workflow" ? (
               <div className="space-y-2">
-                <div>{lastProgressMessage}</div>
+                <div>{message.content}</div>
                 <div className={`flex items-center ${isSearchMessage ? "justify-between" : "justify-end"} text-sm w-full`}>
                   {isSearchMessage ? (
                     <Badge variant="outline" className="bg-primary/20 text-primary rounded-full">
@@ -359,9 +381,20 @@ const Message = ({ message, isLoading, lastProgressMessage, setLastProgressMessa
               </div>
             ) : (
               <>
-                <ReactMarkdown remarkPlugins={[remarkGfm]} components={MarkdownComponents}>
-                  {message.content}
-                </ReactMarkdown>
+                {message.content && message.content.trim() !== "" && (
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} components={MarkdownComponents}>
+                    {message.content}
+                  </ReactMarkdown>
+                )}
+
+                {message.tool_calls && message.tool_calls.length > 0 && (
+                  <div className={`${message.content && message.content.trim() !== "" ? "mt-3" : ""} space-y-2`}>
+                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Tool Usage</div>
+                    {message.tool_calls.map((toolCall, index) => (
+                      <ToolCallDisplay key={index} toolCall={toolCall} />
+                    ))}
+                  </div>
+                )}
 
                 {sourceLinks.length > 0 && <SourceLinks links={sourceLinks} />}
                 {imageUrls.length > 0 && <ImageGallery imageUrls={imageUrls} />}

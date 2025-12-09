@@ -24,6 +24,7 @@ export interface ResearchOptions {
   citations: boolean;
   max_depth: number;
   num_sites_per_query: number;
+  create_report: boolean;
 }
 
 export interface ChatData {

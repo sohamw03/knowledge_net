@@ -49,6 +49,17 @@ const ResearchControls: React.FC<ResearchControlsProps> = ({ options, onOptionCh
             Include citations
           </Label>
         </div>
+
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="create_report"
+            checked={options.create_report}
+            onCheckedChange={(checked) => onOptionChange({ ...options, create_report: checked as boolean })}
+          />
+          <Label htmlFor="create_report" className="text-sm font-normal">
+            Generate Report
+          </Label>
+        </div>
       </div>
 
       <Separator />

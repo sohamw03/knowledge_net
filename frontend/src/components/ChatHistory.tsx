@@ -1,20 +1,18 @@
 "use client";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useChatContext } from "@/lib/store/ChatContext";
 import { Message as MessageType } from "@/lib/types";
-import { v4 as uuidv4 } from "uuid";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import Message from "./Message";
 
 interface ChatHistoryProps {
   messages: MessageType[];
   isLoading: boolean;
+  connectionMode: "agent" | "workflow";
 }
 
 // Traditional prop-based component
-const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, isLoading }) => {
+const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, isLoading, connectionMode }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [lastProgressMessage, setLastProgressMessage] = useState<string>("");
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -30,8 +28,9 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, isLoading }) => {
           </div>
         </div>
       ) : (
-        messages.map((message) => {
-          return <Message key={message.id} message={message} lastProgressMessage={lastProgressMessage} setLastProgressMessage={setLastProgressMessage} />;
+        messages.map((message, index) => {
+          const isLast = index === messages.length - 1;
+          return <Message key={message.id} message={message} isLoading={isLast && isLoading} connectionMode={connectionMode} />;
         })
       )}
 
@@ -42,8 +41,8 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, isLoading }) => {
 
 // Context-based component
 export const ChatHistoryWithContext: React.FC = () => {
-  const { chatState } = useChatContext();
-  return <ChatHistory messages={chatState.messages} isLoading={chatState.isLoading} />;
+  const { chatState, connectionMode } = useChatContext();
+  return <ChatHistory messages={chatState.messages} isLoading={chatState.isLoading} connectionMode={connectionMode} />;
 };
 
 export default ChatHistory;

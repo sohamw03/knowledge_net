@@ -3,7 +3,7 @@
 import { ChatData, ChatState, Conversation, Message, ResearchOptions, ResearchResults, ResearchTree, StatusUpdate } from "@/lib/types";
 import { ReactNode, createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { disconnectSocket, getSocket, initializeSocket } from "@/lib/socket";
+import { disconnectSocket, getSocket, initializeSocket, initializeSse, closeSse } from "@/lib/socket";
 
 // Utility functions for local storage
 const saveToStorage = (data: ChatData) => {
@@ -50,6 +50,7 @@ interface ChatContextType {
   currentConversationId: string | null;
   researchOptions: ResearchOptions;
   userInputRef: React.RefObject<HTMLTextAreaElement>;
+  connectionMode: "agent" | "workflow";
 
   // Actions
   setResearchOptions: (options: ResearchOptions) => void;
@@ -59,6 +60,7 @@ interface ChatContextType {
   deleteConversation: (id: string) => void;
   deleteAllConversations: () => void;
   abortResearch: () => void; // New function to abort research
+  setConnectionMode: (mode: "agent" | "workflow") => void;
 }
 
 // Create the context with a default value
@@ -69,12 +71,14 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const [chatState, setChatState] = useState<ChatState>({ messages: [], isLoading: false, error: null });
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+  const [connectionMode, setConnectionMode] = useState<"agent" | "workflow">("agent");
   const [researchOptions, setResearchOptions] = useState<ResearchOptions>({
     depth: "basic",
     sources: true,
     citations: false,
     max_depth: 1,
     num_sites_per_query: 3,
+    create_report: false,
   });
 
   const userInputRef = useRef<HTMLTextAreaElement>(null);
@@ -111,153 +115,155 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  // Socket initialization
-  useEffect(() => {
-    const socket = initializeSocket();
+  // Socket initialization - REMOVED as we are using HTTP/SSE for both modes
+  // useEffect(() => {
+  //   if (connectionMode === "workflow") {
+  //     const socket = initializeSocket();
 
-    socket.on("connect", () => {
-      console.log("Connected to research server");
-    });
+  //     socket.on("connect", () => {
+  //       console.log("Connected to research server");
+  //     });
 
-    socket.on("disconnect", () => {
-      console.log("Disconnected from research server");
+  //     socket.on("disconnect", () => {
+  //       console.log("Disconnected from research server");
 
-      // When socket disconnects, update any progress messages to show connection error
-      setChatState((prevState) => {
-        const updatedMessages = prevState.messages.map((msg) => (msg.isProgress === true ? { ...msg, content: "Connection error", isProgress: false } : msg));
+  //       // When socket disconnects, update any progress messages to show connection error
+  //       setChatState((prevState) => {
+  //         const updatedMessages = prevState.messages.map((msg) => (msg.isProgress === true ? { ...msg, content: "Connection error", isProgress: false } : msg));
 
-        return {
-          ...prevState,
-          messages: updatedMessages,
-          isLoading: false,
-          error: "Lost connection to research server",
-        };
-      });
-    });
+  //         return {
+  //           ...prevState,
+  //           messages: updatedMessages,
+  //           isLoading: false,
+  //           error: "Lost connection to research server",
+  //         };
+  //       });
+  //     });
 
-    socket.on("status", (data: StatusUpdate) => {
-      setChatState((prevState) => {
-        const messages = [...prevState.messages];
-        const progressText = data.message;
-        const progress = data.progress;
+  //     socket.on("status", (data: StatusUpdate) => {
+  //       setChatState((prevState) => {
+  //         const messages = [...prevState.messages];
+  //         const progressText = data.message;
+  //         const progress = data.progress;
 
-        // Find the last assistant message that is a progress update
-        const lastProgressIndex = messages.findLastIndex((msg) => msg.role === "assistant" && msg.isProgress === true);
+  //         // Find the last assistant message that is a progress update
+  //         const lastProgressIndex = messages.findLastIndex((msg) => msg.role === "assistant" && msg.isProgress === true);
 
-        if (lastProgressIndex !== -1) {
-          // Update existing progress message with research_tree data
-          messages[lastProgressIndex] = {
-            ...messages[lastProgressIndex],
-            content: progressText,
-            progress: progress,
-            timestamp: new Date(),
-            research_tree: data.research_tree, // Update the research_tree in real-time
-          };
-        } else {
-          // Add new progress message with research_tree
-          messages.push({
-            id: uuidv4(),
-            content: progressText,
-            role: "assistant",
-            timestamp: new Date(),
-            progress: progress,
-            isProgress: true,
-            research_tree: data.research_tree, // Include the research_tree
-            media: {}, // Initialize empty media object
-          });
-        }
+  //         if (lastProgressIndex !== -1) {
+  //           // Update existing progress message with research_tree data
+  //           messages[lastProgressIndex] = {
+  //             ...messages[lastProgressIndex],
+  //             content: progressText,
+  //             progress: progress,
+  //             timestamp: new Date(),
+  //             research_tree: data.research_tree, // Update the research_tree in real-time
+  //           };
+  //         } else {
+  //           // Add new progress message with research_tree
+  //           messages.push({
+  //             id: uuidv4(),
+  //             content: progressText,
+  //             role: "assistant",
+  //             timestamp: new Date(),
+  //             progress: progress,
+  //             isProgress: true,
+  //             research_tree: data.research_tree, // Include the research_tree
+  //             media: {}, // Initialize empty media object
+  //           });
+  //         }
 
-        return {
-          ...prevState,
-          messages,
-          isLoading: true,
-        };
-      });
-    });
+  //         return {
+  //           ...prevState,
+  //           messages,
+  //           isLoading: true,
+  //         };
+  //       });
+  //     });
 
-    socket.on("research_complete", (results: ResearchResults) => {
-      setChatState((prevState) => {
-        const messages = [...prevState.messages];
+  //     socket.on("research_complete", (results: ResearchResults) => {
+  //       setChatState((prevState) => {
+  //         const messages = [...prevState.messages];
 
-        // Remove the last progress message if it exists
-        const lastProgressIndex = messages.findLastIndex((msg) => msg.role === "assistant" && msg.isProgress === true);
+  //         // Remove the last progress message if it exists
+  //         const lastProgressIndex = messages.findLastIndex((msg) => msg.role === "assistant" && msg.isProgress === true);
 
-        if (lastProgressIndex !== -1) {
-          messages.splice(lastProgressIndex, 1);
-        }
+  //         if (lastProgressIndex !== -1) {
+  //           messages.splice(lastProgressIndex, 1);
+  //         }
 
-        const newMessages = [
-          ...messages,
-          {
-            id: uuidv4(),
-            content: results.content || "Error: No content available",
-            role: "assistant" as const,
-            timestamp: new Date(results.timestamp),
-            media: results.media,
-            research_tree: results.research_tree,
-          },
-        ];
+  //         const newMessages = [
+  //           ...messages,
+  //           {
+  //             id: uuidv4(),
+  //             content: results.content || "Error: No content available",
+  //             role: "assistant" as const,
+  //             timestamp: new Date(results.timestamp),
+  //             media: results.media,
+  //             research_tree: results.research_tree,
+  //           },
+  //         ];
 
-        // Save updated messages to localStorage
-        const updatedState = {
-          ...prevState,
-          isLoading: false,
-          messages: newMessages,
-        };
+  //         // Save updated messages to localStorage
+  //         const updatedState = {
+  //           ...prevState,
+  //           isLoading: false,
+  //           messages: newMessages,
+  //         };
 
-        // Update localStorage with the new messages
-        const updatedData: ChatData = {
-          conversations: conversations.map((conv) => ({
-            ...conv,
-            messages: conv.id === currentConversationId ? newMessages : conv.messages || [],
-            lastUpdated: conv.id === currentConversationId ? new Date().toISOString() : conv.lastUpdated,
-          })),
-          currentConversationId,
-        };
+  //         // Update localStorage with the new messages
+  //         const updatedData: ChatData = {
+  //           conversations: conversations.map((conv) => ({
+  //             ...conv,
+  //             messages: conv.id === currentConversationId ? newMessages : conv.messages || [],
+  //             lastUpdated: conv.id === currentConversationId ? new Date().toISOString() : conv.lastUpdated,
+  //           })),
+  //           currentConversationId,
+  //         };
 
-        saveToStorage(updatedData);
+  //         saveToStorage(updatedData);
 
-        return updatedState;
-      });
-    });
+  //         return updatedState;
+  //       });
+  //     });
 
-    socket.on("research_aborted", () => {
-      setChatState((prevState) => {
-        const messages = [...prevState.messages];
-        const lastProgressIndex = messages.findLastIndex((msg) => msg.role === "assistant" && msg.isProgress === true);
+  //     socket.on("research_aborted", () => {
+  //       setChatState((prevState) => {
+  //         const messages = [...prevState.messages];
+  //         const lastProgressIndex = messages.findLastIndex((msg) => msg.role === "assistant" && msg.isProgress === true);
 
-        if (lastProgressIndex !== -1) {
-          messages.splice(lastProgressIndex, 1);
-        }
+  //         if (lastProgressIndex !== -1) {
+  //           messages.splice(lastProgressIndex, 1);
+  //         }
 
-        // Add a message indicating the research was canceled
-        messages.push({
-          id: uuidv4(),
-          content: "Research has been canceled.",
-          role: "assistant",
-          timestamp: new Date(),
-        });
+  //         // Add a message indicating the research was canceled
+  //         messages.push({
+  //           id: uuidv4(),
+  //           content: "Research has been canceled.",
+  //           role: "assistant",
+  //           timestamp: new Date(),
+  //         });
 
-        return {
-          ...prevState,
-          isLoading: false,
-          messages,
-        };
-      });
-    });
+  //         return {
+  //           ...prevState,
+  //           isLoading: false,
+  //           messages,
+  //         };
+  //       });
+  //     });
 
-    socket.on("error", (error: { message: string }) => {
-      setChatState((prevState) => ({
-        ...prevState,
-        error: error.message,
-        isLoading: false,
-      }));
-    });
+  //     socket.on("error", (error: { message: string }) => {
+  //       setChatState((prevState) => ({
+  //         ...prevState,
+  //         error: error.message,
+  //         isLoading: false,
+  //       }));
+  //     });
 
-    return () => {
-      disconnectSocket();
-    };
-  }, []);
+  //     return () => {
+  //       disconnectSocket();
+  //     };
+  //   }
+  // }, [connectionMode]);
 
   // Save data whenever conversations or messages change
   useEffect(() => {
@@ -274,7 +280,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
 
   // Action handlers
   const sendMessage = useCallback(
-    (content: string) => {
+    async (content: string) => {
       if (!content.trim()) return;
 
       let conversationId = currentConversationId;
@@ -318,30 +324,193 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         );
       }
 
+      // Add loading message immediately for workflow mode
+      const messagesToAdd = connectionMode === "workflow" ? [newMessage, newLoadingMessage] : [newMessage];
+
       setChatState((prevState) => ({
         ...prevState,
-        messages: [...prevState.messages, newMessage, newLoadingMessage],
+        messages: [...prevState.messages, ...messagesToAdd],
         isLoading: true,
         error: null,
       }));
 
-      // Send message to server via socket
       try {
-        const socket = getSocket();
-        socket.emit("start_research", {
-          topic: content,
-          max_depth: researchOptions.max_depth,
-          num_sites_per_query: researchOptions.num_sites_per_query,
+        const sseUrl = process.env.NEXT_PUBLIC_LANGGRAPH_BACKEND || "http://127.0.0.1:5000";
+        const endpoint = connectionMode === "agent" ? "/chat" : "/start_research";
+        const body =
+          connectionMode === "agent"
+            ? {
+                message: content,
+                thread_id: currentConversationId,
+                create_report: researchOptions.create_report,
+              }
+            : {
+                topic: content,
+                max_depth: researchOptions.max_depth,
+                num_sites_per_query: researchOptions.num_sites_per_query,
+                session_id: currentConversationId,
+              };
+
+        const response = await fetch(`${sseUrl}${endpoint}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
         });
+
+        if (!response.body) {
+          return;
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        let done = false;
+        while (!done) {
+          const { value, done: readerDone } = await reader.read();
+          done = readerDone;
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split("\n\n");
+
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const jsonStr = line.substring(6);
+              if (jsonStr) {
+                try {
+                  const data = JSON.parse(jsonStr);
+                  if (data.event === "progress") {
+                    setChatState((prevState) => {
+                      const messages = [...prevState.messages];
+
+                      if (connectionMode === "agent") {
+                        const eventData = data.data[0]; // Assuming data.data is an array with one element
+
+                        if (eventData.type === "ai_msg" || eventData.type === "ai_msg_report") {
+                          messages.push({
+                            id: uuidv4(),
+                            content: eventData.content,
+                            role: "assistant",
+                            timestamp: new Date(),
+                            tool_calls: eventData.tool_calls, // Store tool calls
+                          });
+                        } else if (eventData.type === "tool_resp") {
+                          // Do not display tool responses directly in chat
+                          return prevState;
+                        }
+                      } else {
+                        // Workflow mode progress
+                        const eventData = data.data;
+                        const progress = eventData.progress;
+                        const progressText = eventData.message;
+
+                        // Find the last progress message
+                        const lastProgressIndex = messages.findLastIndex((msg) => msg.role === "assistant" && msg.isProgress === true);
+
+                        if (lastProgressIndex !== -1) {
+                          // Update existing progress message with research_tree data
+                          messages[lastProgressIndex] = {
+                            ...messages[lastProgressIndex],
+                            content: progressText,
+                            progress: progress,
+                            timestamp: new Date(),
+                            research_tree: eventData.research_tree, // Update the research_tree in real-time
+                          };
+                        } else {
+                          // Add new progress message with research_tree
+                          messages.push({
+                            id: uuidv4(),
+                            content: progressText,
+                            role: "assistant",
+                            timestamp: new Date(),
+                            progress: progress,
+                            isProgress: true,
+                            research_tree: eventData.research_tree, // Include the research_tree
+                            media: {}, // Initialize empty media object
+                          });
+                        }
+                      }
+
+                      return {
+                        ...prevState,
+                        messages,
+                        isLoading: true, // Keep loading until stream ends
+                      };
+                    });
+                  } else if (data.event === "result") {
+                    setChatState((prevState) => {
+                      const messages = [...prevState.messages];
+
+                      // Remove the last progress message if it exists
+                      const lastProgressIndex = messages.findLastIndex((msg) => msg.role === "assistant" && msg.isProgress === true);
+
+                      if (lastProgressIndex !== -1) {
+                        messages.splice(lastProgressIndex, 1);
+                      }
+
+                      const resultData = connectionMode === "agent" ? data.data : data.data; // Both seem to be object in result event?
+                      // Wait, agent mode result handling was:
+                      // content: data.data.content || "Error: No content available",
+                      // media: data.data.media,
+                      // research_tree: data.data.research_tree,
+                      //
+                      // Workflow mode result handling was:
+                      // content: results.content || "Error: No content available",
+                      // media: results.media,
+                      // research_tree: results.research_tree,
+                      //
+                      // They look compatible.
+
+                      const newMessages = [
+                        ...messages,
+                        {
+                          id: uuidv4(),
+                          content: resultData.content || "Error: No content available",
+                          role: "assistant" as const,
+                          timestamp: new Date(resultData.timestamp || new Date()),
+                          media: resultData.media,
+                          research_tree: resultData.research_tree,
+                        },
+                      ];
+
+                      // Save updated messages to localStorage
+                      const updatedState = {
+                        ...prevState,
+                        isLoading: false,
+                        messages: newMessages,
+                      };
+
+                      // Update localStorage with the new messages
+                      const updatedData: ChatData = {
+                        conversations: conversations.map((conv) => ({
+                          ...conv,
+                          messages: conv.id === currentConversationId ? newMessages : conv.messages || [],
+                          lastUpdated: conv.id === currentConversationId ? new Date().toISOString() : conv.lastUpdated,
+                        })),
+                        currentConversationId,
+                      };
+
+                      saveToStorage(updatedData);
+
+                      return updatedState;
+                    });
+                  }
+                } catch (e) {
+                  console.error("Failed to parse SSE data", e);
+                }
+              }
+            }
+          }
+        }
       } catch (error) {
         setChatState((prevState) => ({
           ...prevState,
-          error: "Failed to connect to research server",
+          error: "Failed to connect to server",
           isLoading: false,
         }));
       }
     },
-    [currentConversationId, conversations, researchOptions]
+    [currentConversationId, conversations, researchOptions, connectionMode]
   );
 
   const newConversation = useCallback(() => {
@@ -388,15 +557,39 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     newConversation();
   }, [newConversation]);
 
-  const abortResearch = useCallback(() => {
+  const abortResearch = useCallback(async () => {
     try {
-      const socket = getSocket();
-      socket.emit("abort_research");
+      const sseUrl = process.env.NEXT_PUBLIC_LANGGRAPH_BACKEND || "http://127.0.0.1:5000";
+      await fetch(`${sseUrl}/abort_research`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ session_id: currentConversationId }),
+      });
 
-      setChatState((prevState) => ({
-        ...prevState,
-        isLoading: true,
-      }));
+      setChatState((prevState) => {
+        const messages = [...prevState.messages];
+        const lastProgressIndex = messages.findLastIndex((msg) => msg.role === "assistant" && msg.isProgress === true);
+
+        if (lastProgressIndex !== -1) {
+          messages.splice(lastProgressIndex, 1);
+        }
+
+        // Add a message indicating the research was canceled
+        messages.push({
+          id: uuidv4(),
+          content: "Research has been canceled.",
+          role: "assistant",
+          timestamp: new Date(),
+        });
+
+        return {
+          ...prevState,
+          isLoading: false,
+          messages,
+        };
+      });
     } catch (error) {
       console.error("Failed to abort research:", error);
       setChatState((prevState) => ({
@@ -404,7 +597,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         error: "Failed to abort research",
       }));
     }
-  }, []);
+  }, [currentConversationId]);
 
   // Keyboard shortcuts | Ctrl + I to new chat
   useEffect(() => {
@@ -427,6 +620,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     currentConversationId,
     researchOptions,
     userInputRef,
+    connectionMode,
     setResearchOptions,
     sendMessage,
     newConversation,
@@ -434,6 +628,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     deleteConversation,
     deleteAllConversations,
     abortResearch,
+    setConnectionMode,
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

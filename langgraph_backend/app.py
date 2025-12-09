@@ -33,6 +33,7 @@ from schema import (
     SearchQuery,
 )
 from scraper import CrawlForAIScraper
+from agent_tools import invoke_agent
 
 load_dotenv()
 
@@ -62,7 +63,7 @@ async def health_check():
 
 
 # --- LangChain LLM setup (Gemini, correct usage) ---
-llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", google_api_key=os.getenv("GOOGLE_API_KEY"))
+llm = ChatGoogleGenerativeAI(model="gemini-flash-latest", google_api_key=os.getenv("GOOGLE_API_KEY"))
 
 
 class ResearchProgress:
@@ -351,6 +352,30 @@ async def start_research(request: Request):
             yield event
 
     return EventSourceResponse(event_generator())
+
+
+@app.post("/chat")
+async def chat(request: Request):
+    data = await request.json()
+    message = data.get("message")
+    thread_id = data.get("thread_id")
+    create_report = data.get("create_report", False)
+
+    async def event_generator():
+        async for event in invoke_agent(message, thread_id, create_report=create_report):
+            # Format the event as SSE (Server-Sent Events)
+            event_data = json.dumps(event)
+            yield f"data: {event_data}\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/plain",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "Content-Type": "text/event-stream",
+        },
+    )
 
 
 @app.post("/abort_research")
